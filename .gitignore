@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+mobile/node_modules/
+
+# Production / builds
+dist/
+build/
+web-build/
+mobile/web-build/
+
+# Expo
+.expo/
+mobile/.expo/
+
+# Editor / OS files
+.DS_Store
+*.local
+.env
+.env.*.local
+Thumbs.db
