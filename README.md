@@ -21,7 +21,7 @@ A versão web está localizada na raiz do repositório.
 
 2. Crie um arquivo `.env` na raiz do frontend (pasta `retrobolsa-app`) e adicione a URL da API (caso não tenha):
    ```env
-   VITE_API_URL=http://localhost:8080
+   VITE_API_URL=http://localhost:8081
    ```
 
 3. Inicie o servidor de desenvolvimento:
