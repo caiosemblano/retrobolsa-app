@@ -19,14 +19,20 @@ A versão web está localizada na raiz do repositório.
    npm install
    ```
 
-2. Inicie o servidor de desenvolvimento:
+2. Crie um arquivo `.env` na raiz do frontend (pasta `retrobolsa-app`) e adicione a URL da API (caso não tenha):
+   ```env
+   VITE_API_URL=http://localhost:8081
+   ```
+
+3. Inicie o servidor de desenvolvimento:
    ```bash
    npm run dev
    ```
 
-3. Abra o endereço exibido no terminal (geralmente `http://localhost:5173`) no seu navegador.
+4. Abra o endereço exibido no terminal (geralmente `http://localhost:5173`) no seu navegador.
 
 ---
+
 
 ## 📱 Como Executar a Versão Mobile (React Native + Expo)
 
