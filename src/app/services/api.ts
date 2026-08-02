@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toast } from 'sonner';
 
 /**
  * Instância central do Axios para comunicação com a RetroBolsa API.
@@ -28,17 +29,47 @@ api.interceptors.request.use(
 );
 
 // ── Interceptor de Resposta ────────────────────────────────────────────────
-// Se a API retornar 401 (token expirado ou inválido), limpa a sessão e
-// redireciona para a tela de login sem exibir erros confusos ao usuário.
+// Trata erros globais da API
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('retrobolsa_token');
-      localStorage.removeItem('retrobolsa_user');
-      // Dispara evento customizado para que o AuthContext reaja e redirecione
-      window.dispatchEvent(new Event('retrobolsa:session-expired'));
+    if (!error.response) {
+      toast.error('Falha de conexão com o servidor. Verifique sua internet.');
+      return Promise.reject(error);
     }
+
+    const status = error.response.status;
+    const data = error.response.data;
+
+    switch (status) {
+      case 401:
+        localStorage.removeItem('retrobolsa_token');
+        localStorage.removeItem('retrobolsa_user');
+        window.dispatchEvent(new Event('retrobolsa:session-expired'));
+        break;
+      
+      case 400:
+        // O backend pode retornar um array de erros ou uma string
+        if (data.erro && Array.isArray(data.erro)) {
+          data.erro.forEach((msg: string) => toast.error(msg));
+        } else {
+          toast.error(data.erro || 'Requisição inválida. Verifique os dados enviados.');
+        }
+        break;
+        
+      case 409:
+        toast.error('Conflito: Esta operação já foi realizada ou os dados já existem.');
+        break;
+        
+      case 422:
+        toast.error(data.erro || 'Não foi possível processar a requisição com os dados fornecidos.');
+        break;
+        
+      case 500:
+        toast.error('Erro interno no servidor. Tente novamente mais tarde.');
+        break;
+    }
+    
     return Promise.reject(error);
   }
 );

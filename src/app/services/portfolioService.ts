@@ -1,5 +1,5 @@
 import api from './api';
-import { Result } from '../types';
+import { Result, SubmitPortfolioResponse } from '../types';
 
 export interface SubmitPortfolioPayload {
   competitionId: string;
@@ -15,8 +15,10 @@ export const portfolioService = {
    * O backend valida a soma e salva o portfólio.
    * Retorna 201 Created em sucesso.
    */
-  submit: (payload: SubmitPortfolioPayload) =>
-    api.post<void>('/api/portfolios', payload),
+  submit: async (payload: SubmitPortfolioPayload) => {
+    const response = await api.post<SubmitPortfolioResponse>('/api/portfolios', payload);
+    return response.data;
+  },
 
   /**
    * Retorna o resultado da última competição do usuário autenticado.
