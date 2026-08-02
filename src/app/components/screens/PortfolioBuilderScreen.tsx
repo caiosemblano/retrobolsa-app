@@ -6,22 +6,24 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Slider } from '../ui/slider';
 import { Card } from '../ui/card';
-import { Wallet, AlertCircle } from 'lucide-react';
-import { currentCompetition } from '../../data/mockData';
-import { Asset, Portfolio } from '../../types';
+import { Wallet, Loader2 } from 'lucide-react';
+import { Asset, Portfolio, Competition } from '../../types';
+import { portfolioService, SubmitPortfolioPayload } from '../../services/portfolioService';
+import { toast } from 'sonner';
 
 interface PortfolioBuilderScreenProps {
+  competition: Competition;
   onConfirm: () => void;
   onBack: () => void;
 }
 
-const TOTAL_BUDGET = 100000;
-
-export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderScreenProps) {
+export function PortfolioBuilderScreen({ competition, onConfirm, onBack }: PortfolioBuilderScreenProps) {
   const [portfolio, setPortfolio] = useState<Portfolio>({});
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [allocationAmount, setAllocationAmount] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const TOTAL_BUDGET = competition.budget;
   const allocatedTotal = Object.values(portfolio).reduce((sum, amount) => sum + amount, 0);
   const remaining = TOTAL_BUDGET - allocatedTotal;
   const allocationPercentage = (allocatedTotal / TOTAL_BUDGET) * 100;
@@ -43,11 +45,42 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
     setPortfolio(newPortfolio);
   };
 
-  const canConfirm = allocatedTotal >= TOTAL_BUDGET * 0.5; // Pelo menos 50% alocado
+  const canConfirm = allocatedTotal > 0 && !isSubmitting;
+
+  const handleSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+      
+      const payload: SubmitPortfolioPayload = {
+        competitionId: competition.id,
+        allocations: Object.entries(portfolio).map(([assetId, amount]) => ({
+          assetId,
+          amount,
+        })),
+      };
+
+      const response = await portfolioService.submit(payload);
+
+      if (response.warnings && response.warnings.length > 0) {
+        response.warnings.forEach(warning => {
+          toast.warning(warning, { duration: 5000 });
+        });
+      } else {
+        toast.success(response.message || 'Carteira confirmada com sucesso!');
+      }
+
+      onConfirm();
+    } catch (error) {
+      console.error('Erro ao submeter carteira:', error);
+      // O toast de erro será tratado pelo interceptor global do Axios (api.ts)
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-4 pb-32">
-      <Button variant="ghost" className="mb-4" onClick={onBack}>
+      <Button variant="ghost" className="mb-4" onClick={onBack} disabled={isSubmitting}>
         ← Voltar
       </Button>
 
@@ -73,7 +106,7 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
             <div className="h-2 bg-white/30 rounded-full overflow-hidden">
               <div
                 className="h-full bg-white rounded-full transition-all"
-                style={{ width: `${allocationPercentage}%` }}
+                style={{ width: `${Math.min(100, allocationPercentage)}%` }}
               />
             </div>
           </Card>
@@ -83,17 +116,18 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
       <div className="mt-32 mb-6">
         <h2 className="text-slate-900 mb-4">Ativos Disponíveis</h2>
         <div className="space-y-3">
-          {currentCompetition.assets.map((asset) => (
+          {competition.assets.map((asset) => (
             <div key={asset.id} className="relative">
               <AssetCard
                 asset={asset}
                 allocatedAmount={portfolio[asset.id]}
                 onClick={() => {
+                  if (isSubmitting) return;
                   setSelectedAsset(asset);
                   setAllocationAmount(portfolio[asset.id] || 0);
                 }}
               />
-              {portfolio[asset.id] && (
+              {portfolio[asset.id] && !isSubmitting && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -112,20 +146,18 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
       {/* Fixed Bottom Button */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 shadow-lg">
         <div className="max-w-4xl mx-auto">
-          {!canConfirm && (
-            <div className="flex items-center gap-2 text-orange-600 mb-2 text-sm">
-              <AlertCircle className="w-4 h-4" />
-              <span>Aloque pelo menos 50% do orçamento para confirmar</span>
-            </div>
-          )}
           <Button
             size="lg"
             className="w-full bg-green-600 hover:bg-green-700"
-            onClick={onConfirm}
+            onClick={handleSubmit}
             disabled={!canConfirm}
           >
-            <Wallet className="w-5 h-5 mr-2" />
-            Confirmar Carteira
+            {isSubmitting ? (
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+            ) : (
+              <Wallet className="w-5 h-5 mr-2" />
+            )}
+            {isSubmitting ? 'Submetendo...' : 'Confirmar Carteira'}
           </Button>
         </div>
       </div>

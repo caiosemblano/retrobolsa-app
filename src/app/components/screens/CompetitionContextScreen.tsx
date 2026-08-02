@@ -2,14 +2,15 @@ import { EconomicIndicatorCard } from '../EconomicIndicatorCard';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { FileText, ArrowRight } from 'lucide-react';
-import { currentCompetition } from '../../data/mockData';
+import { Competition } from '../../types';
 
 interface CompetitionContextScreenProps {
+  competition: Competition;
   onNext: () => void;
   onBack: () => void;
 }
 
-export function CompetitionContextScreen({ onNext, onBack }: CompetitionContextScreenProps) {
+export function CompetitionContextScreen({ competition, onNext, onBack }: CompetitionContextScreenProps) {
   return (
     <div className="max-w-4xl mx-auto p-4 pb-20">
       <Button variant="ghost" className="mb-4" onClick={onBack}>
@@ -21,7 +22,7 @@ export function CompetitionContextScreen({ onNext, onBack }: CompetitionContextS
           <FileText className="w-8 h-8 text-blue-700" />
         </div>
         <div>
-          <h1 className="text-slate-900 mb-1">{currentCompetition.economicContext.title}</h1>
+          <h1 className="text-slate-900 mb-1">{competition.economicContext.title}</h1>
           <p className="text-slate-600">Analise os indicadores antes de escolher seus ativos</p>
         </div>
       </div>
@@ -37,7 +38,7 @@ export function CompetitionContextScreen({ onNext, onBack }: CompetitionContextS
       <div className="mb-6">
         <h2 className="text-slate-900 mb-4">Indicadores Econômicos</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {currentCompetition.economicContext.indicators.map((indicator, index) => (
+          {competition.economicContext.indicators.map((indicator, index) => (
             <EconomicIndicatorCard key={index} indicator={indicator} />
           ))}
         </div>

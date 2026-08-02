@@ -1,16 +1,65 @@
+import { useEffect, useState } from 'react';
 import { CompetitionCard } from '../CompetitionCard';
 import { RankingItem } from '../RankingItem';
 import { Card } from '../ui/card';
 import { Separator } from '../ui/separator';
-import { TrendingUp, Target } from 'lucide-react';
-import { currentCompetition, lastResult, quinzenalRanking } from '../../data/mockData';
+import { TrendingUp, Target, Loader2, AlertCircle } from 'lucide-react';
+import { quinzenalRanking } from '../../data/mockData';
+import { competitionService } from '../../services/competitionService';
+import { portfolioService } from '../../services/portfolioService';
+import { Competition, Result } from '../../types';
 
 interface HomeScreenProps {
-  onStartCompetition: () => void;
+  onStartCompetition: (comp: Competition) => void;
   onViewResults: () => void;
 }
 
 export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProps) {
+  const [competition, setCompetition] = useState<Competition | null>(null);
+  const [lastResult, setLastResult] = useState<Result | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const [compRes, resultRes] = await Promise.all([
+          competitionService.getActive().catch(() => null), // If no active competition, returns null
+          portfolioService.getLastResult().then(res => res.data).catch(() => null)
+        ]);
+        
+        if (compRes) setCompetition(compRes);
+        if (resultRes) setLastResult(resultRes);
+      } catch (err) {
+        setError('Ocorreu um erro ao carregar os dados. Tente novamente mais tarde.');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-10 h-10 text-blue-600 animate-spin mb-4" />
+        <p className="text-slate-600">Carregando painel...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-4xl mx-auto p-4 flex flex-col items-center justify-center min-h-[50vh]">
+        <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
+        <p className="text-slate-700 text-center">{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-4 pb-20">
       <div className="mb-6">
@@ -19,10 +68,16 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
       </div>
 
       <div className="mb-8">
-        <CompetitionCard
-          competition={currentCompetition}
-          onAction={onStartCompetition}
-        />
+        {competition ? (
+          <CompetitionCard
+            competition={competition}
+            onAction={() => onStartCompetition(competition)}
+          />
+        ) : (
+          <Card className="p-6 text-center bg-slate-50 border-dashed">
+            <p className="text-slate-600">Não há competições ativas no momento.</p>
+          </Card>
+        )}
       </div>
 
       <Separator className="my-8" />
@@ -33,37 +88,44 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
           <h2 className="text-slate-900">Seu Último Resultado</h2>
         </div>
 
-        <Card className="p-6 bg-gradient-to-br from-green-50 to-blue-50 border-2 border-green-200">
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <div className="text-slate-600 text-sm mb-1">Sua Posição</div>
-              <div className="text-green-700 flex items-center gap-2">
-                <Target className="w-5 h-5" />
-                <span>{lastResult.rank}º lugar</span>
+        {lastResult ? (
+          <Card className="p-6 bg-gradient-to-br from-green-50 to-blue-50 border-2 border-green-200">
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <div className="text-slate-600 text-sm mb-1">Sua Posição</div>
+                <div className="text-green-700 flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  <span>{lastResult.rank}º lugar</span>
+                </div>
+              </div>
+              <div>
+                <div className="text-slate-600 text-sm mb-1">Rentabilidade</div>
+                <div className="text-green-700">
+                  {lastResult.rentability}% ({lastResult.annualReturn}% a.a.)
+                </div>
               </div>
             </div>
-            <div>
-              <div className="text-slate-600 text-sm mb-1">Rentabilidade</div>
-              <div className="text-green-700">
-                {lastResult.rentability}% ({lastResult.annualReturn}% a.a.)
+
+            <div className="bg-white/60 p-3 rounded-lg mb-4">
+              <div className="text-slate-600 text-sm mb-1">Valor Final da Carteira</div>
+              <div className="text-green-800">
+                R$ {lastResult.portfolioValue.toLocaleString('pt-BR')}
               </div>
             </div>
-          </div>
 
-          <div className="bg-white/60 p-3 rounded-lg mb-4">
-            <div className="text-slate-600 text-sm mb-1">Valor Final da Carteira</div>
-            <div className="text-green-800">
-              R$ {lastResult.portfolioValue.toLocaleString('pt-BR')}
-            </div>
-          </div>
-
-          <button
-            onClick={onViewResults}
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition-colors"
-          >
-            Ver Detalhes Completos
-          </button>
-        </Card>
+            <button
+              onClick={onViewResults}
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition-colors"
+            >
+              Ver Detalhes Completos
+            </button>
+          </Card>
+        ) : (
+          <Card className="p-6 text-center bg-slate-50 border-dashed">
+            <p className="text-slate-600">Você ainda não possui resultados de simulação.</p>
+            <p className="text-sm text-slate-500 mt-2">Participe de uma rodada para ver seu histórico!</p>
+          </Card>
+        )}
       </div>
 
       <Separator className="my-8" />

@@ -53,18 +53,36 @@ export function AssetCard({ asset, onClick, allocatedAmount }: AssetCardProps) {
       </div>
 
       {asset.type === 'stock' && asset.indicators && (
-        <div className="grid grid-cols-3 gap-2">
-          <div className="bg-blue-50 p-2 rounded">
-            <div className="text-slate-600 text-xs">P/L</div>
-            <div className="text-blue-700">{asset.indicators.pl?.toFixed(1)}</div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div className="bg-blue-50 p-2 rounded flex flex-col justify-between">
+            <div className="text-slate-600 text-[10px] uppercase font-semibold">P/L</div>
+            <div className="text-blue-700 text-sm font-medium">{asset.indicators.pl?.toFixed(1)}</div>
           </div>
-          <div className="bg-blue-50 p-2 rounded">
-            <div className="text-slate-600 text-xs">ROE</div>
-            <div className="text-blue-700">{asset.indicators.roe}%</div>
+          <div className="bg-blue-50 p-2 rounded flex flex-col justify-between">
+            <div className="text-slate-600 text-[10px] uppercase font-semibold">P/VP</div>
+            <div className="text-blue-700 text-sm font-medium">{asset.indicators.lvp?.toFixed(2)}</div>
           </div>
-          <div className="bg-blue-50 p-2 rounded">
-            <div className="text-slate-600 text-xs">Div. Yield</div>
-            <div className="text-blue-700">{asset.indicators.dividendYield}%</div>
+          <div className="bg-blue-50 p-2 rounded flex flex-col justify-between">
+            <div className="text-slate-600 text-[10px] uppercase font-semibold">Lucro +/-</div>
+            <div className="text-blue-700 text-sm font-medium">
+              {asset.indicators.lucroPositivo !== undefined ? (
+                <span className={`px-1.5 py-0.5 rounded text-xs ${asset.indicators.lucroPositivo ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
+                  {asset.indicators.lucroPositivo ? 'Sim' : 'Não'}
+                </span>
+              ) : '-'}
+            </div>
+          </div>
+          <div className="bg-blue-50 p-2 rounded flex flex-col justify-between">
+            <div className="text-slate-600 text-[10px] uppercase font-semibold">CAGR Lucro</div>
+            <div className="text-blue-700 text-sm font-medium">{asset.indicators.cagrLucro?.toFixed(1)}%</div>
+          </div>
+          <div className="bg-blue-50 p-2 rounded flex flex-col justify-between">
+            <div className="text-slate-600 text-[10px] uppercase font-semibold">CAGR Receita</div>
+            <div className="text-blue-700 text-sm font-medium">{asset.indicators.cagrReceita?.toFixed(1)}%</div>
+          </div>
+          <div className="bg-blue-50 p-2 rounded flex flex-col justify-between">
+            <div className="text-slate-600 text-[10px] uppercase font-semibold">Mg. EBITDA</div>
+            <div className="text-blue-700 text-sm font-medium">{asset.indicators.margemEbitda?.toFixed(1)}%</div>
           </div>
         </div>
       )}
