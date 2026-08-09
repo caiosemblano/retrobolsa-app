@@ -3,14 +3,50 @@ export interface Asset {
   type: 'stock' | 'bond';
   anonymousName: string;
   realName?: string;
+  ticker?: string;
   sector?: string;
   indicators?: {
     pl?: number;
+    lvp?: number;
+    lucroPositivo?: boolean;
+    cagrLucro?: number;
+    cagrReceita?: number;
+    margemEbitda?: number;
     roe?: number;
     dividendYield?: number;
   };
   bondType?: string;
   rate?: number;
+}
+
+export interface SubmitPortfolioResponse {
+  message: string;
+  warnings?: string[];
+}
+
+export interface CompetitionApiResponse {
+  id: string;
+  round: number;
+  status: string;
+  daysLeft?: number;
+  budget: number;
+  scenarioTitle: string;
+  scenarioDescription: string;
+  startYear: number;
+  endYear: number;
+  assets: Asset[];
+}
+
+export interface RevealedAsset {
+  id: string;
+  anonymousName: string;
+  realName: string;
+  ticker: string;
+  type: string;
+  sector?: string;
+  bondType?: string;
+  amountInvested: number;
+  finalValue: number;
 }
 
 export interface EconomicIndicator {
@@ -24,6 +60,9 @@ export interface Competition {
   round: number;
   status: 'open' | 'closed' | 'simulating';
   daysLeft?: number;
+  budget: number;
+  startYear: number;
+  endYear: number;
   economicContext: {
     title: string;
     indicators: EconomicIndicator[];
@@ -42,7 +81,7 @@ export interface Result {
   annualReturn: number;
   portfolioValue: number;
   chartData: { year: number; value: number }[];
-  revealedAssets: Asset[];
+  revealedAssets: RevealedAsset[];
   period: string;
 }
 
