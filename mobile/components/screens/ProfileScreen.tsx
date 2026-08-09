@@ -1,11 +1,50 @@
-import React from 'react';
-import { ScrollView, View, Text, StyleSheet, Image, Platform } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, View, Text, StyleSheet, Platform, ActivityIndicator } from 'react-native';
 import { Card } from '../ui/Card';
 import { AchievementBadge } from '../AchievementBadge';
 import { Icon } from '../Icon';
-import { userProfile } from '../../data/mockData';
+import { userService } from '../../services/userService';
+import { UserProfile } from '../../types';
 
 export function ProfileScreen() {
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setIsLoading(true);
+        const res = await userService.getProfile();
+        setUserProfile(res.data);
+      } catch (err) {
+        setError('Erro ao carregar o perfil do usuário.');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#2563eb" />
+        <Text style={styles.loadingText}>Carregando perfil...</Text>
+      </View>
+    );
+  }
+
+  if (error || !userProfile) {
+    return (
+      <View style={styles.centerContainer}>
+        <Icon name="AlertCircle" size={48} color="#ef4444" />
+        <Text style={styles.errorText}>{error || 'Perfil não encontrado'}</Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       {/* Page Header */}
@@ -17,9 +56,10 @@ export function ProfileScreen() {
       {/* User Info card */}
       <Card style={styles.profileCard}>
         <View style={styles.avatarRow}>
-          {/* Circular avatar fallback/initials since standard RN Image might not render Dicebear SVG */}
           <View style={styles.avatarCircle}>
-            <Text style={styles.avatarText}>VC</Text>
+            <Text style={styles.avatarText}>
+              {userProfile.username.substring(0, 2).toUpperCase()}
+            </Text>
           </View>
           <View style={styles.userTextContainer}>
             <Text style={styles.username}>{userProfile.username}</Text>
@@ -37,7 +77,9 @@ export function ProfileScreen() {
           <View style={styles.statCol}>
             <Icon name="Target" size={18} color="#2563eb" style={styles.statIcon} />
             <Text style={styles.statLabel}>Melhor Posição</Text>
-            <Text style={styles.statVal}>{userProfile.bestRank}º lugar</Text>
+            <Text style={styles.statVal}>
+              {userProfile.bestRank > 0 ? `${userProfile.bestRank}º lugar` : 'N/A'}
+            </Text>
           </View>
           
           <View style={[styles.statCol, styles.statColBorder]}>
@@ -49,7 +91,9 @@ export function ProfileScreen() {
           <View style={styles.statCol}>
             <Icon name="Heart" size={18} color="#ea580c" style={styles.statIcon} />
             <Text style={styles.statLabel}>Ativo Favorito</Text>
-            <Text style={styles.statVal} numberOfLines={1}>{userProfile.favoriteAsset}</Text>
+            <Text style={styles.statVal} numberOfLines={1}>
+              {userProfile.favoriteAsset || 'Nenhum'}
+            </Text>
           </View>
         </View>
       </Card>
@@ -81,6 +125,21 @@ export function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#475569',
+  },
+  errorText: {
+    marginTop: 10,
+    color: '#334155',
+    textAlign: 'center',
+  },
   container: {
     padding: 16,
     paddingBottom: 40,
@@ -99,8 +158,8 @@ const styles = StyleSheet.create({
     color: '#64748b',
   },
   profileCard: {
-    backgroundColor: '#f0fdf4', // light shade
-    borderColor: '#bfdbfe', // blue-200
+    backgroundColor: '#f0fdf4',
+    borderColor: '#bfdbfe',
     borderWidth: 2,
     padding: 16,
   },
@@ -113,7 +172,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#cbd5e1', // slate-300
+    backgroundColor: '#cbd5e1',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 3,
@@ -136,7 +195,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#334155', // slate-700
+    color: '#334155',
   },
   userTextContainer: {
     marginLeft: 14,
@@ -156,7 +215,7 @@ const styles = StyleSheet.create({
   },
   pointsText: {
     fontSize: 14,
-    color: '#ea580c', // orange-600
+    color: '#ea580c',
     fontWeight: '600',
   },
   statsGrid: {
@@ -174,7 +233,7 @@ const styles = StyleSheet.create({
   statColBorder: {
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: '#e2e8f0', // slate-200
+    borderColor: '#e2e8f0',
   },
   statIcon: {
     marginBottom: 4,
@@ -188,7 +247,7 @@ const styles = StyleSheet.create({
   statVal: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#1e293b', // slate-800
+    color: '#1e293b',
     textAlign: 'center',
   },
   divider: {
@@ -215,8 +274,8 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   tipCard: {
-    backgroundColor: '#eff6ff', // blue-50
-    borderColor: '#bfdbfe', // blue-200
+    backgroundColor: '#eff6ff',
+    borderColor: '#bfdbfe',
     padding: 16,
     marginTop: 16,
   },

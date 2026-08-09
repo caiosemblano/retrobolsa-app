@@ -1,10 +1,11 @@
-import React from 'react';
-import { ScrollView, View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { RentabilityChart } from '../RentabilityChart';
 import { Icon } from '../Icon';
-import { lastResult } from '../../data/mockData';
+import { portfolioService } from '../../services/portfolioService';
+import { Result } from '../../types';
 
 interface ResultsScreenProps {
   onViewRanking: () => void;
@@ -12,6 +13,44 @@ interface ResultsScreenProps {
 }
 
 export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
+  const [result, setResult] = useState<Result | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchResult = async () => {
+      try {
+        setIsLoading(true);
+        const res = await portfolioService.getLastResult();
+        setResult(res.data);
+      } catch (err) {
+        setError('Nenhum resultado encontrado.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchResult();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#2563eb" />
+        <Text style={styles.loadingText}>Calculando resultados...</Text>
+      </View>
+    );
+  }
+
+  if (error || !result) {
+    return (
+      <View style={styles.centerContainer}>
+        <Icon name="AlertCircle" size={48} color="#ef4444" />
+        <Text style={styles.errorText}>{error || 'Resultados não disponíveis'}</Text>
+        <Button variant="ghost" onPress={onBack} style={{ marginTop: 20 }}>Voltar ao Início</Button>
+      </View>
+    );
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       {/* Back Button */}
@@ -36,25 +75,25 @@ export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
           <Icon name="Trophy" size={36} color="#ffffff" style={styles.trophyIcon} />
           <View>
             <Text style={styles.highlightLabel}>Sua Posição</Text>
-            <Text style={styles.highlightVal}>{lastResult.rank}º lugar</Text>
+            <Text style={styles.highlightVal}>{result.rank}º lugar</Text>
           </View>
         </View>
 
         <View style={styles.grid}>
           <View style={styles.gridCol}>
             <Text style={styles.highlightSubLabel}>Rentabilidade Total</Text>
-            <Text style={styles.highlightSubVal}>{lastResult.rentability}%</Text>
+            <Text style={styles.highlightSubVal}>{result.rentability}%</Text>
           </View>
           <View style={styles.gridCol}>
             <Text style={styles.highlightSubLabel}>Retorno Anual</Text>
-            <Text style={styles.highlightSubVal}>{lastResult.annualReturn}% a.a.</Text>
+            <Text style={styles.highlightSubVal}>{result.annualReturn}% a.a.</Text>
           </View>
         </View>
 
         <View style={styles.portfolioValBox}>
           <Text style={styles.portfolioValLabel}>Valor Final da Carteira</Text>
           <Text style={styles.portfolioValText}>
-            R$ {lastResult.portfolioValue.toLocaleString('pt-BR')}
+            R$ {result.portfolioValue.toLocaleString('pt-BR')}
           </Text>
           <Text style={styles.portfolioValSub}>
             De R$ 100.000 iniciais
@@ -64,7 +103,7 @@ export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
 
       {/* Rentability Chart */}
       <View style={styles.section}>
-        <RentabilityChart data={lastResult.chartData} />
+        <RentabilityChart data={result.chartData} />
       </View>
 
       <View style={styles.divider} />
@@ -79,7 +118,7 @@ export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
         <Card style={styles.revealCard}>
           <Text style={styles.revealTitle}>Sua Carteira Revelada</Text>
           <View style={styles.revealedAssetsList}>
-            {lastResult.revealedAssets.map((asset) => (
+            {result.revealedAssets.map((asset) => (
               <View key={asset.id} style={styles.revealedAssetItem}>
                 <Text style={styles.revealedAssetIntro}>
                   Você investiu em "{asset.anonymousName}"
@@ -108,7 +147,7 @@ export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
           </View>
           <Text style={styles.periodText}>
             O período histórico simulado foi de{' '}
-            <Text style={styles.periodHighlight}>{lastResult.period}</Text> no Brasil.
+            <Text style={styles.periodHighlight}>{result.period}</Text> no Brasil.
           </Text>
         </Card>
       </View>
@@ -135,6 +174,22 @@ export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
 }
 
 const styles = StyleSheet.create({
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#f8fafc',
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#475569',
+  },
+  errorText: {
+    marginTop: 10,
+    color: '#334155',
+    textAlign: 'center',
+  },
   container: {
     padding: 16,
     paddingBottom: 40,
@@ -166,7 +221,7 @@ const styles = StyleSheet.create({
     color: '#64748b',
   },
   highlightCard: {
-    backgroundColor: '#16a34a', // green-600 flat background
+    backgroundColor: '#16a34a',
     borderColor: '#15803d',
     padding: 20,
     marginBottom: 20,
@@ -181,7 +236,7 @@ const styles = StyleSheet.create({
   },
   highlightLabel: {
     fontSize: 13,
-    color: '#dcfce7', // green-100
+    color: '#dcfce7',
     marginBottom: 2,
   },
   highlightVal: {
@@ -252,8 +307,8 @@ const styles = StyleSheet.create({
     color: '#0f172a',
   },
   revealCard: {
-    backgroundColor: '#fffdf5', // light gold shade
-    borderColor: '#fed7aa', // orange-200
+    backgroundColor: '#fffdf5',
+    borderColor: '#fed7aa',
     borderWidth: 2,
     padding: 16,
     marginBottom: 16,
@@ -291,15 +346,15 @@ const styles = StyleSheet.create({
   revealedAssetText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#ea580c', // orange-600
+    color: '#ea580c',
   },
   revealedAssetSector: {
     fontSize: 12,
     color: '#64748b',
   },
   periodCard: {
-    backgroundColor: '#eff6ff', // blue-50
-    borderColor: '#bfdbfe', // blue-200
+    backgroundColor: '#eff6ff',
+    borderColor: '#bfdbfe',
     borderWidth: 1,
     padding: 14,
   },
@@ -325,8 +380,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   learnCard: {
-    backgroundColor: '#f0fdf4', // green-50
-    borderColor: '#bbf7d0', // green-200
+    backgroundColor: '#f0fdf4',
+    borderColor: '#bbf7d0',
     borderWidth: 1,
     padding: 14,
     marginVertical: 20,
@@ -343,7 +398,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   rankingBtn: {
-    backgroundColor: '#f97316', // orange-500
+    backgroundColor: '#f97316',
     width: '100%',
   },
 });

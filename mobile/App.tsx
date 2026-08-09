@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Platform, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Platform, StatusBar, ActivityIndicator } from 'react-native';
 import { HomeScreen } from './components/screens/HomeScreen';
 import { LearnScreen } from './components/screens/LearnScreen';
 import { RankingsScreen } from './components/screens/RankingsScreen';
@@ -8,12 +8,33 @@ import { CompetitionContextScreen } from './components/screens/CompetitionContex
 import { PortfolioBuilderScreen } from './components/screens/PortfolioBuilderScreen';
 import { SimulationWaitScreen } from './components/screens/SimulationWaitScreen';
 import { ResultsScreen } from './components/screens/ResultsScreen';
+import { LoginScreen } from './components/screens/LoginScreen';
+import { RegisterScreen } from './components/screens/RegisterScreen';
 import { Icon } from './components/Icon';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-type Screen = 'home' | 'learn' | 'rankings' | 'profile' | 'context' | 'portfolio' | 'simulation' | 'results';
+type Screen = 'home' | 'learn' | 'rankings' | 'profile' | 'context' | 'portfolio' | 'simulation' | 'results' | 'login' | 'register';
 
-export default function App() {
+function AppContent() {
+  const { isAuthenticated, isLoading } = useAuth();
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
+  const [authScreen, setAuthScreen] = useState<'login' | 'register'>('login');
+
+  if (isLoading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#2563eb" />
+      </View>
+    );
+  }
+
+  if (!isAuthenticated) {
+    if (authScreen === 'login') {
+      return <LoginScreen onRegister={() => setAuthScreen('register')} />;
+    } else {
+      return <RegisterScreen onBackToLogin={() => setAuthScreen('login')} />;
+    }
+  }
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -171,7 +192,21 @@ export default function App() {
   );
 }
 
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
+
 const styles = StyleSheet.create({
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+  },
   container: {
     flex: 1,
     backgroundColor: '#ffffff',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ScrollView,
   View,
@@ -9,29 +9,51 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  Alert
 } from 'react-native';
 import { AssetCard } from '../AssetCard';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Icon } from '../Icon';
-import { currentCompetition } from '../../data/mockData';
-import { Asset, Portfolio } from '../../types';
+import { competitionService } from '../../services/competitionService';
+import { portfolioService } from '../../services/portfolioService';
+import { Asset, Portfolio, Competition } from '../../types';
 
 interface PortfolioBuilderScreenProps {
   onConfirm: () => void;
   onBack: () => void;
 }
 
-const TOTAL_BUDGET = 100000;
-
 export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderScreenProps) {
+  const [competition, setCompetition] = useState<Competition | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [portfolio, setPortfolio] = useState<Portfolio>({});
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [allocationAmount, setAllocationAmount] = useState<string>('0');
 
+  useEffect(() => {
+    const fetchComp = async () => {
+      try {
+        setIsLoading(true);
+        const res = await competitionService.getActive();
+        setCompetition(res);
+      } catch (err) {
+        setError('Erro ao carregar a competição ativa.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchComp();
+  }, []);
+
+  const totalBudget = competition?.budget || 100000;
   const allocatedTotal = Object.values(portfolio).reduce((sum, amount) => sum + amount, 0);
-  const remaining = TOTAL_BUDGET - allocatedTotal;
-  const allocationPercentage = (allocatedTotal / TOTAL_BUDGET) * 100;
+  const remaining = totalBudget - allocatedTotal;
+  const allocationPercentage = (allocatedTotal / totalBudget) * 100;
 
   const currentAssetAllocated = selectedAsset ? portfolio[selectedAsset.id] || 0 : 0;
   const maxAvailableForAsset = remaining + currentAssetAllocated;
@@ -67,7 +89,57 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
     setAllocationAmount(calculated.toString());
   };
 
-  const canConfirm = allocatedTotal >= TOTAL_BUDGET * 0.5; // At least 50% allocated
+  const handleSubmit = async () => {
+    if (!competition) return;
+
+    try {
+      setIsSubmitting(true);
+      const allocations = Object.keys(portfolio).map(assetId => ({
+        assetId,
+        amount: portfolio[assetId],
+      }));
+
+      const res = await portfolioService.submit({
+        competitionId: competition.id,
+        allocations,
+      });
+
+      if (res.warnings && res.warnings.length > 0) {
+        Alert.alert('Aviso', res.warnings.join('\n\n'), [
+          { text: 'OK', onPress: onConfirm }
+        ]);
+      } else {
+        onConfirm();
+      }
+    } catch (err) {
+      console.error(err);
+      // Let the interceptor handle the error alert
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Rule 5: Submit button enabled as long as allocation > 0
+  const canConfirm = allocatedTotal > 0 && !isSubmitting;
+
+  if (isLoading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#2563eb" />
+        <Text style={styles.loadingText}>Carregando ativos...</Text>
+      </View>
+    );
+  }
+
+  if (error || !competition) {
+    return (
+      <View style={styles.centerContainer}>
+        <Icon name="AlertCircle" size={48} color="#ef4444" />
+        <Text style={styles.errorText}>{error || 'Nenhuma competição ativa'}</Text>
+        <Button variant="ghost" onPress={onBack} style={{ marginTop: 20 }}>Voltar</Button>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.outerContainer}>
@@ -109,14 +181,14 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
         <View style={styles.headerInfo}>
           <Text style={styles.title}>Monte sua Carteira</Text>
           <Text style={styles.subtitle}>
-            Distribua seu orçamento de R$ 100.000 entre os ativos disponíveis
+            Distribua seu orçamento de R$ {totalBudget.toLocaleString('pt-BR')} entre os ativos disponíveis
           </Text>
         </View>
 
         {/* Assets List */}
         <View style={styles.assetsSection}>
           <Text style={styles.sectionTitle}>Ativos Disponíveis</Text>
-          {currentCompetition.assets.map((asset) => (
+          {competition.assets.map((asset) => (
             <View key={asset.id} style={styles.assetCardWrapper}>
               <AssetCard
                 asset={asset}
@@ -139,22 +211,26 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
 
       {/* Fixed Sticky Bottom Action Panel */}
       <View style={styles.stickyFooter}>
-        {!canConfirm ? (
+        {!canConfirm && allocatedTotal === 0 ? (
           <View style={styles.warningContainer}>
             <Icon name="AlertCircle" size={16} color="#ea580c" style={styles.warningIcon} />
             <Text style={styles.warningText}>
-              Aloque pelo menos 50% do orçamento para confirmar
+              Aloque capital para confirmar sua carteira
             </Text>
           </View>
         ) : null}
         <Button
           variant="primary"
           size="lg"
-          onPress={onConfirm}
+          onPress={handleSubmit}
           disabled={!canConfirm}
           style={styles.confirmBtn}
         >
-          <Icon name="Wallet" size={18} color={canConfirm ? '#ffffff' : '#94a3b8'} style={styles.walletIcon} />
+          {isSubmitting ? (
+            <ActivityIndicator size="small" color="#ffffff" style={{ marginRight: 8 }} />
+          ) : (
+            <Icon name="Wallet" size={18} color={canConfirm ? '#ffffff' : '#94a3b8'} style={styles.walletIcon} />
+          )}
           <Text style={[styles.confirmBtnText, !canConfirm && styles.confirmBtnTextDisabled]}>
             Confirmar Carteira
           </Text>
@@ -191,7 +267,6 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
                     keyboardType="numeric"
                     value={allocationAmount}
                     onChangeText={(val) => {
-                      // Prevent inputting more than available limit
                       const num = Number(val) || 0;
                       if (num <= maxAvailableForAsset) {
                         setAllocationAmount(val);
@@ -203,38 +278,18 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
                   />
 
                   <Text style={styles.inputLabel}>Usar percentual do disponível</Text>
-                  {/* Preset percent selectors acting as custom slider chips */}
                   <View style={styles.presetRow}>
-                    <TouchableOpacity
-                      style={styles.presetChip}
-                      onPress={() => setPresetPercentage(0)}
-                    >
-                      <Text style={styles.presetChipText}>Zerar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.presetChip}
-                      onPress={() => setPresetPercentage(0.25)}
-                    >
-                      <Text style={styles.presetChipText}>25%</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.presetChip}
-                      onPress={() => setPresetPercentage(0.5)}
-                    >
-                      <Text style={styles.presetChipText}>50%</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.presetChip}
-                      onPress={() => setPresetPercentage(0.75)}
-                    >
-                      <Text style={styles.presetChipText}>75%</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.presetChip}
-                      onPress={() => setPresetPercentage(1)}
-                    >
-                      <Text style={styles.presetChipText}>100%</Text>
-                    </TouchableOpacity>
+                    {[0, 0.25, 0.5, 0.75, 1].map((pct) => (
+                      <TouchableOpacity
+                        key={pct}
+                        style={styles.presetChip}
+                        onPress={() => setPresetPercentage(pct)}
+                      >
+                        <Text style={styles.presetChipText}>
+                          {pct === 0 ? 'Zerar' : `${pct * 100}%`}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
                   </View>
 
                   <Text style={styles.availableText}>
@@ -268,15 +323,31 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
 }
 
 const styles = StyleSheet.create({
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#f8fafc',
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#475569',
+  },
+  errorText: {
+    marginTop: 10,
+    color: '#334155',
+    textAlign: 'center',
+  },
   outerContainer: {
     flex: 1,
-    backgroundColor: '#f8fafc', // slate-50
+    backgroundColor: '#f8fafc',
   },
   stickyHeader: {
     padding: 16,
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0', // slate-200
+    borderBottomColor: '#e2e8f0',
     ...Platform.select({
       ios: {
         shadowColor: '#64748b',
@@ -294,7 +365,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   budgetCard: {
-    backgroundColor: '#2563eb', // blue-600 flat background
+    backgroundColor: '#2563eb',
     borderColor: '#1d4ed8',
     padding: 14,
   },
@@ -305,7 +376,7 @@ const styles = StyleSheet.create({
   },
   budgetLabel: {
     fontSize: 12,
-    color: '#dbeafe', // blue-100
+    color: '#dbeafe',
     marginBottom: 2,
   },
   budgetLabelRight: {
@@ -336,7 +407,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     padding: 16,
     paddingTop: 10,
-    paddingBottom: 130, // Space for sticky bottom button
+    paddingBottom: 130,
   },
   backBtn: {
     alignSelf: 'flex-start',
@@ -380,7 +451,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 14,
     right: 14,
-    backgroundColor: '#ef4444', // red-500
+    backgroundColor: '#ef4444',
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 4,
@@ -427,7 +498,7 @@ const styles = StyleSheet.create({
   },
   warningText: {
     fontSize: 12,
-    color: '#ea580c', // orange-600
+    color: '#ea580c',
     fontWeight: '500',
   },
   confirmBtn: {
@@ -447,10 +518,9 @@ const styles = StyleSheet.create({
   confirmBtnTextDisabled: {
     color: '#94a3b8',
   },
-  // Modal styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.6)', // dark transparent overlay
+    backgroundColor: 'rgba(15, 23, 42, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -542,7 +612,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   modalSubmitBtn: {
-    backgroundColor: '#f97316', // orange-500
+    backgroundColor: '#f97316',
     paddingHorizontal: 20,
   },
 });

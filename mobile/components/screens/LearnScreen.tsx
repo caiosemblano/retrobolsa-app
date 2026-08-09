@@ -1,22 +1,91 @@
-import React, { useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, View, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { ModuleCard } from '../ModuleCard';
 import { LessonCard } from '../LessonCard';
 import { Button } from '../ui/Button';
 import { Icon } from '../Icon';
-import { modules, lessons } from '../../data/mockData';
-import { Module } from '../../types';
+import { articleService } from '../../services/articleService';
+import { Module, Lesson } from '../../types';
 
 export function LearnScreen() {
+  const [modules, setModules] = useState<Module[]>([]);
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  
+  const [isLoadingModules, setIsLoadingModules] = useState(true);
+  const [isLoadingLessons, setIsLoadingLessons] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const moduleLessons = selectedModule
-    ? lessons.filter((lesson) => lesson.moduleId === selectedModule.id)
-    : [];
+  useEffect(() => {
+    const fetchModules = async () => {
+      try {
+        setIsLoadingModules(true);
+        const res = await articleService.getModules();
+        setModules(res.data);
+      } catch (err) {
+        setError('Erro ao carregar os módulos de aprendizado.');
+        console.error(err);
+      } finally {
+        setIsLoadingModules(false);
+      }
+    };
+    fetchModules();
+  }, []);
 
-  const handleLessonClick = (title: string) => {
-    Alert.alert('Abrindo Aula', `Abrindo aula: ${title}`);
+  const handleModuleClick = async (module: Module) => {
+    setSelectedModule(module);
+    try {
+      setIsLoadingLessons(true);
+      const res = await articleService.getLessons(module.id);
+      setLessons(res.data);
+    } catch (err) {
+      Alert.alert('Erro', 'Falha ao carregar as aulas deste módulo.');
+      setLessons([]);
+    } finally {
+      setIsLoadingLessons(false);
+    }
   };
+
+  const handleLessonClick = async (lesson: Lesson) => {
+    if (lesson.completed) {
+      Alert.alert('Aula', `Você já completou a aula: ${lesson.title}`);
+      return;
+    }
+
+    try {
+      await articleService.complete(lesson.id);
+      Alert.alert('Sucesso', 'Aula marcada como concluída!');
+      
+      // Update local state
+      setLessons(prev => prev.map(l => l.id === lesson.id ? { ...l, completed: true } : l));
+      setModules(prev => prev.map(m => {
+        if (m.id === selectedModule?.id) {
+          return { ...m, completedLessons: m.completedLessons + 1 };
+        }
+        return m;
+      }));
+    } catch (err) {
+      Alert.alert('Erro', 'Falha ao completar a aula. Tente novamente.');
+    }
+  };
+
+  if (isLoadingModules) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#2563eb" />
+        <Text style={styles.loadingText}>Carregando conteúdo...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.centerContainer}>
+        <Icon name="AlertCircle" size={48} color="#ef4444" />
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
 
   if (selectedModule) {
     return (
@@ -39,17 +108,29 @@ export function LearnScreen() {
 
         {/* Lessons List */}
         <View style={styles.lessonsList}>
-          {moduleLessons.map((lesson) => (
-            <LessonCard
-              key={lesson.id}
-              lesson={lesson}
-              onClick={() => handleLessonClick(lesson.title)}
-            />
-          ))}
+          {isLoadingLessons ? (
+            <ActivityIndicator size="large" color="#2563eb" style={{ marginTop: 20 }} />
+          ) : lessons.length > 0 ? (
+            lessons.map((lesson) => (
+              <LessonCard
+                key={lesson.id}
+                lesson={lesson}
+                onClick={() => handleLessonClick(lesson)}
+              />
+            ))
+          ) : (
+            <Text style={{ textAlign: 'center', color: '#64748b', marginTop: 20 }}>
+              Nenhuma aula disponível neste módulo.
+            </Text>
+          )}
         </View>
       </ScrollView>
     );
   }
+
+  const totalLessons = modules.reduce((acc, m) => acc + m.lessonsCount, 0);
+  const completedLessons = modules.reduce((acc, m) => acc + m.completedLessons, 0);
+  const progressPct = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
@@ -76,9 +157,9 @@ export function LearnScreen() {
           <Text style={styles.progressLabel}>Progresso Total</Text>
           <View style={styles.progressBarRow}>
             <View style={styles.progressContainer}>
-              <View style={[styles.progressBar, { width: '53%' }]} />
+              <View style={[styles.progressBar, { width: `${progressPct}%` }]} />
             </View>
-            <Text style={styles.progressPctText}>53%</Text>
+            <Text style={styles.progressPctText}>{progressPct}%</Text>
           </View>
         </View>
       </Card>
@@ -89,7 +170,7 @@ export function LearnScreen() {
           <ModuleCard
             key={module.id}
             module={module}
-            onClick={() => setSelectedModule(module)}
+            onClick={() => handleModuleClick(module)}
           />
         ))}
       </View>
@@ -103,6 +184,21 @@ function Card({ children, style }: { children: React.ReactNode; style?: any }) {
 }
 
 const styles = StyleSheet.create({
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#475569',
+  },
+  errorText: {
+    marginTop: 10,
+    color: '#334155',
+    textAlign: 'center',
+  },
   container: {
     padding: 16,
     paddingBottom: 40,
@@ -144,7 +240,7 @@ const styles = StyleSheet.create({
   },
   pageHeaderIconContainer: {
     padding: 12,
-    backgroundColor: '#dbeafe', // blue-100
+    backgroundColor: '#dbeafe',
     borderRadius: 10,
     marginRight: 12,
   },
@@ -169,7 +265,7 @@ const styles = StyleSheet.create({
     borderColor: '#e2e8f0',
   },
   progressCard: {
-    backgroundColor: '#2563eb', // blue-600 flat background
+    backgroundColor: '#2563eb',
     borderColor: '#1d4ed8',
     padding: 20,
     marginBottom: 20,
@@ -182,7 +278,7 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 13,
-    color: '#dbeafe', // blue-100
+    color: '#dbeafe',
     lineHeight: 18,
     marginBottom: 16,
   },

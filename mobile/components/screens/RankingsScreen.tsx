@@ -1,11 +1,48 @@
-import React from 'react';
-import { ScrollView, View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/Tabs';
 import { RankingItem } from '../RankingItem';
 import { Icon } from '../Icon';
-import { quinzenalRanking, seasonRanking, generalRanking } from '../../data/mockData';
+import { rankingService, RankingType } from '../../services/rankingService';
+import { RankingEntry } from '../../types';
 
 export function RankingsScreen() {
+  const [quinzenal, setQuinzenal] = useState<RankingEntry[]>([]);
+  const [season, setSeason] = useState<RankingEntry[]>([]);
+  const [general, setGeneral] = useState<RankingEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRankings = async () => {
+      try {
+        setIsLoading(true);
+        const [qRes, sRes, gRes] = await Promise.all([
+          rankingService.get('quinzenal').catch(() => ({ data: [] })),
+          rankingService.get('season').catch(() => ({ data: [] })),
+          rankingService.get('general').catch(() => ({ data: [] }))
+        ]);
+        setQuinzenal(qRes.data);
+        setSeason(sRes.data);
+        setGeneral(gRes.data);
+      } catch (error) {
+        console.error('Failed to fetch rankings', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRankings();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#2563eb" />
+        <Text style={styles.loadingText}>Carregando rankings...</Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       {/* Page Header */}
@@ -34,7 +71,7 @@ export function RankingsScreen() {
             </Text>
           </View>
           <View style={styles.rankingList}>
-            {quinzenalRanking.map((entry) => (
+            {quinzenal.map((entry) => (
               <RankingItem key={entry.rank} entry={entry} showRentability />
             ))}
           </View>
@@ -48,7 +85,7 @@ export function RankingsScreen() {
             </Text>
           </View>
           <View style={styles.rankingList}>
-            {seasonRanking.map((entry) => (
+            {season.map((entry) => (
               <RankingItem key={entry.rank} entry={entry} />
             ))}
           </View>
@@ -62,7 +99,7 @@ export function RankingsScreen() {
             </Text>
           </View>
           <View style={styles.rankingList}>
-            {generalRanking.map((entry) => (
+            {general.map((entry) => (
               <RankingItem key={entry.rank} entry={entry} />
             ))}
           </View>
@@ -73,6 +110,16 @@ export function RankingsScreen() {
 }
 
 const styles = StyleSheet.create({
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#475569',
+  },
   container: {
     padding: 16,
     paddingBottom: 40,
@@ -84,7 +131,7 @@ const styles = StyleSheet.create({
   },
   headerIconContainer: {
     padding: 12,
-    backgroundColor: '#eab308', // yellow-500 (using flat color matching Trophy)
+    backgroundColor: '#eab308',
     borderRadius: 10,
     marginRight: 12,
   },
@@ -108,16 +155,16 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   infoBoxQuinzenal: {
-    backgroundColor: '#eff6ff', // blue-50
-    borderColor: '#bfdbfe', // blue-200
+    backgroundColor: '#eff6ff',
+    borderColor: '#bfdbfe',
   },
   infoBoxTemporada: {
-    backgroundColor: '#f0fdf4', // green-50
-    borderColor: '#bbf7d0', // green-200
+    backgroundColor: '#f0fdf4',
+    borderColor: '#bbf7d0',
   },
   infoBoxGeral: {
-    backgroundColor: '#fff7ed', // orange-50
-    borderColor: '#fdba74', // orange-300
+    backgroundColor: '#fff7ed',
+    borderColor: '#fdba74',
   },
   infoBoxTitle: {
     fontSize: 14,
@@ -127,7 +174,7 @@ const styles = StyleSheet.create({
   },
   infoBoxText: {
     fontSize: 12,
-    color: '#475569', // slate-600
+    color: '#475569',
   },
   rankingList: {
     gap: 4,

@@ -1,18 +1,69 @@
-import React from 'react';
-import { ScrollView, View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { CompetitionCard } from '../CompetitionCard';
 import { RankingItem } from '../RankingItem';
 import { Card } from '../ui/Card';
 import { Icon } from '../Icon';
 import { Button } from '../ui/Button';
-import { currentCompetition, lastResult, quinzenalRanking } from '../../data/mockData';
+import { competitionService } from '../../services/competitionService';
+import { portfolioService } from '../../services/portfolioService';
+import { rankingService } from '../../services/rankingService';
+import { Competition, Result, RankingEntry } from '../../types';
 
 interface HomeScreenProps {
-  onStartCompetition: () => void;
+  onStartCompetition: (comp: Competition) => void;
   onViewResults: () => void;
 }
 
 export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProps) {
+  const [competition, setCompetition] = useState<Competition | null>(null);
+  const [lastResult, setLastResult] = useState<Result | null>(null);
+  const [topRanking, setTopRanking] = useState<RankingEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const [compRes, resultRes, rankingRes] = await Promise.all([
+          competitionService.getActive().catch(() => null),
+          portfolioService.getLastResult().then(res => res.data).catch(() => null),
+          rankingService.get('quinzenal').then(res => res.data).catch(() => [])
+        ]);
+
+        if (compRes) setCompetition(compRes);
+        if (resultRes) setLastResult(resultRes);
+        setTopRanking(rankingRes.slice(0, 5));
+      } catch (err) {
+        setError('Ocorreu um erro ao carregar os dados. Tente novamente mais tarde.');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#2563eb" />
+        <Text style={styles.loadingText}>Carregando painel...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.centerContainer}>
+        <Icon name="AlertCircle" size={48} color="#ef4444" />
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header Info */}
@@ -25,10 +76,16 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
 
       {/* Competition Card */}
       <View style={styles.section}>
-        <CompetitionCard
-          competition={currentCompetition}
-          onAction={onStartCompetition}
-        />
+        {competition ? (
+          <CompetitionCard
+            competition={competition}
+            onAction={() => onStartCompetition(competition)}
+          />
+        ) : (
+          <Card style={styles.emptyCard}>
+            <Text style={styles.emptyCardText}>Não há competições ativas no momento.</Text>
+          </Card>
+        )}
       </View>
 
       <View style={styles.divider} />
@@ -40,39 +97,46 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
           <Text style={styles.sectionTitle}>Seu Último Resultado</Text>
         </View>
 
-        <Card style={styles.resultsCard}>
-          <View style={styles.grid}>
-            <View style={styles.gridCol}>
-              <Text style={styles.gridLabel}>Sua Posição</Text>
-              <View style={styles.gridValContainer}>
-                <Icon name="Target" size={16} color="#15803d" style={styles.gridValIcon} />
-                <Text style={styles.gridValText}>{lastResult.rank}º lugar</Text>
+        {lastResult ? (
+          <Card style={styles.resultsCard}>
+            <View style={styles.grid}>
+              <View style={styles.gridCol}>
+                <Text style={styles.gridLabel}>Sua Posição</Text>
+                <View style={styles.gridValContainer}>
+                  <Icon name="Target" size={16} color="#15803d" style={styles.gridValIcon} />
+                  <Text style={styles.gridValText}>{lastResult.rank}º lugar</Text>
+                </View>
+              </View>
+
+              <View style={styles.gridCol}>
+                <Text style={styles.gridLabel}>Rentabilidade</Text>
+                <Text style={styles.gridValText}>
+                  {lastResult.rentability}% ({lastResult.annualReturn}% a.a.)
+                </Text>
               </View>
             </View>
 
-            <View style={styles.gridCol}>
-              <Text style={styles.gridLabel}>Rentabilidade</Text>
-              <Text style={styles.gridValText}>
-                {lastResult.rentability}% ({lastResult.annualReturn}% a.a.)
+            <View style={styles.portfolioValueContainer}>
+              <Text style={styles.portfolioValueLabel}>Valor Final da Carteira</Text>
+              <Text style={styles.portfolioValueVal}>
+                R$ {lastResult.portfolioValue.toLocaleString('pt-BR')}
               </Text>
             </View>
-          </View>
 
-          <View style={styles.portfolioValueContainer}>
-            <Text style={styles.portfolioValueLabel}>Valor Final da Carteira</Text>
-            <Text style={styles.portfolioValueVal}>
-              R$ {lastResult.portfolioValue.toLocaleString('pt-BR')}
-            </Text>
-          </View>
-
-          <Button
-            variant="success"
-            onPress={onViewResults}
-            style={styles.detailsBtn}
-          >
-            Ver Detalhes Completos
-          </Button>
-        </Card>
+            <Button
+              variant="success"
+              onPress={onViewResults}
+              style={styles.detailsBtn}
+            >
+              Ver Detalhes Completos
+            </Button>
+          </Card>
+        ) : (
+          <Card style={styles.emptyCard}>
+            <Text style={styles.emptyCardText}>Você ainda não possui resultados de simulação.</Text>
+            <Text style={styles.emptyCardSubText}>Participe de uma rodada para ver seu histórico!</Text>
+          </Card>
+        )}
       </View>
 
       <View style={styles.divider} />
@@ -80,17 +144,38 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
       {/* Top 5 rankings */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Top 5 da Rodada Anterior</Text>
-        <View style={styles.rankingList}>
-          {quinzenalRanking.slice(0, 5).map((entry) => (
-            <RankingItem key={entry.rank} entry={entry} showRentability />
-          ))}
-        </View>
+        {topRanking.length > 0 ? (
+          <View style={styles.rankingList}>
+            {topRanking.map((entry) => (
+              <RankingItem key={entry.rank} entry={entry} showRentability />
+            ))}
+          </View>
+        ) : (
+          <Card style={styles.emptyCard}>
+            <Text style={styles.emptyCardText}>Nenhum ranking disponível ainda.</Text>
+          </Card>
+        )}
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#475569',
+  },
+  errorText: {
+    marginTop: 10,
+    color: '#334155',
+    textAlign: 'center',
+  },
   container: {
     padding: 16,
     paddingBottom: 40,
@@ -101,19 +186,19 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#0f172a', // slate-900
+    color: '#0f172a',
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#64748b', // slate-500
+    color: '#64748b',
   },
   section: {
     marginBottom: 16,
   },
   divider: {
     height: 1,
-    backgroundColor: '#e2e8f0', // slate-200
+    backgroundColor: '#e2e8f0',
     marginVertical: 24,
   },
   sectionTitleRow: {
@@ -130,8 +215,8 @@ const styles = StyleSheet.create({
     color: '#0f172a',
   },
   resultsCard: {
-    backgroundColor: '#f0fdf4', // green-50
-    borderColor: '#bbf7d0', // green-200
+    backgroundColor: '#f0fdf4',
+    borderColor: '#bbf7d0',
     borderWidth: 2,
     padding: 16,
   },
@@ -144,7 +229,7 @@ const styles = StyleSheet.create({
   },
   gridLabel: {
     fontSize: 12,
-    color: '#475569', // slate-600
+    color: '#475569',
     marginBottom: 4,
   },
   gridValContainer: {
@@ -157,7 +242,7 @@ const styles = StyleSheet.create({
   gridValText: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#15803d', // green-700
+    color: '#15803d',
   },
   portfolioValueContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.6)',
@@ -173,12 +258,28 @@ const styles = StyleSheet.create({
   portfolioValueVal: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#166534', // green-800
+    color: '#166534',
   },
   detailsBtn: {
-    backgroundColor: '#16a34a', // green-600
+    backgroundColor: '#16a34a',
   },
   rankingList: {
     marginTop: 8,
+  },
+  emptyCard: {
+    padding: 24,
+    alignItems: 'center',
+    borderStyle: 'dashed',
+    backgroundColor: '#f8fafc',
+  },
+  emptyCardText: {
+    color: '#475569',
+    textAlign: 'center',
+  },
+  emptyCardSubText: {
+    color: '#64748b',
+    fontSize: 12,
+    marginTop: 8,
+    textAlign: 'center',
   },
 });
