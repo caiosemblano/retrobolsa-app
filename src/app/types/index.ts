@@ -58,6 +58,9 @@ export interface Competition {
   round: number;
   status: 'open' | 'closed' | 'simulating';
   daysLeft?: number;
+  budget: number;
+  startYear: number;
+  endYear: number;
   economicContext: {
     title: string;
     indicators: EconomicIndicator[];

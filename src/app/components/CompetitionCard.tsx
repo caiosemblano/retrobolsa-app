@@ -67,6 +67,21 @@ export function CompetitionCard({ competition, onAction }: CompetitionCardProps)
         </div>
       )}
 
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        {competition.budget && (
+          <div className="bg-white/80 p-3 rounded-lg">
+            <div className="text-slate-600 text-xs mb-1">Orçamento</div>
+            <div className="text-slate-900 font-semibold">R$ {competition.budget.toLocaleString('pt-BR')}</div>
+          </div>
+        )}
+        {competition.period && (
+          <div className="bg-white/80 p-3 rounded-lg">
+            <div className="text-slate-600 text-xs mb-1">Período Histórico</div>
+            <div className="text-slate-900 font-semibold">{competition.period}</div>
+          </div>
+        )}
+      </div>
+
       <Button
         className="w-full bg-orange-500 hover:bg-orange-600"
         size="lg"

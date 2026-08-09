@@ -4,10 +4,10 @@ import { RankingItem } from '../RankingItem';
 import { Card } from '../ui/card';
 import { Separator } from '../ui/separator';
 import { TrendingUp, Target, Loader2, AlertCircle } from 'lucide-react';
-import { quinzenalRanking } from '../../data/mockData';
 import { competitionService } from '../../services/competitionService';
 import { portfolioService } from '../../services/portfolioService';
-import { Competition, Result } from '../../types';
+import { rankingService } from '../../services/rankingService';
+import { Competition, Result, RankingEntry } from '../../types';
 
 interface HomeScreenProps {
   onStartCompetition: (comp: Competition) => void;
@@ -17,6 +17,7 @@ interface HomeScreenProps {
 export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProps) {
   const [competition, setCompetition] = useState<Competition | null>(null);
   const [lastResult, setLastResult] = useState<Result | null>(null);
+  const [topRanking, setTopRanking] = useState<RankingEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,13 +25,15 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const [compRes, resultRes] = await Promise.all([
-          competitionService.getActive().catch(() => null), // If no active competition, returns null
-          portfolioService.getLastResult().then(res => res.data).catch(() => null)
+        const [compRes, resultRes, rankingRes] = await Promise.all([
+          competitionService.getActive().catch(() => null),
+          portfolioService.getLastResult().then(res => res.data).catch(() => null),
+          rankingService.get('quinzenal').then(res => res.data).catch(() => [])
         ]);
-        
+
         if (compRes) setCompetition(compRes);
         if (resultRes) setLastResult(resultRes);
+        setTopRanking(rankingRes.slice(0, 5));
       } catch (err) {
         setError('Ocorreu um erro ao carregar os dados. Tente novamente mais tarde.');
         console.error(err);
@@ -132,11 +135,17 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
 
       <div>
         <h2 className="text-slate-900 mb-4">Top 5 da Rodada Anterior</h2>
-        <div className="space-y-2">
-          {quinzenalRanking.slice(0, 5).map((entry) => (
-            <RankingItem key={entry.rank} entry={entry} showRentability />
-          ))}
-        </div>
+        {topRanking.length > 0 ? (
+          <div className="space-y-2">
+            {topRanking.map((entry) => (
+              <RankingItem key={entry.rank} entry={entry} showRentability />
+            ))}
+          </div>
+        ) : (
+          <Card className="p-6 text-center bg-slate-50 border-dashed">
+            <p className="text-slate-600">Nenhum ranking disponível ainda.</p>
+          </Card>
+        )}
       </div>
     </div>
   );
