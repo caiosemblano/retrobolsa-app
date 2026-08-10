@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, Alert, ActivityIndicator, Linking, Platform } from 'react-native';
 import { ModuleCard } from '../ModuleCard';
 import { LessonCard } from '../LessonCard';
 import { Button } from '../ui/Button';
@@ -46,26 +46,91 @@ export function LearnScreen() {
     }
   };
 
-  const handleLessonClick = async (lesson: Lesson) => {
+  const handleToggleComplete = async (lesson: Lesson) => {
+    const executeUncomplete = async () => {
+      try {
+        await articleService.uncomplete(lesson.id);
+        
+        // Update local state
+        setLessons(prev => prev.map(l => l.id === lesson.id ? { ...l, completed: false } : l));
+        setModules(prev => prev.map(m => {
+          if (m.id === selectedModule?.id) {
+            return { ...m, completedLessons: Math.max(0, m.completedLessons - 1) };
+          }
+          return m;
+        }));
+      } catch (err) {
+        Alert.alert('Erro', 'Falha ao desmarcar a aula. Tente novamente.');
+      }
+    };
+
     if (lesson.completed) {
-      Alert.alert('Aula', `Você já completou a aula: ${lesson.title}`);
+      if (Platform.OS === 'web') {
+        const confirmed = window.confirm('Deseja desmarcar esta aula?');
+        if (confirmed) {
+          executeUncomplete();
+        }
+      } else {
+        Alert.alert(
+          'Desmarcar Aula',
+          'Deseja remover esta aula das suas concluídas?',
+          [
+            { text: 'Não', style: 'cancel' },
+            { 
+              text: 'Sim, remover', 
+              onPress: executeUncomplete
+            }
+          ]
+        );
+      }
       return;
     }
 
-    try {
-      await articleService.complete(lesson.id);
-      Alert.alert('Sucesso', 'Aula marcada como concluída!');
-      
-      // Update local state
-      setLessons(prev => prev.map(l => l.id === lesson.id ? { ...l, completed: true } : l));
-      setModules(prev => prev.map(m => {
-        if (m.id === selectedModule?.id) {
-          return { ...m, completedLessons: m.completedLessons + 1 };
-        }
-        return m;
-      }));
-    } catch (err) {
-      Alert.alert('Erro', 'Falha ao completar a aula. Tente novamente.');
+    const executeComplete = async () => {
+      try {
+        await articleService.complete(lesson.id);
+        Alert.alert('Sucesso', 'Aula marcada como concluída!');
+        
+        // Update local state
+        setLessons(prev => prev.map(l => l.id === lesson.id ? { ...l, completed: true } : l));
+        setModules(prev => prev.map(m => {
+          if (m.id === selectedModule?.id) {
+            return { ...m, completedLessons: m.completedLessons + 1 };
+          }
+          return m;
+        }));
+      } catch (err) {
+        Alert.alert('Erro', 'Falha ao completar a aula. Tente novamente.');
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm('Você já assistiu a esta aula e deseja marcá-la como concluída?');
+      if (confirmed) {
+        executeComplete();
+      }
+    } else {
+      Alert.alert(
+        'Confirmar Conclusão',
+        'Você já assistiu a esta aula e deseja marcá-la como concluída?',
+        [
+          { text: 'Não', style: 'cancel' },
+          { 
+            text: 'Sim, marcar', 
+            onPress: executeComplete
+          }
+        ]
+      );
+    }
+  };
+
+  const handleWatch = (lesson: Lesson) => {
+    if (lesson.youtubeUrl) {
+      Linking.openURL(lesson.youtubeUrl).catch(() => {
+        Alert.alert('Erro', 'Não foi possível abrir o link do vídeo.');
+      });
+    } else {
+      Alert.alert('Aviso', 'Esta aula não possui um vídeo associado.');
     }
   };
 
@@ -115,7 +180,8 @@ export function LearnScreen() {
               <LessonCard
                 key={lesson.id}
                 lesson={lesson}
-                onClick={() => handleLessonClick(lesson)}
+                onToggleComplete={() => handleToggleComplete(lesson)}
+                onWatch={() => handleWatch(lesson)}
               />
             ))
           ) : (

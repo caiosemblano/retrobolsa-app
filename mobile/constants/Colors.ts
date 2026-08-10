@@ -1,32 +1,32 @@
 export const Colors = {
-  // Brand
-  primary: '#0F62FE', // Blue 60
-  primaryHover: '#0043CE', // Blue 70
-  primaryDark: '#002D9C', // Blue 80
-  primaryDarker: '#001141', // Blue 100
-  primaryLight: '#EDF5FF', // Blue 10
-  primaryLightest: '#D0E2FF', // Blue 20
+  // Brand (Nubank-inspired Purple)
+  primary: '#8A05BE', 
+  primaryHover: '#6B0394', 
+  primaryDark: '#520272', 
+  primaryDarker: '#390150', 
+  primaryLight: '#F4E6FC', 
+  primaryLightest: '#FAF5FF', 
 
-  // Semantic / Success
-  success: '#24A148', // Green 50
-  successDark: '#198038', // Green 60
-  successLight: '#DEFBE6', // Green 10
+  // Semantic / Success (Vibrant Green for Money)
+  success: '#12A454', 
+  successDark: '#0E7F41', 
+  successLight: '#E6F5EC', 
   
-  // Semantic / Warning
-  warning: '#EC7211', // Orange
-  warningDark: '#EB5F07', // Dark Orange
-  warningDarker: '#D14500', // Deep Orange
-  warningLight: '#FEF0E5', // Light Orange
+  // Semantic / Warning (Attention Orange)
+  warning: '#FF8700', 
+  warningDark: '#CC6C00', 
+  warningDarker: '#995100', 
+  warningLight: '#FFF3E5', 
   
-  // Semantic / Error
-  error: '#DA1E28', // Red 60
+  // Semantic / Error (Destructive Red)
+  error: '#E83F5B', 
 
-  // Neutrals / UI
-  background: '#F4F4F4', // Gray 10
-  border: '#E0E0E0', // Gray 20
-  borderDark: '#C6C6C6', // Gray 30
-  textMuted: '#8D8D8D', // Gray 50
-  textSecondary: '#525252', // Gray 70
-  textPrimary: '#161616', // Gray 100
-  cardBackground: '#FFFFFF', // White
+  // Neutrals / UI (Light Theme)
+  background: '#F0F1F5', // Very light gray background
+  border: '#E5E5E5', // Soft borders
+  borderDark: '#CCCCCC', 
+  textMuted: '#A0A0A0', 
+  textSecondary: '#737373', 
+  textPrimary: '#111111', // Deep dark for high contrast
+  cardBackground: '#FFFFFF', // Clean white cards
 };

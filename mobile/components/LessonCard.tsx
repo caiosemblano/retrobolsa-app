@@ -8,20 +8,23 @@ import { Colors } from '../constants/Colors';
 
 interface LessonCardProps {
   lesson: Lesson;
-  onClick: () => void;
+  onToggleComplete: () => void;
+  onWatch: () => void;
 }
 
-export function LessonCard({ lesson, onClick }: LessonCardProps) {
+export function LessonCard({ lesson, onToggleComplete, onWatch }: LessonCardProps) {
   return (
-    <TouchableOpacity onPress={onClick} activeOpacity={0.8}>
-      <Card
-        style={[
-          styles.card,
-          lesson.completed ? styles.cardCompleted : styles.cardNormal,
-        ]}
-      >
+    <Card
+      style={[
+        styles.card,
+        lesson.completed ? styles.cardCompleted : styles.cardNormal,
+      ]}
+    >
         <View style={styles.container}>
-          <View
+          <TouchableOpacity 
+            activeOpacity={0.7} 
+            onPress={onToggleComplete}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 15 }}
             style={[
               styles.statusIcon,
               lesson.completed ? styles.statusCompleted : styles.statusIncomplete,
@@ -32,7 +35,7 @@ export function LessonCard({ lesson, onClick }: LessonCardProps) {
             ) : (
               <Icon name="Circle" size={20} color={Colors.textMuted} />
             )}
-          </View>
+          </TouchableOpacity>
 
           <View style={styles.content}>
             <Text
@@ -47,12 +50,15 @@ export function LessonCard({ lesson, onClick }: LessonCardProps) {
               <Icon name="Clock" size={14} color={Colors.textMuted} style={styles.clockIcon} />
               <Text style={styles.durationText}>{lesson.duration}</Text>
             </View>
+            {lesson.summary && (
+              <Text style={styles.summaryText}>{lesson.summary}</Text>
+            )}
           </View>
 
           <Button
             variant={lesson.completed ? 'secondary' : 'primary'}
             size="sm"
-            onPress={onClick}
+            onPress={onWatch}
             style={lesson.completed ? styles.btnRevisar : styles.btnAssistir}
           >
             <Icon
@@ -67,7 +73,6 @@ export function LessonCard({ lesson, onClick }: LessonCardProps) {
           </Button>
         </View>
       </Card>
-    </TouchableOpacity>
   );
 }
 
@@ -125,6 +130,12 @@ const styles = StyleSheet.create({
   durationText: {
     fontSize: 12,
     color: Colors.textMuted, // slate-500
+  },
+  summaryText: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 6,
+    lineHeight: 16,
   },
   btnRevisar: {
     paddingHorizontal: 8,

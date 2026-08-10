@@ -107,6 +107,8 @@ export interface Lesson {
   moduleId: string;
   title: string;
   duration: string;
+  summary?: string;
+  youtubeUrl?: string;
   completed: boolean;
 }
 
