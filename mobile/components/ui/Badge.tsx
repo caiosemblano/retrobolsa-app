@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import { Colors } from '../../constants/Colors';
 
 interface BadgeProps {
   children: string;
@@ -69,28 +70,28 @@ const styles = StyleSheet.create({
   },
   // Variant Backgrounds
   primary: {
-    backgroundColor: '#dbeafe', // blue-100
+    backgroundColor: Colors.primaryLight, // blue-100
   },
   secondary: {
-    backgroundColor: '#f1f5f9', // slate-100
+    backgroundColor: Colors.background, // slate-100
   },
   success: {
-    backgroundColor: '#dcfce7', // green-100
+    backgroundColor: Colors.successLight, // green-100
   },
   warning: {
-    backgroundColor: '#ffedd5', // orange-100
+    backgroundColor: Colors.warningLight, // orange-100
   },
   // Variant Texts
   textPrimary: {
-    color: '#1d4ed8', // blue-700
+    color: Colors.primaryDark, // blue-700
   },
   textSecondary: {
-    color: '#475569', // slate-600
+    color: Colors.textSecondary, // slate-600
   },
   textSuccess: {
-    color: '#15803d', // green-700
+    color: Colors.successDark, // green-700
   },
   textWarning: {
-    color: '#c2410c', // orange-700
+    color: Colors.warningDarker, // orange-700
   },
 });

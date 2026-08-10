@@ -1,5 +1,6 @@
 import React from 'react';
 import * as Lucide from 'lucide-react-native';
+import { Colors } from '../constants/Colors';
 
 export type IconName =
   | 'Percent'
@@ -34,7 +35,7 @@ interface IconProps {
   style?: any;
 }
 
-export function Icon({ name, size = 24, color = '#64748b', style }: IconProps) {
+export function Icon({ name, size = 24, color = Colors.textMuted, style }: IconProps) {
   // Resolve icon component dynamically
   const IconComponent = (Lucide as any)[name];
 

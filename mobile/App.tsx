@@ -12,6 +12,7 @@ import { LoginScreen } from './components/screens/LoginScreen';
 import { RegisterScreen } from './components/screens/RegisterScreen';
 import { Icon } from './components/Icon';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { Colors } from './constants/Colors';
 
 type Screen = 'home' | 'learn' | 'rankings' | 'profile' | 'context' | 'portfolio' | 'simulation' | 'results' | 'login' | 'register';
 
@@ -23,7 +24,7 @@ function AppContent() {
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#2563eb" />
+        <ActivityIndicator size="large" color={Colors.primaryHover} />
       </View>
     );
   }
@@ -89,7 +90,7 @@ function AppContent() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#2563eb" />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.primaryHover} />
       
       {/* Header */}
       <View style={styles.header}>
@@ -115,7 +116,7 @@ function AppContent() {
             <Icon
               name="Home"
               size={22}
-              color={currentScreen === 'home' ? '#f97316' : '#64748b'}
+              color={currentScreen === 'home' ? Colors.warning : Colors.textMuted}
             />
             <Text
               style={[
@@ -135,7 +136,7 @@ function AppContent() {
             <Icon
               name="GraduationCap"
               size={22}
-              color={currentScreen === 'learn' ? '#f97316' : '#64748b'}
+              color={currentScreen === 'learn' ? Colors.warning : Colors.textMuted}
             />
             <Text
               style={[
@@ -155,7 +156,7 @@ function AppContent() {
             <Icon
               name="Trophy"
               size={22}
-              color={currentScreen === 'rankings' ? '#f97316' : '#64748b'}
+              color={currentScreen === 'rankings' ? Colors.warning : Colors.textMuted}
             />
             <Text
               style={[
@@ -175,7 +176,7 @@ function AppContent() {
             <Icon
               name="User"
               size={22}
-              color={currentScreen === 'profile' ? '#f97316' : '#64748b'}
+              color={currentScreen === 'profile' ? Colors.warning : Colors.textMuted}
             />
             <Text
               style={[
@@ -205,15 +206,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.cardBackground,
   },
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.cardBackground,
     paddingTop: Platform.OS === 'android' ? 36 : 0, // Safe spacing for android statusbar
   },
   header: {
-    backgroundColor: '#2563eb', // blue-600 flat background
+    backgroundColor: Colors.primaryHover, // blue-600 flat background
     paddingVertical: 14,
     paddingHorizontal: 16,
     ...Platform.select({
@@ -237,7 +238,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: Colors.cardBackground,
   },
   headerSubtitle: {
     fontSize: 12,
@@ -246,18 +247,18 @@ const styles = StyleSheet.create({
   },
   main: {
     flex: 1,
-    backgroundColor: '#f8fafc', // slate-50
+    backgroundColor: Colors.background, // slate-50
   },
   navBar: {
     flexDirection: 'row',
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.cardBackground,
     borderTopWidth: 1,
-    borderTopColor: '#e2e8f0', // slate-200
+    borderTopColor: Colors.border, // slate-200
     paddingVertical: 8,
     paddingBottom: Platform.OS === 'ios' ? 24 : 8, // extra padding for iOS home indicator
     ...Platform.select({
       ios: {
-        shadowColor: '#64748b',
+        shadowColor: Colors.textMuted,
         shadowOffset: { width: 0, height: -2 },
         shadowOpacity: 0.08,
         shadowRadius: 4,
@@ -281,9 +282,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   navTextActive: {
-    color: '#f97316', // orange-500
+    color: Colors.warning, // orange-500
   },
   navTextInactive: {
-    color: '#64748b', // slate-500
+    color: Colors.textMuted, // slate-500
   },
 });

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Path, Circle, Line as SvgLine, Text as SvgText } from 'react-native-svg';
 import { Card } from './ui/Card';
+import { Colors } from '../constants/Colors';
 
 interface ChartPoint {
   year: number;
@@ -79,14 +80,14 @@ export function RentabilityChart({ data }: RentabilityChartProps) {
                   y1={y}
                   x2={chartWidth - paddingRight}
                   y2={y}
-                  stroke="#e2e8f0"
+                  stroke={Colors.border}
                   strokeWidth="1"
                   strokeDasharray="4,4"
                 />
                 <SvgText
                   x={paddingLeft - 8}
                   y={y + 4}
-                  fill="#64748b"
+                  fill={Colors.textMuted}
                   fontSize="10"
                   textAnchor="end"
                 >
@@ -107,7 +108,7 @@ export function RentabilityChart({ data }: RentabilityChartProps) {
                 key={`year-${idx}`}
                 x={p.x}
                 y={chartHeight - 6}
-                fill="#64748b"
+                fill={Colors.textMuted}
                 fontSize="10"
                 textAnchor="middle"
               >
@@ -120,7 +121,7 @@ export function RentabilityChart({ data }: RentabilityChartProps) {
           <Path
             d={pathD}
             fill="none"
-            stroke="#10b981"
+            stroke={Colors.success}
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -133,8 +134,8 @@ export function RentabilityChart({ data }: RentabilityChartProps) {
               cx={p.x}
               cy={p.y}
               r="4"
-              fill="#10b981"
-              stroke="#ffffff"
+              fill={Colors.success}
+              stroke={Colors.cardBackground}
               strokeWidth="1.5"
             />
           ))}
@@ -152,7 +153,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#0f172a', // slate-900
+    color: Colors.textPrimary, // slate-900
     marginBottom: 16,
   },
   chartContainer: {

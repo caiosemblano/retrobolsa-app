@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { EconomicIndicator } from '../types';
 import { Card } from './ui/Card';
 import { Icon } from './Icon';
+import { Colors } from '../constants/Colors';
 
 interface EconomicIndicatorCardProps {
   indicator: EconomicIndicator;
@@ -13,7 +14,7 @@ export function EconomicIndicatorCard({ indicator }: EconomicIndicatorCardProps)
     <Card style={styles.card}>
       <View style={styles.container}>
         <View style={styles.iconContainer}>
-          <Icon name={indicator.icon} size={24} color="#1d4ed8" />
+          <Icon name={indicator.icon} size={24} color={Colors.primaryDark} />
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.name}>{indicator.name}</Text>
@@ -35,7 +36,7 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     padding: 10,
-    backgroundColor: '#dbeafe', // blue-100
+    backgroundColor: Colors.primaryLight, // blue-100
     borderRadius: 8,
     marginRight: 12,
   },
@@ -44,12 +45,12 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 13,
-    color: '#64748b', // slate-500
+    color: Colors.textMuted, // slate-500
     marginBottom: 2,
   },
   value: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0f172a', // slate-900
+    color: Colors.textPrimary, // slate-900
   },
 });

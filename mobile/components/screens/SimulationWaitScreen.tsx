@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-nat
 import { Card } from '../ui/Card';
 import { Icon } from '../Icon';
 import { Button } from '../ui/Button';
+import { Colors } from '../../constants/Colors';
 
 interface SimulationWaitScreenProps {
   onSkipWait?: () => void;
@@ -15,9 +16,9 @@ export function SimulationWaitScreen({ onSkipWait }: SimulationWaitScreenProps) 
         <Card style={styles.mainCard}>
           {/* Custom Spinner Section */}
           <View style={styles.spinnerContainer}>
-            <ActivityIndicator size="large" color="#2563eb" style={styles.loader} />
+            <ActivityIndicator size="large" color={Colors.primaryHover} style={styles.loader} />
             <View style={styles.iconOverlay}>
-              <Icon name="TrendingUp" size={24} color="#16a34a" />
+              <Icon name="TrendingUp" size={24} color={Colors.success} />
             </View>
           </View>
 
@@ -30,7 +31,7 @@ export function SimulationWaitScreen({ onSkipWait }: SimulationWaitScreenProps) 
 
           <Card style={styles.timeCard}>
             <View style={styles.timeHeader}>
-              <Icon name="Clock" size={18} color="#ea580c" style={styles.timeIcon} />
+              <Icon name="Clock" size={18} color={Colors.warningDark} style={styles.timeIcon} />
               <Text style={styles.timeHeaderText}>Resultados disponíveis em:</Text>
             </View>
             <Text style={styles.timeValue}>
@@ -48,9 +49,9 @@ export function SimulationWaitScreen({ onSkipWait }: SimulationWaitScreenProps) 
             <Button
               variant="outline"
               onPress={onSkipWait}
-              style={{ marginTop: 20, borderColor: '#f97316', borderWidth: 2 }}
+              style={{ marginTop: 20, borderColor: Colors.warning, borderWidth: 2 }}
             >
-              <Text style={{ color: '#ea580c', fontWeight: 'bold', fontSize: 14 }}>
+              <Text style={{ color: Colors.warningDark, fontWeight: 'bold', fontSize: 14 }}>
                 ⏩ Pular 15 Dias (Demonstração)
               </Text>
             </Button>
@@ -93,9 +94,9 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 400,
     padding: 24,
-    borderColor: '#bfdbfe', // blue-200
+    borderColor: Colors.primaryLightest, // blue-200
     borderWidth: 2,
-    backgroundColor: '#f8fafc',
+    backgroundColor: Colors.background,
     alignItems: 'center',
   },
   spinnerContainer: {
@@ -117,13 +118,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     textAlign: 'center',
     marginBottom: 10,
   },
   description: {
     fontSize: 14,
-    color: '#475569', // slate-600
+    color: Colors.textSecondary, // slate-600
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 20,
@@ -145,23 +146,23 @@ const styles = StyleSheet.create({
   },
   timeHeaderText: {
     fontSize: 14,
-    color: '#334155', // slate-700
+    color: Colors.textSecondary, // slate-700
     fontWeight: '500',
   },
   timeValue: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1d4ed8', // blue-700
+    color: Colors.primaryDark, // blue-700
   },
   tipBox: {
-    backgroundColor: '#dbeafe', // blue-100
+    backgroundColor: Colors.primaryLight, // blue-100
     padding: 12,
     borderRadius: 8,
     width: '100%',
   },
   tipText: {
     fontSize: 13,
-    color: '#1e3a8a', // blue-900
+    color: Colors.primaryDarker, // blue-900
     textAlign: 'center',
     lineHeight: 18,
   },
@@ -177,7 +178,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
     padding: 10,
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.cardBackground,
   },
   stepEmoji: {
     fontSize: 20,
@@ -185,7 +186,7 @@ const styles = StyleSheet.create({
   },
   stepText: {
     fontSize: 11,
-    color: '#64748b',
+    color: Colors.textMuted,
     textAlign: 'center',
   },
 });

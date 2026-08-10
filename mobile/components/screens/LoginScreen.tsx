@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, ActivityIndicator, Alert, TouchableO
 import { Button } from '../ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
 import { Icon } from '../Icon';
+import { Colors } from '../../constants/Colors';
 
 interface LoginScreenProps {
   onRegister: () => void;
@@ -34,7 +35,7 @@ export function LoginScreen({ onRegister }: LoginScreenProps) {
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
-        <Icon name="TrendingUp" size={64} color="#2563eb" />
+        <Icon name="TrendingUp" size={64} color={Colors.primaryHover} />
         <Text style={styles.title}>RetroBolsa</Text>
         <Text style={styles.subtitle}>Simulador Histórico de Investimentos</Text>
       </View>
@@ -67,7 +68,7 @@ export function LoginScreen({ onRegister }: LoginScreenProps) {
           style={styles.loginBtn}
         >
           {isLoading ? (
-            <ActivityIndicator color="#ffffff" />
+            <ActivityIndicator color={Colors.cardBackground} />
           ) : (
             <Text style={styles.loginBtnText}>Entrar</Text>
           )}
@@ -84,7 +85,7 @@ export function LoginScreen({ onRegister }: LoginScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: Colors.background,
     justifyContent: 'center',
     padding: 24,
   },
@@ -95,12 +96,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '800',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginTop: 16,
   },
   subtitle: {
     fontSize: 16,
-    color: '#64748b',
+    color: Colors.textMuted,
     marginTop: 8,
   },
   formContainer: {
@@ -109,25 +110,25 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#334155',
+    color: Colors.textSecondary,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.cardBackground,
     borderWidth: 1,
-    borderColor: '#cbd5e1',
+    borderColor: Colors.borderDark,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
     marginBottom: 20,
-    color: '#0f172a',
+    color: Colors.textPrimary,
   },
   loginBtn: {
     marginTop: 8,
     alignItems: 'center',
   },
   loginBtnText: {
-    color: '#ffffff',
+    color: Colors.cardBackground,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -136,7 +137,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   registerLinkText: {
-    color: '#2563eb',
+    color: Colors.primaryHover,
     fontSize: 15,
     fontWeight: '600',
   },

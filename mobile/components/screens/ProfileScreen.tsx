@@ -5,6 +5,7 @@ import { AchievementBadge } from '../AchievementBadge';
 import { Icon } from '../Icon';
 import { userService } from '../../services/userService';
 import { UserProfile } from '../../types';
+import { Colors } from '../../constants/Colors';
 
 export function ProfileScreen() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -30,7 +31,7 @@ export function ProfileScreen() {
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#2563eb" />
+        <ActivityIndicator size="large" color={Colors.primaryHover} />
         <Text style={styles.loadingText}>Carregando perfil...</Text>
       </View>
     );
@@ -39,7 +40,7 @@ export function ProfileScreen() {
   if (error || !userProfile) {
     return (
       <View style={styles.centerContainer}>
-        <Icon name="AlertCircle" size={48} color="#ef4444" />
+        <Icon name="AlertCircle" size={48} color={Colors.error} />
         <Text style={styles.errorText}>{error || 'Perfil não encontrado'}</Text>
       </View>
     );
@@ -64,7 +65,7 @@ export function ProfileScreen() {
           <View style={styles.userTextContainer}>
             <Text style={styles.username}>{userProfile.username}</Text>
             <View style={styles.pointsRow}>
-              <Icon name="Trophy" size={16} color="#ea580c" style={styles.trophyIcon} />
+              <Icon name="Trophy" size={16} color={Colors.warningDark} style={styles.trophyIcon} />
               <Text style={styles.pointsText}>
                 {userProfile.totalPoints.toLocaleString('pt-BR')} pontos
               </Text>
@@ -75,7 +76,7 @@ export function ProfileScreen() {
         {/* Stats Grid (3 columns) */}
         <View style={styles.statsGrid}>
           <View style={styles.statCol}>
-            <Icon name="Target" size={18} color="#2563eb" style={styles.statIcon} />
+            <Icon name="Target" size={18} color={Colors.primaryHover} style={styles.statIcon} />
             <Text style={styles.statLabel}>Melhor Posição</Text>
             <Text style={styles.statVal}>
               {userProfile.bestRank > 0 ? `${userProfile.bestRank}º lugar` : 'N/A'}
@@ -83,13 +84,13 @@ export function ProfileScreen() {
           </View>
           
           <View style={[styles.statCol, styles.statColBorder]}>
-            <Icon name="Award" size={18} color="#16a34a" style={styles.statIcon} />
+            <Icon name="Award" size={18} color={Colors.success} style={styles.statIcon} />
             <Text style={styles.statLabel}>Competições</Text>
             <Text style={styles.statVal}>{userProfile.completedCompetitions}</Text>
           </View>
           
           <View style={styles.statCol}>
-            <Icon name="Heart" size={18} color="#ea580c" style={styles.statIcon} />
+            <Icon name="Heart" size={18} color={Colors.warningDark} style={styles.statIcon} />
             <Text style={styles.statLabel}>Ativo Favorito</Text>
             <Text style={styles.statVal} numberOfLines={1}>
               {userProfile.favoriteAsset || 'Nenhum'}
@@ -133,11 +134,11 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 10,
-    color: '#475569',
+    color: Colors.textSecondary,
   },
   errorText: {
     marginTop: 10,
-    color: '#334155',
+    color: Colors.textSecondary,
     textAlign: 'center',
   },
   container: {
@@ -150,16 +151,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: '#64748b',
+    color: Colors.textMuted,
   },
   profileCard: {
     backgroundColor: '#f0fdf4',
-    borderColor: '#bfdbfe',
+    borderColor: Colors.primaryLightest,
     borderWidth: 2,
     padding: 16,
   },
@@ -172,14 +173,14 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#cbd5e1',
+    backgroundColor: Colors.borderDark,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 3,
-    borderColor: '#ffffff',
+    borderColor: Colors.cardBackground,
     ...Platform.select({
       ios: {
-        shadowColor: '#64748b',
+        shadowColor: Colors.textMuted,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.15,
         shadowRadius: 3,
@@ -195,7 +196,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#334155',
+    color: Colors.textSecondary,
   },
   userTextContainer: {
     marginLeft: 14,
@@ -203,7 +204,7 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 2,
   },
   pointsRow: {
@@ -215,7 +216,7 @@ const styles = StyleSheet.create({
   },
   pointsText: {
     fontSize: 14,
-    color: '#ea580c',
+    color: Colors.warningDark,
     fontWeight: '600',
   },
   statsGrid: {
@@ -233,14 +234,14 @@ const styles = StyleSheet.create({
   statColBorder: {
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: Colors.border,
   },
   statIcon: {
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 10,
-    color: '#64748b',
+    color: Colors.textMuted,
     textAlign: 'center',
     marginBottom: 2,
   },
@@ -252,7 +253,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: Colors.border,
     marginVertical: 24,
   },
   achievementsSection: {
@@ -261,7 +262,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   achievementsGrid: {
@@ -275,19 +276,19 @@ const styles = StyleSheet.create({
   },
   tipCard: {
     backgroundColor: '#eff6ff',
-    borderColor: '#bfdbfe',
+    borderColor: Colors.primaryLightest,
     padding: 16,
     marginTop: 16,
   },
   tipTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   tipText: {
     fontSize: 13,
-    color: '#475569',
+    color: Colors.textSecondary,
     lineHeight: 18,
   },
 });

@@ -5,6 +5,7 @@ import { RankingItem } from '../RankingItem';
 import { Icon } from '../Icon';
 import { rankingService, RankingType } from '../../services/rankingService';
 import { RankingEntry } from '../../types';
+import { Colors } from '../../constants/Colors';
 
 export function RankingsScreen() {
   const [quinzenal, setQuinzenal] = useState<RankingEntry[]>([]);
@@ -37,7 +38,7 @@ export function RankingsScreen() {
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#2563eb" />
+        <ActivityIndicator size="large" color={Colors.primaryHover} />
         <Text style={styles.loadingText}>Carregando rankings...</Text>
       </View>
     );
@@ -48,7 +49,7 @@ export function RankingsScreen() {
       {/* Page Header */}
       <View style={styles.header}>
         <View style={styles.headerIconContainer}>
-          <Icon name="Trophy" size={28} color="#ffffff" />
+          <Icon name="Trophy" size={28} color={Colors.cardBackground} />
         </View>
         <View style={styles.headerTextContainer}>
           <Text style={styles.title}>Rankings</Text>
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 10,
-    color: '#475569',
+    color: Colors.textSecondary,
   },
   container: {
     padding: 16,
@@ -141,12 +142,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 2,
   },
   subtitle: {
     fontSize: 13,
-    color: '#64748b',
+    color: Colors.textMuted,
   },
   infoBox: {
     padding: 14,
@@ -156,7 +157,7 @@ const styles = StyleSheet.create({
   },
   infoBoxQuinzenal: {
     backgroundColor: '#eff6ff',
-    borderColor: '#bfdbfe',
+    borderColor: Colors.primaryLightest,
   },
   infoBoxTemporada: {
     backgroundColor: '#f0fdf4',
@@ -169,12 +170,12 @@ const styles = StyleSheet.create({
   infoBoxTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 2,
   },
   infoBoxText: {
     fontSize: 12,
-    color: '#475569',
+    color: Colors.textSecondary,
   },
   rankingList: {
     gap: 4,

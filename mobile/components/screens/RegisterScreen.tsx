@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, ActivityIndicator, Alert, TouchableO
 import { Button } from '../ui/Button';
 import { authService } from '../../services/authService';
 import { Icon } from '../Icon';
+import { Colors } from '../../constants/Colors';
 
 interface RegisterScreenProps {
   onBackToLogin: () => void;
@@ -51,7 +52,7 @@ export function RegisterScreen({ onBackToLogin }: RegisterScreenProps) {
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBackToLogin} style={styles.backButton}>
-          <Icon name="ChevronLeft" size={24} color="#64748b" />
+          <Icon name="ChevronLeft" size={24} color={Colors.textMuted} />
         </TouchableOpacity>
         <Text style={styles.title}>Criar Conta</Text>
       </View>
@@ -114,7 +115,7 @@ export function RegisterScreen({ onBackToLogin }: RegisterScreenProps) {
           style={styles.registerBtn}
         >
           {isLoading ? (
-            <ActivityIndicator color="#ffffff" />
+            <ActivityIndicator color={Colors.cardBackground} />
           ) : (
             <Text style={styles.registerBtnText}>Cadastrar</Text>
           )}
@@ -127,7 +128,7 @@ export function RegisterScreen({ onBackToLogin }: RegisterScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: Colors.background,
     padding: 24,
     paddingTop: 60,
   },
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#0f172a',
+    color: Colors.textPrimary,
   },
   formContainer: {
     width: '100%',
@@ -151,25 +152,25 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#334155',
+    color: Colors.textSecondary,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.cardBackground,
     borderWidth: 1,
-    borderColor: '#cbd5e1',
+    borderColor: Colors.borderDark,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
     marginBottom: 20,
-    color: '#0f172a',
+    color: Colors.textPrimary,
   },
   registerBtn: {
     marginTop: 8,
     alignItems: 'center',
   },
   registerBtnText: {
-    color: '#ffffff',
+    color: Colors.cardBackground,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -195,7 +196,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   successText: {
-    color: '#16a34a',
+    color: Colors.success,
     fontSize: 14,
     textAlign: 'center',
   },

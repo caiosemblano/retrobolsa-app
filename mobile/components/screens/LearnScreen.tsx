@@ -72,7 +72,7 @@ export function LearnScreen() {
   if (isLoadingModules) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#2563eb" />
+        <ActivityIndicator size="large" color={Colors.primaryHover} />
         <Text style={styles.loadingText}>Carregando conteúdo...</Text>
       </View>
     );
@@ -81,7 +81,7 @@ export function LearnScreen() {
   if (error) {
     return (
       <View style={styles.centerContainer}>
-        <Icon name="AlertCircle" size={48} color="#ef4444" />
+        <Icon name="AlertCircle" size={48} color={Colors.error} />
         <Text style={styles.errorText}>{error}</Text>
       </View>
     );
@@ -96,7 +96,7 @@ export function LearnScreen() {
           onPress={() => setSelectedModule(null)}
           style={styles.backBtn}
         >
-          <Icon name="ChevronLeft" size={16} color="#64748b" style={styles.backIcon} />
+          <Icon name="ChevronLeft" size={16} color={Colors.textMuted} style={styles.backIcon} />
           <Text style={styles.backText}>Voltar para Módulos</Text>
         </Button>
 
@@ -109,7 +109,7 @@ export function LearnScreen() {
         {/* Lessons List */}
         <View style={styles.lessonsList}>
           {isLoadingLessons ? (
-            <ActivityIndicator size="large" color="#2563eb" style={{ marginTop: 20 }} />
+            <ActivityIndicator size="large" color={Colors.primaryHover} style={{ marginTop: 20 }} />
           ) : lessons.length > 0 ? (
             lessons.map((lesson) => (
               <LessonCard
@@ -119,7 +119,7 @@ export function LearnScreen() {
               />
             ))
           ) : (
-            <Text style={{ textAlign: 'center', color: '#64748b', marginTop: 20 }}>
+            <Text style={{ textAlign: 'center', color: Colors.textMuted, marginTop: 20 }}>
               Nenhuma aula disponível neste módulo.
             </Text>
           )}
@@ -137,7 +137,7 @@ export function LearnScreen() {
       {/* Page Header */}
       <View style={styles.pageHeader}>
         <View style={styles.pageHeaderIconContainer}>
-          <Icon name="GraduationCap" size={28} color="#1d4ed8" />
+          <Icon name="GraduationCap" size={28} color={Colors.primaryDark} />
         </View>
         <View style={styles.pageHeaderTextContainer}>
           <Text style={styles.pageTitle}>Aprender</Text>
@@ -179,6 +179,7 @@ export function LearnScreen() {
 }
 
 // Inline helper Card since we need it in LearnScreen but can't import ui/Card styled specifically
+import { Colors } from '../../constants/Colors';
 function Card({ children, style }: { children: React.ReactNode; style?: any }) {
   return <View style={[styles.cardBase, style]}>{children}</View>;
 }
@@ -192,11 +193,11 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 10,
-    color: '#475569',
+    color: Colors.textSecondary,
   },
   errorText: {
     marginTop: 10,
-    color: '#334155',
+    color: Colors.textSecondary,
     textAlign: 'center',
   },
   container: {
@@ -212,7 +213,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   backText: {
-    color: '#64748b',
+    color: Colors.textMuted,
     fontSize: 14,
     fontWeight: '500',
   },
@@ -222,12 +223,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: '#64748b',
+    color: Colors.textMuted,
     lineHeight: 20,
   },
   lessonsList: {
@@ -240,7 +241,7 @@ const styles = StyleSheet.create({
   },
   pageHeaderIconContainer: {
     padding: 12,
-    backgroundColor: '#dbeafe',
+    backgroundColor: Colors.primaryLight,
     borderRadius: 10,
     marginRight: 12,
   },
@@ -250,35 +251,35 @@ const styles = StyleSheet.create({
   pageTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 2,
   },
   pageSubtitle: {
     fontSize: 13,
-    color: '#64748b',
+    color: Colors.textMuted,
   },
   cardBase: {
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.cardBackground,
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: Colors.border,
   },
   progressCard: {
-    backgroundColor: '#2563eb',
-    borderColor: '#1d4ed8',
+    backgroundColor: Colors.primaryHover,
+    borderColor: Colors.primaryDark,
     padding: 20,
     marginBottom: 20,
   },
   progressTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: Colors.cardBackground,
     marginBottom: 6,
   },
   progressText: {
     fontSize: 13,
-    color: '#dbeafe',
+    color: Colors.primaryLight,
     lineHeight: 18,
     marginBottom: 16,
   },
@@ -289,7 +290,7 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     fontSize: 12,
-    color: '#dbeafe',
+    color: Colors.primaryLight,
     marginBottom: 6,
   },
   progressBarRow: {
@@ -306,13 +307,13 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.cardBackground,
     borderRadius: 4,
   },
   progressPctText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#ffffff',
+    color: Colors.cardBackground,
   },
   modulesSection: {
     gap: 8,

@@ -19,6 +19,7 @@ import { Icon } from '../Icon';
 import { competitionService } from '../../services/competitionService';
 import { portfolioService } from '../../services/portfolioService';
 import { Asset, Portfolio, Competition } from '../../types';
+import { Colors } from '../../constants/Colors';
 
 interface PortfolioBuilderScreenProps {
   onConfirm: () => void;
@@ -125,7 +126,7 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#2563eb" />
+        <ActivityIndicator size="large" color={Colors.primaryHover} />
         <Text style={styles.loadingText}>Carregando ativos...</Text>
       </View>
     );
@@ -134,7 +135,7 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
   if (error || !competition) {
     return (
       <View style={styles.centerContainer}>
-        <Icon name="AlertCircle" size={48} color="#ef4444" />
+        <Icon name="AlertCircle" size={48} color={Colors.error} />
         <Text style={styles.errorText}>{error || 'Nenhuma competição ativa'}</Text>
         <Button variant="ghost" onPress={onBack} style={{ marginTop: 20 }}>Voltar</Button>
       </View>
@@ -173,7 +174,7 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
           onPress={onBack}
           style={styles.backBtn}
         >
-          <Icon name="ChevronLeft" size={16} color="#64748b" style={styles.backIcon} />
+          <Icon name="ChevronLeft" size={16} color={Colors.textMuted} style={styles.backIcon} />
           <Text style={styles.backText}>Voltar</Text>
         </Button>
 
@@ -213,7 +214,7 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
       <View style={styles.stickyFooter}>
         {!canConfirm && allocatedTotal === 0 ? (
           <View style={styles.warningContainer}>
-            <Icon name="AlertCircle" size={16} color="#ea580c" style={styles.warningIcon} />
+            <Icon name="AlertCircle" size={16} color={Colors.warningDark} style={styles.warningIcon} />
             <Text style={styles.warningText}>
               Aloque capital para confirmar sua carteira
             </Text>
@@ -227,9 +228,9 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
           style={styles.confirmBtn}
         >
           {isSubmitting ? (
-            <ActivityIndicator size="small" color="#ffffff" style={{ marginRight: 8 }} />
+            <ActivityIndicator size="small" color={Colors.cardBackground} style={{ marginRight: 8 }} />
           ) : (
-            <Icon name="Wallet" size={18} color={canConfirm ? '#ffffff' : '#94a3b8'} style={styles.walletIcon} />
+            <Icon name="Wallet" size={18} color={canConfirm ? Colors.cardBackground : Colors.textMuted} style={styles.walletIcon} />
           )}
           <Text style={[styles.confirmBtnText, !canConfirm && styles.confirmBtnTextDisabled]}>
             Confirmar Carteira
@@ -256,7 +257,7 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
                     Alocar em {selectedAsset.anonymousName}
                   </Text>
                   <TouchableOpacity onPress={() => setSelectedAsset(null)}>
-                    <Icon name="Lock" size={20} color="#64748b" />
+                    <Icon name="Lock" size={20} color={Colors.textMuted} />
                   </TouchableOpacity>
                 </View>
 
@@ -328,29 +329,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f8fafc',
+    backgroundColor: Colors.background,
   },
   loadingText: {
     marginTop: 10,
-    color: '#475569',
+    color: Colors.textSecondary,
   },
   errorText: {
     marginTop: 10,
-    color: '#334155',
+    color: Colors.textSecondary,
     textAlign: 'center',
   },
   outerContainer: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: Colors.background,
   },
   stickyHeader: {
     padding: 16,
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.cardBackground,
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
+    borderBottomColor: Colors.border,
     ...Platform.select({
       ios: {
-        shadowColor: '#64748b',
+        shadowColor: Colors.textMuted,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
         shadowRadius: 3,
@@ -365,8 +366,8 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   budgetCard: {
-    backgroundColor: '#2563eb',
-    borderColor: '#1d4ed8',
+    backgroundColor: Colors.primaryHover,
+    borderColor: Colors.primaryDark,
     padding: 14,
   },
   budgetRow: {
@@ -376,12 +377,12 @@ const styles = StyleSheet.create({
   },
   budgetLabel: {
     fontSize: 12,
-    color: '#dbeafe',
+    color: Colors.primaryLight,
     marginBottom: 2,
   },
   budgetLabelRight: {
     fontSize: 12,
-    color: '#dbeafe',
+    color: Colors.primaryLight,
     marginBottom: 2,
     textAlign: 'right',
   },
@@ -391,7 +392,7 @@ const styles = StyleSheet.create({
   budgetVal: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: Colors.cardBackground,
   },
   progressBarContainer: {
     height: 6,
@@ -401,7 +402,7 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.cardBackground,
     borderRadius: 3,
   },
   scrollContainer: {
@@ -418,7 +419,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   backText: {
-    color: '#64748b',
+    color: Colors.textMuted,
     fontSize: 14,
     fontWeight: '500',
   },
@@ -428,12 +429,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 13,
-    color: '#64748b',
+    color: Colors.textMuted,
   },
   assetsSection: {
     marginTop: 8,
@@ -441,7 +442,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   assetCardWrapper: {
@@ -451,14 +452,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 14,
     right: 14,
-    backgroundColor: '#ef4444',
+    backgroundColor: Colors.error,
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 4,
     zIndex: 5,
   },
   removeBtnText: {
-    color: '#ffffff',
+    color: Colors.cardBackground,
     fontSize: 11,
     fontWeight: '600',
   },
@@ -467,13 +468,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.cardBackground,
     borderTopWidth: 1,
-    borderTopColor: '#e2e8f0',
+    borderTopColor: Colors.border,
     padding: 16,
     ...Platform.select({
       ios: {
-        shadowColor: '#64748b',
+        shadowColor: Colors.textMuted,
         shadowOffset: { width: 0, height: -2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
@@ -498,7 +499,7 @@ const styles = StyleSheet.create({
   },
   warningText: {
     fontSize: 12,
-    color: '#ea580c',
+    color: Colors.warningDark,
     fontWeight: '500',
   },
   confirmBtn: {
@@ -511,12 +512,12 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   confirmBtnText: {
-    color: '#ffffff',
+    color: Colors.cardBackground,
     fontSize: 16,
     fontWeight: '600',
   },
   confirmBtnTextDisabled: {
-    color: '#94a3b8',
+    color: Colors.textMuted,
   },
   modalOverlay: {
     flex: 1,
@@ -530,12 +531,12 @@ const styles = StyleSheet.create({
     maxWidth: 360,
   },
   modalCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.cardBackground,
     borderRadius: 12,
     padding: 20,
     ...Platform.select({
       ios: {
-        shadowColor: '#0f172a',
+        shadowColor: Colors.textPrimary,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.15,
         shadowRadius: 10,
@@ -554,13 +555,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: Colors.background,
     paddingBottom: 10,
   },
   modalTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#0f172a',
+    color: Colors.textPrimary,
   },
   modalBody: {
     marginBottom: 20,
@@ -568,18 +569,18 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#475569',
+    color: Colors.textSecondary,
     marginBottom: 6,
   },
   numberInput: {
     borderWidth: 1,
-    borderColor: '#cbd5e1',
+    borderColor: Colors.borderDark,
     borderRadius: 8,
     padding: 10,
     fontSize: 16,
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 16,
-    backgroundColor: '#f8fafc',
+    backgroundColor: Colors.background,
   },
   presetRow: {
     flexDirection: 'row',
@@ -587,21 +588,21 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   presetChip: {
-    backgroundColor: '#f1f5f9',
+    backgroundColor: Colors.background,
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: Colors.border,
   },
   presetChipText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#475569',
+    color: Colors.textSecondary,
   },
   availableText: {
     fontSize: 12,
-    color: '#64748b',
+    color: Colors.textMuted,
     marginTop: 4,
   },
   modalFooter: {
@@ -612,7 +613,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   modalSubmitBtn: {
-    backgroundColor: '#f97316',
+    backgroundColor: Colors.warning,
     paddingHorizontal: 20,
   },
 });

@@ -9,6 +9,7 @@ import { competitionService } from '../../services/competitionService';
 import { portfolioService } from '../../services/portfolioService';
 import { rankingService } from '../../services/rankingService';
 import { Competition, Result, RankingEntry } from '../../types';
+import { Colors } from '../../constants/Colors';
 
 interface HomeScreenProps {
   onStartCompetition: (comp: Competition) => void;
@@ -71,7 +72,7 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#2563eb" />
+        <ActivityIndicator size="large" color={Colors.primaryHover} />
         <Text style={styles.loadingText}>Carregando painel...</Text>
       </View>
     );
@@ -80,7 +81,7 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
   if (error) {
     return (
       <View style={styles.centerContainer}>
-        <Icon name="AlertCircle" size={48} color="#ef4444" />
+        <Icon name="AlertCircle" size={48} color={Colors.error} />
         <Text style={styles.errorText}>{error}</Text>
       </View>
     );
@@ -100,10 +101,10 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
           {/* Admin Controls */}
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <Button variant="outline" onPress={handleNextRound} style={{ paddingHorizontal: 12 }}>
-              <Icon name="ArrowRight" size={16} color="#475569" />
+              <Icon name="ArrowRight" size={16} color={Colors.textSecondary} />
             </Button>
             <Button variant="outline" onPress={handleResetGame} style={{ paddingHorizontal: 12 }}>
-              <Icon name="RefreshCcw" size={16} color="#ef4444" />
+              <Icon name="RefreshCcw" size={16} color={Colors.error} />
             </Button>
           </View>
         </View>
@@ -128,7 +129,7 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
       {/* Last Result Card */}
       <View style={styles.section}>
         <View style={styles.sectionTitleRow}>
-          <Icon name="TrendingUp" size={20} color="#16a34a" style={styles.sectionIcon} />
+          <Icon name="TrendingUp" size={20} color={Colors.success} style={styles.sectionIcon} />
           <Text style={styles.sectionTitle}>Seu Último Resultado</Text>
         </View>
 
@@ -138,7 +139,7 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
               <View style={styles.gridCol}>
                 <Text style={styles.gridLabel}>Sua Posição</Text>
                 <View style={styles.gridValContainer}>
-                  <Icon name="Target" size={16} color="#15803d" style={styles.gridValIcon} />
+                  <Icon name="Target" size={16} color={Colors.successDark} style={styles.gridValIcon} />
                   <Text style={styles.gridValText}>{lastResult.rank}º lugar</Text>
                 </View>
               </View>
@@ -204,11 +205,11 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 10,
-    color: '#475569',
+    color: Colors.textSecondary,
   },
   errorText: {
     marginTop: 10,
-    color: '#334155',
+    color: Colors.textSecondary,
     textAlign: 'center',
   },
   container: {
@@ -221,19 +222,19 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#64748b',
+    color: Colors.textMuted,
   },
   section: {
     marginBottom: 16,
   },
   divider: {
     height: 1,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: Colors.border,
     marginVertical: 24,
   },
   sectionTitleRow: {
@@ -247,7 +248,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#0f172a',
+    color: Colors.textPrimary,
   },
   resultsCard: {
     backgroundColor: '#f0fdf4',
@@ -264,7 +265,7 @@ const styles = StyleSheet.create({
   },
   gridLabel: {
     fontSize: 12,
-    color: '#475569',
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   gridValContainer: {
@@ -277,7 +278,7 @@ const styles = StyleSheet.create({
   gridValText: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#15803d',
+    color: Colors.successDark,
   },
   portfolioValueContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.6)',
@@ -287,7 +288,7 @@ const styles = StyleSheet.create({
   },
   portfolioValueLabel: {
     fontSize: 12,
-    color: '#475569',
+    color: Colors.textSecondary,
     marginBottom: 2,
   },
   portfolioValueVal: {
@@ -296,7 +297,7 @@ const styles = StyleSheet.create({
     color: '#166534',
   },
   detailsBtn: {
-    backgroundColor: '#16a34a',
+    backgroundColor: Colors.success,
   },
   rankingList: {
     marginTop: 8,
@@ -305,14 +306,14 @@ const styles = StyleSheet.create({
     padding: 24,
     alignItems: 'center',
     borderStyle: 'dashed',
-    backgroundColor: '#f8fafc',
+    backgroundColor: Colors.background,
   },
   emptyCardText: {
-    color: '#475569',
+    color: Colors.textSecondary,
     textAlign: 'center',
   },
   emptyCardSubText: {
-    color: '#64748b',
+    color: Colors.textMuted,
     fontSize: 12,
     marginTop: 8,
     textAlign: 'center',

@@ -6,6 +6,7 @@ import { Card } from '../ui/Card';
 import { Icon } from '../Icon';
 import { competitionService } from '../../services/competitionService';
 import { Competition } from '../../types';
+import { Colors } from '../../constants/Colors';
 
 interface CompetitionContextScreenProps {
   onNext: () => void;
@@ -36,7 +37,7 @@ export function CompetitionContextScreen({ onNext, onBack }: CompetitionContextS
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#2563eb" />
+        <ActivityIndicator size="large" color={Colors.primaryHover} />
         <Text style={styles.loadingText}>Carregando cenário...</Text>
       </View>
     );
@@ -45,7 +46,7 @@ export function CompetitionContextScreen({ onNext, onBack }: CompetitionContextS
   if (error || !competition) {
     return (
       <View style={styles.centerContainer}>
-        <Icon name="AlertCircle" size={48} color="#ef4444" />
+        <Icon name="AlertCircle" size={48} color={Colors.error} />
         <Text style={styles.errorText}>{error || 'Cenário indisponível'}</Text>
         <Button variant="ghost" onPress={onBack} style={{ marginTop: 20 }}>Voltar</Button>
       </View>
@@ -59,13 +60,13 @@ export function CompetitionContextScreen({ onNext, onBack }: CompetitionContextS
         onPress={onBack}
         style={styles.backBtn}
       >
-        <Icon name="ChevronLeft" size={16} color="#64748b" style={styles.backIcon} />
+        <Icon name="ChevronLeft" size={16} color={Colors.textMuted} style={styles.backIcon} />
         <Text style={styles.backText}>Voltar</Text>
       </Button>
 
       <View style={styles.header}>
         <View style={styles.headerIconContainer}>
-          <Icon name="FileText" size={28} color="#1d4ed8" />
+          <Icon name="FileText" size={28} color={Colors.primaryDark} />
         </View>
         <View style={styles.headerTextContainer}>
           <Text style={styles.title}>
@@ -113,7 +114,7 @@ export function CompetitionContextScreen({ onNext, onBack }: CompetitionContextS
         style={styles.nextBtn}
       >
         <Text style={styles.nextBtnText}>Escolher Ativos</Text>
-        <Icon name="ArrowRight" size={18} color="#ffffff" style={styles.nextBtnIcon} />
+        <Icon name="ArrowRight" size={18} color={Colors.cardBackground} style={styles.nextBtnIcon} />
       </Button>
     </ScrollView>
   );
@@ -125,15 +126,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f8fafc',
+    backgroundColor: Colors.background,
   },
   loadingText: {
     marginTop: 10,
-    color: '#475569',
+    color: Colors.textSecondary,
   },
   errorText: {
     marginTop: 10,
-    color: '#334155',
+    color: Colors.textSecondary,
     textAlign: 'center',
   },
   container: {
@@ -149,7 +150,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   backText: {
-    color: '#64748b',
+    color: Colors.textMuted,
     fontSize: 14,
     fontWeight: '500',
   },
@@ -160,7 +161,7 @@ const styles = StyleSheet.create({
   },
   headerIconContainer: {
     padding: 12,
-    backgroundColor: '#dbeafe',
+    backgroundColor: Colors.primaryLight,
     borderRadius: 10,
     marginRight: 12,
   },
@@ -170,28 +171,28 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 13,
-    color: '#64748b',
+    color: Colors.textMuted,
   },
   gradientCard: {
-    backgroundColor: '#2563eb',
-    borderColor: '#1d4ed8',
+    backgroundColor: Colors.primaryHover,
+    borderColor: Colors.primaryDark,
     padding: 16,
     marginBottom: 20,
   },
   gradientTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: Colors.cardBackground,
     marginBottom: 6,
   },
   gradientText: {
     fontSize: 13,
-    color: '#dbeafe',
+    color: Colors.primaryLight,
     lineHeight: 18,
   },
   section: {
@@ -200,7 +201,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   indicatorsList: {
@@ -216,22 +217,22 @@ const styles = StyleSheet.create({
   tipsTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   tipsText: {
     fontSize: 13,
-    color: '#475569',
+    color: Colors.textSecondary,
     lineHeight: 18,
   },
   nextBtn: {
-    backgroundColor: '#f97316',
+    backgroundColor: Colors.warning,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
   nextBtnText: {
-    color: '#ffffff',
+    color: Colors.cardBackground,
     fontSize: 16,
     fontWeight: '600',
     marginRight: 6,
