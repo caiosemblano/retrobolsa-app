@@ -94,7 +94,7 @@ export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
         <View style={styles.portfolioValBox}>
           <Text style={styles.portfolioValLabel}>Valor Final da Carteira</Text>
           <Text style={styles.portfolioValText}>
-            R$ {result.portfolioValue.toLocaleString('pt-BR')}
+            R$ {result.portfolioValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </Text>
           <Text style={styles.portfolioValSub}>
             De R$ 100.000 iniciais

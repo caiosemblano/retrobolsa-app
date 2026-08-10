@@ -155,7 +155,7 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
             <View style={styles.portfolioValueContainer}>
               <Text style={styles.portfolioValueLabel}>Valor Final da Carteira</Text>
               <Text style={styles.portfolioValueVal}>
-                R$ {lastResult.portfolioValue.toLocaleString('pt-BR')}
+                R$ {lastResult.portfolioValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </Text>
             </View>
 

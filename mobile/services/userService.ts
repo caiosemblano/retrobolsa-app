@@ -22,6 +22,7 @@ export const userService = {
                 description: 'Realizou seu primeiro investimento simulado.',
                 icon: 'Award',
                 unlockedAt: '2026-08-01',
+                unlocked: true,
               },
               {
                 id: '2',
@@ -29,6 +30,7 @@ export const userService = {
                 description: 'Ficou no Top 10 de uma competição semanal.',
                 icon: 'TrendingUp',
                 unlockedAt: '2026-08-05',
+                unlocked: true,
               },
             ],
           },
