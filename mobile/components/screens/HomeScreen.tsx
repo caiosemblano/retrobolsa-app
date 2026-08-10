@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { CompetitionCard } from '../CompetitionCard';
 import { RankingItem } from '../RankingItem';
 import { Card } from '../ui/Card';
@@ -22,29 +22,51 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      const [compRes, resultRes, rankingRes] = await Promise.all([
+        competitionService.getActive().catch(() => null),
+        portfolioService.getLastResult().then(res => res.data).catch(() => null),
+        rankingService.get('quinzenal').then(res => res.data).catch(() => [])
+      ]);
+
+      setCompetition(compRes);
+      setLastResult(resultRes);
+      setTopRanking(rankingRes.slice(0, 5));
+    } catch (err) {
+      setError('Ocorreu um erro ao carregar os dados. Tente novamente mais tarde.');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const [compRes, resultRes, rankingRes] = await Promise.all([
-          competitionService.getActive().catch(() => null),
-          portfolioService.getLastResult().then(res => res.data).catch(() => null),
-          rankingService.get('quinzenal').then(res => res.data).catch(() => [])
-        ]);
-
-        if (compRes) setCompetition(compRes);
-        if (resultRes) setLastResult(resultRes);
-        setTopRanking(rankingRes.slice(0, 5));
-      } catch (err) {
-        setError('Ocorreu um erro ao carregar os dados. Tente novamente mais tarde.');
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
+
+  const handleNextRound = () => {
+    Alert.alert('Avançar Rodada', 'Tem certeza que deseja fechar esta rodada e ir para a próxima?', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Avançar', onPress: async () => {
+        setIsLoading(true);
+        await competitionService.nextRound().catch(e => console.error(e));
+        await fetchData();
+      }}
+    ]);
+  };
+
+  const handleResetGame = () => {
+    Alert.alert('Resetar Jogo', 'Isso apagará todas as carteiras e voltará para a rodada 1!', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Resetar', style: 'destructive', onPress: async () => {
+        setIsLoading(true);
+        await competitionService.resetGame().catch(e => console.error(e));
+        await fetchData();
+      }}
+    ]);
+  };
 
   if (isLoading) {
     return (
@@ -68,10 +90,23 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header Info */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Competições</Text>
-        <Text style={styles.headerSubtitle}>
-          Participe e teste suas estratégias de investimento
-        </Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View>
+            <Text style={styles.headerTitle}>Competições</Text>
+            <Text style={styles.headerSubtitle}>
+              Participe e teste suas estratégias
+            </Text>
+          </View>
+          {/* Admin Controls */}
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Button variant="outline" onPress={handleNextRound} style={{ paddingHorizontal: 12 }}>
+              <Icon name="ArrowRight" size={16} color="#475569" />
+            </Button>
+            <Button variant="outline" onPress={handleResetGame} style={{ paddingHorizontal: 12 }}>
+              <Icon name="RefreshCcw" size={16} color="#ef4444" />
+            </Button>
+          </View>
+        </View>
       </View>
 
       {/* Competition Card */}

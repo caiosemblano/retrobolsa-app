@@ -25,4 +25,12 @@ export const competitionService = {
     const response = await api.get<CompetitionApiResponse>(`/api/competitions/${id}`);
     return mapCompetitionResponse(response.data);
   },
+
+  nextRound: async (): Promise<void> => {
+    await api.post('/api/competitions/admin/next-round');
+  },
+
+  resetGame: async (): Promise<void> => {
+    await api.post('/api/competitions/admin/reset');
+  },
 };
