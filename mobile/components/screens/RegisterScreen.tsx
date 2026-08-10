@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ActivityIndicator, Alert, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, ActivityIndicator, Alert, TouchableOpacity, ScrollView, Platform } from 'react-native';
 import { Button } from '../ui/Button';
 import { authService } from '../../services/authService';
 import { Icon } from '../Icon';
@@ -14,26 +14,34 @@ export function RegisterScreen({ onBackToLogin }: RegisterScreenProps) {
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
   const handleRegister = async () => {
+    setErrorMsg('');
+    setSuccessMsg('');
+
     if (!username || !email || !senha || !confirmarSenha) {
-      Alert.alert('Erro', 'Preencha todos os campos.');
+      setErrorMsg('Preencha todos os campos.');
       return;
     }
 
     if (senha !== confirmarSenha) {
-      Alert.alert('Erro', 'As senhas não coincidem.');
+      setErrorMsg('As senhas não coincidem.');
       return;
     }
 
     try {
       setIsLoading(true);
       await authService.register({ username, email, senha, confirmarSenha });
-      Alert.alert('Sucesso', 'Cadastro realizado com sucesso!', [
-        { text: 'OK', onPress: onBackToLogin }
-      ]);
+      
+      setSuccessMsg('Cadastro realizado com sucesso! Redirecionando...');
+      setTimeout(() => {
+        onBackToLogin();
+      }, 1500);
     } catch (error) {
       console.error(error);
+      setErrorMsg('Erro ao realizar cadastro. Verifique se o e-mail/usuário já existe.');
     } finally {
       setIsLoading(false);
     }
@@ -49,6 +57,18 @@ export function RegisterScreen({ onBackToLogin }: RegisterScreenProps) {
       </View>
 
       <View style={styles.formContainer}>
+        {errorMsg ? (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{errorMsg}</Text>
+          </View>
+        ) : null}
+
+        {successMsg ? (
+          <View style={styles.successBox}>
+            <Text style={styles.successText}>{successMsg}</Text>
+          </View>
+        ) : null}
+
         <Text style={styles.label}>Nome de Usuário</Text>
         <TextInput
           style={styles.input}
@@ -152,5 +172,31 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  errorBox: {
+    backgroundColor: '#fef2f2',
+    borderWidth: 1,
+    borderColor: '#fca5a5',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  errorText: {
+    color: '#dc2626',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  successBox: {
+    backgroundColor: '#f0fdf4',
+    borderWidth: 1,
+    borderColor: '#86efac',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  successText: {
+    color: '#16a34a',
+    fontSize: 14,
+    textAlign: 'center',
   },
 });

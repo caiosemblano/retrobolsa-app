@@ -66,7 +66,7 @@ function AppContent() {
           />
         );
       case 'simulation':
-        return <SimulationWaitScreen />;
+        return <SimulationWaitScreen onSkipWait={() => setCurrentScreen('results')} />;
       case 'results':
         return (
           <ResultsScreen

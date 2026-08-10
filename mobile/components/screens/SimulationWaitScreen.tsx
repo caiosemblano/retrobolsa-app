@@ -2,8 +2,13 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { Card } from '../ui/Card';
 import { Icon } from '../Icon';
+import { Button } from '../ui/Button';
 
-export function SimulationWaitScreen() {
+interface SimulationWaitScreenProps {
+  onSkipWait?: () => void;
+}
+
+export function SimulationWaitScreen({ onSkipWait }: SimulationWaitScreenProps) {
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.centerContainer}>
@@ -38,6 +43,18 @@ export function SimulationWaitScreen() {
               💡 Enquanto espera, que tal completar mais aulas na seção "Aprender"?
             </Text>
           </View>
+
+          {onSkipWait && (
+            <Button
+              variant="outline"
+              onPress={onSkipWait}
+              style={{ marginTop: 20, borderColor: '#f97316', borderWidth: 2 }}
+            >
+              <Text style={{ color: '#ea580c', fontWeight: 'bold', fontSize: 14 }}>
+                ⏩ Pular 15 Dias (Demonstração)
+              </Text>
+            </Button>
+          )}
         </Card>
 
         {/* Steps Grid (3 Column layout) */}
