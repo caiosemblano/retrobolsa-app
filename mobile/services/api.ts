@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://localhost:8081';
+const API_URL = 'https://bagged-chatty-suds.ngrok-free.dev';
 
 const api = axios.create({
   baseURL: API_URL,
