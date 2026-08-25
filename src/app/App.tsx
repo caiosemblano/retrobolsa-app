@@ -12,7 +12,6 @@ import { LoginScreen } from './components/screens/LoginScreen';
 import { RegisterScreen } from './components/screens/RegisterScreen';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Home, GraduationCap, Trophy, User, LogOut } from 'lucide-react';
-import { Competition } from './types';
 
 type Screen =
   | 'home'
@@ -31,7 +30,6 @@ type Screen =
 function AppContent() {
   const { isAuthenticated, isLoading, logout } = useAuth();
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
-  const [activeCompetition, setActiveCompetition] = useState<Competition | null>(null);
 
   // Enquanto verifica sessão inicial, mostra loading
   if (isLoading) {
@@ -63,18 +61,13 @@ function AppContent() {
     );
   }
 
-  const handleStartCompetition = (comp: Competition) => {
-    setActiveCompetition(comp);
-    setCurrentScreen('context');
-  };
-
   // ── Fluxo autenticado ──────────────────────────────────────────────────────
   const renderScreen = () => {
     switch (currentScreen) {
       case 'home':
         return (
           <HomeScreen
-            onStartCompetition={handleStartCompetition}
+            onStartCompetition={() => setCurrentScreen('context')}
             onViewResults={() => setCurrentScreen('results')}
           />
         );
@@ -85,25 +78,21 @@ function AppContent() {
       case 'profile':
         return <ProfileScreen />;
       case 'context':
-        if (!activeCompetition) return <HomeScreen onStartCompetition={handleStartCompetition} onViewResults={() => setCurrentScreen('results')} />;
         return (
           <CompetitionContextScreen
-            competition={activeCompetition}
             onNext={() => setCurrentScreen('portfolio')}
             onBack={() => setCurrentScreen('home')}
           />
         );
       case 'portfolio':
-        if (!activeCompetition) return <HomeScreen onStartCompetition={handleStartCompetition} onViewResults={() => setCurrentScreen('results')} />;
         return (
           <PortfolioBuilderScreen
-            competition={activeCompetition}
             onConfirm={() => setCurrentScreen('simulation')}
             onBack={() => setCurrentScreen('context')}
           />
         );
       case 'simulation':
-        return <SimulationWaitScreen onSimulationComplete={() => setCurrentScreen('results')} />;
+        return <SimulationWaitScreen onViewResults={() => setCurrentScreen('results')} />;
       case 'results':
         return (
           <ResultsScreen
@@ -114,7 +103,7 @@ function AppContent() {
       default:
         return (
           <HomeScreen
-            onStartCompetition={handleStartCompetition}
+            onStartCompetition={() => setCurrentScreen('context')}
             onViewResults={() => setCurrentScreen('results')}
           />
         );

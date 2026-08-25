@@ -41,7 +41,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // ── Inicialização: restaura sessão do localStorage ─────────────────────────
   useEffect(() => {
-    const storedUser = authService.getStoredUser();
+    let storedUser: StoredUser | null = null;
+    try {
+      storedUser = authService.getStoredUser();
+    } catch {
+      authService.logout();
+    }
     if (authService.isAuthenticated() && storedUser) {
       setUser(storedUser);
     }

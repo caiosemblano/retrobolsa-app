@@ -3,10 +3,11 @@ export interface Asset {
   type: 'stock' | 'bond';
   anonymousName: string;
   realName?: string;
-  ticker?: string;
   sector?: string;
   indicators?: {
     pl?: number;
+    roe?: number;
+    dividendYield?: number;
     lvp?: number;
     lucroPositivo?: boolean;
     cagrLucro?: number;
@@ -15,36 +16,6 @@ export interface Asset {
   };
   bondType?: string;
   rate?: number;
-}
-
-export interface SubmitPortfolioResponse {
-  message: string;
-  warnings?: string[];
-}
-
-export interface CompetitionApiResponse {
-  id: string;
-  round: number;
-  status: string;
-  daysLeft?: number;
-  budget: number;
-  scenarioTitle: string;
-  scenarioDescription: string;
-  startYear: number;
-  endYear: number;
-  assets: Asset[];
-}
-
-export interface RevealedAsset {
-  id: string;
-  anonymousName: string;
-  realName: string;
-  ticker: string;
-  type: string;
-  sector?: string;
-  bondType?: string;
-  amountInvested: number;
-  finalValue: number;
 }
 
 export interface EconomicIndicator {
@@ -56,16 +27,18 @@ export interface EconomicIndicator {
 export interface Competition {
   id: string;
   round: number;
-  status: 'open' | 'closed' | 'simulating';
+  status: 'open' | 'closed' | 'simulating' | 'simulated' | 'revealed';
   daysLeft?: number;
-  budget: number;
-  startYear: number;
-  endYear: number;
   economicContext: {
     title: string;
     indicators: EconomicIndicator[];
   };
   period?: string;
+  budget: number;
+  scenarioDescription?: string;
+  startYear?: number;
+  endYear?: number;
+  endsAt?: string;
   assets: Asset[];
 }
 
@@ -79,7 +52,7 @@ export interface Result {
   annualReturn: number;
   portfolioValue: number;
   chartData: { year: number; value: number }[];
-  revealedAssets: RevealedAsset[];
+  revealedAssets: Asset[];
   period: string;
 }
 
@@ -119,6 +92,7 @@ export interface Achievement {
 
 export interface UserProfile {
   username: string;
+  email?: string;
   avatar: string;
   totalPoints: number;
   bestRank: number;
