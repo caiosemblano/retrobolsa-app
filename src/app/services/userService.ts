@@ -8,6 +8,14 @@ interface ApiProfile {
   totalScore: number;
   bestRank?: number;
   competitions: number;
+  history?: Array<{
+    roundNumber: number;
+    scenarioTitle: string;
+    totalReturn: number | string;
+    finalValue: number | string;
+    rank: number;
+    submittedAt: string;
+  }>;
 }
 
 /**
@@ -32,6 +40,14 @@ export const userService = {
         avatar: '',
         favoriteAsset: '',
         achievements: [],
+        history: (response.data.history || []).map((h) => ({
+          roundNumber: h.roundNumber,
+          scenarioTitle: h.scenarioTitle,
+          totalReturn: Number(h.totalReturn),
+          finalValue: Number(h.finalValue),
+          rank: h.rank,
+          submittedAt: h.submittedAt,
+        })),
       } satisfies UserProfile,
     };
   },

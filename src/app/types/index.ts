@@ -100,4 +100,12 @@ export interface UserProfile {
   favoriteAsset: string;
   achievements: Achievement[];
   completedCompetitions: number;
+  history?: {
+    roundNumber: number;
+    scenarioTitle: string;
+    totalReturn: number;
+    finalValue: number;
+    rank: number;
+    submittedAt: string;
+  }[];
 }

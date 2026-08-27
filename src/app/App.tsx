@@ -149,7 +149,7 @@ function AppContent() {
           <div className="max-w-4xl mx-auto flex items-center justify-around">
             <button
               onClick={() => setCurrentScreen('home')}
-              className={`flex flex-col items-center gap-1 py-3 px-6 transition-colors ${
+              className={`flex-1 flex flex-col items-center gap-1 py-3 px-1 sm:px-6 transition-colors ${
                 currentScreen === 'home' ? 'text-orange-500' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -159,7 +159,7 @@ function AppContent() {
 
             <button
               onClick={() => setCurrentScreen('learn')}
-              className={`flex flex-col items-center gap-1 py-3 px-6 transition-colors ${
+              className={`flex-1 flex flex-col items-center gap-1 py-3 px-1 sm:px-6 transition-colors ${
                 currentScreen === 'learn' ? 'text-orange-500' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -169,7 +169,7 @@ function AppContent() {
 
             <button
               onClick={() => setCurrentScreen('rankings')}
-              className={`flex flex-col items-center gap-1 py-3 px-6 transition-colors ${
+              className={`flex-1 flex flex-col items-center gap-1 py-3 px-1 sm:px-6 transition-colors ${
                 currentScreen === 'rankings' ? 'text-orange-500' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -179,7 +179,7 @@ function AppContent() {
 
             <button
               onClick={() => setCurrentScreen('profile')}
-              className={`flex flex-col items-center gap-1 py-3 px-6 transition-colors ${
+              className={`flex-1 flex flex-col items-center gap-1 py-3 px-1 sm:px-6 transition-colors ${
                 currentScreen === 'profile' ? 'text-orange-500' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -189,7 +189,7 @@ function AppContent() {
             {user?.role === 'ADMIN' && (
               <button
                 onClick={() => setCurrentScreen('admin')}
-                className={`flex flex-col items-center gap-1 py-3 px-4 transition-colors ${
+                className={`flex-1 flex flex-col items-center gap-1 py-3 px-1 sm:px-4 transition-colors ${
                   currentScreen === 'admin' ? 'text-orange-500' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >

@@ -69,10 +69,61 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
 
   return (
     <div className="max-w-4xl mx-auto p-4 pb-32">
-      <Button variant="ghost" className="mb-4" onClick={onBack}>← Voltar</Button>
-      <div className="mb-6"><h1 className="text-slate-900 mb-2">Monte sua Carteira</h1><p className="text-slate-600">Distribua R$ {totalBudget.toLocaleString('pt-BR')} entre os ativos disponíveis.</p></div>
-      <div className="fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-10 p-4 shadow-sm"><div className="max-w-4xl mx-auto"><Card className="p-4 bg-gradient-to-r from-blue-600 to-green-600 text-white"><div className="flex items-center justify-between mb-2"><div><div className="text-blue-100 text-sm mb-1">Orçamento restante</div><div className="text-2xl">R$ {remaining.toLocaleString('pt-BR')}</div></div><div className="text-right"><div className="text-blue-100 text-sm mb-1">Alocado</div><div className="text-2xl">R$ {allocatedTotal.toLocaleString('pt-BR')}</div></div></div><div className="h-2 bg-white/30 rounded-full overflow-hidden"><div className="h-full bg-white rounded-full" style={{ width: `${allocationPercentage}%` }} /></div></Card></div></div>
-      <div className="mt-32 mb-6"><h2 className="text-slate-900 mb-4">Ativos disponíveis</h2><div className="space-y-3">{competition.assets.map((asset) => <div key={asset.id} className="relative"><AssetCard asset={asset} allocatedAmount={portfolio[asset.id]} onClick={() => { setSelectedAsset(asset); setAllocationAmount(portfolio[asset.id] || 0); }} />{portfolio[asset.id] && <button onClick={(event) => { event.stopPropagation(); const next = { ...portfolio }; delete next[asset.id]; setPortfolio(next); }} className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600">Remover</button>}</div>)}</div></div>
+      <div className="fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-10 p-4 shadow-sm">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center gap-3 mb-3">
+            <Button variant="ghost" size="sm" className="px-2.5 py-1 text-slate-600 hover:text-slate-900" onClick={onBack}>
+              ← Voltar
+            </Button>
+            <h1 className="text-slate-800 font-semibold text-sm">Monte sua Carteira</h1>
+          </div>
+          <Card className="p-4 bg-gradient-to-r from-blue-600 to-green-600 text-white">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <div className="text-blue-100 text-xs mb-0.5">Orçamento restante</div>
+                <div className="text-xl font-bold">R$ {remaining.toLocaleString('pt-BR')}</div>
+              </div>
+              <div className="text-right">
+                <div className="text-blue-100 text-xs mb-0.5">Alocado</div>
+                <div className="text-xl font-bold">R$ {allocatedTotal.toLocaleString('pt-BR')}</div>
+              </div>
+            </div>
+            <div className="h-2 bg-white/30 rounded-full overflow-hidden">
+              <div className="h-full bg-white rounded-full transition-all" style={{ width: `${allocationPercentage}%` }} />
+            </div>
+          </Card>
+        </div>
+      </div>
+      <div className="mt-48 mb-6">
+        <h2 className="text-slate-900 mb-4">Ativos disponíveis</h2>
+        <div className="space-y-3">
+          {competition.assets.map((asset) => (
+            <div key={asset.id} className="relative">
+              <AssetCard
+                asset={asset}
+                allocatedAmount={portfolio[asset.id]}
+                onClick={() => {
+                  setSelectedAsset(asset);
+                  setAllocationAmount(portfolio[asset.id] || 0);
+                }}
+              />
+              {portfolio[asset.id] && (
+                <button
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    const next = { ...portfolio };
+                    delete next[asset.id];
+                    setPortfolio(next);
+                  }}
+                  className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                >
+                  Remover
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 shadow-lg"><div className="max-w-4xl mx-auto">{!canConfirm && <div className="flex items-center gap-2 text-orange-600 mb-2 text-sm"><AlertCircle className="w-4 h-4" /><span>Alocação mínima de R$ 1,00 para confirmar</span></div>}<Button size="lg" className="w-full bg-green-600 hover:bg-green-700" onClick={handleSubmit} disabled={!canConfirm || submitting}>{submitting ? 'Enviando...' : <><Wallet className="w-5 h-5 mr-2" />Confirmar carteira</>}</Button></div></div>
       <Dialog open={!!selectedAsset} onOpenChange={() => setSelectedAsset(null)}><DialogContent><DialogHeader><DialogTitle>Alocar em {selectedAsset?.anonymousName}</DialogTitle></DialogHeader><div className="py-4"><Label className="mb-2 block">Valor a investir (R$)</Label><Input type="number" value={allocationAmount} onChange={(event) => setAllocationAmount(Number(event.target.value))} min={0} className="mb-4" /><Label className="mb-2 block">Ajustar valor</Label><Slider value={[allocationAmount]} onValueChange={([value]) => setAllocationAmount(value)} max={remaining + (portfolio[selectedAsset?.id || ''] || 0)} step={100} className="mb-2" /><div className="text-slate-600 text-sm">Disponível: R$ {(remaining + (portfolio[selectedAsset?.id || ''] || 0)).toLocaleString('pt-BR')}</div></div><DialogFooter><Button variant="ghost" onClick={() => setSelectedAsset(null)}>Cancelar</Button><Button onClick={handleAllocate} className="bg-orange-500 hover:bg-orange-600">Alocar</Button></DialogFooter></DialogContent></Dialog>
     </div>
