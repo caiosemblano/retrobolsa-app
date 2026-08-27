@@ -4,6 +4,7 @@ import { UserProfile } from '../types';
 interface ApiProfile {
   username: string;
   email: string;
+  role?: string;
   totalScore: number;
   bestRank?: number;
   competitions: number;
@@ -24,6 +25,7 @@ export const userService = {
       data: {
         username: response.data.username,
         email: response.data.email,
+        role: response.data.role,
         totalPoints: response.data.totalScore,
         bestRank: response.data.bestRank ?? 0,
         completedCompetitions: response.data.competitions,

@@ -93,6 +93,7 @@ export interface Achievement {
 export interface UserProfile {
   username: string;
   email?: string;
+  role?: string;
   avatar: string;
   totalPoints: number;
   bestRank: number;
