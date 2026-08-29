@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Module } from '../types';
 import { Card } from './ui/Card';
 import { Icon } from './Icon';
+import { Colors } from '../constants/Colors';
 
 interface ModuleCardProps {
   module: Module;
@@ -17,7 +18,7 @@ export function ModuleCard({ module, onClick }: ModuleCardProps) {
       <Card style={styles.card}>
         <View style={styles.container}>
           <View style={styles.iconContainer}>
-            <Icon name={module.icon} size={24} color="#1d4ed8" />
+            <Icon name={module.icon} size={24} color={Colors.primaryDark} />
           </View>
 
           <View style={styles.content}>
@@ -42,7 +43,7 @@ export function ModuleCard({ module, onClick }: ModuleCardProps) {
           </View>
 
           <View style={styles.arrowContainer}>
-            <Icon name="ChevronRight" size={20} color="#94a3b8" />
+            <Icon name="ChevronRight" size={20} color={Colors.textMuted} />
           </View>
         </View>
       </Card>
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
   card: {
     marginVertical: 6,
     padding: 16,
-    borderColor: '#e2e8f0',
+    borderColor: Colors.border,
     borderWidth: 1,
   },
   container: {
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     padding: 12,
-    backgroundColor: '#dbeafe', // blue-100
+    backgroundColor: Colors.primaryLight, // blue-100
     borderRadius: 8,
     marginRight: 16,
     alignSelf: 'flex-start',
@@ -74,25 +75,25 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#0f172a', // slate-900
+    color: Colors.textPrimary, // slate-900
     marginBottom: 4,
   },
   description: {
     fontSize: 13,
-    color: '#64748b', // slate-600
+    color: Colors.textMuted, // slate-600
     marginBottom: 12,
     lineHeight: 18,
   },
   progressContainer: {
     height: 8,
-    backgroundColor: '#e2e8f0', // slate-200
+    backgroundColor: Colors.border, // slate-200
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 8,
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#3b82f6', // blue-500
+    backgroundColor: Colors.primary, // blue-500
     borderRadius: 4,
   },
   footer: {
@@ -102,13 +103,13 @@ const styles = StyleSheet.create({
   },
   lessonsText: {
     fontSize: 12,
-    color: '#64748b', // slate-600
+    color: Colors.textMuted, // slate-600
     flex: 1,
   },
   percentageText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#1d4ed8', // blue-700
+    color: Colors.primaryDark, // blue-700
   },
   arrowContainer: {
     marginLeft: 8,

@@ -1,10 +1,11 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import { Colors } from '../../constants/Colors';
 
 interface ButtonProps {
   children: React.ReactNode;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'success';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'success' | 'outline';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   style?: ViewStyle;
@@ -129,38 +130,38 @@ const styles = StyleSheet.create({
   },
   // Variants
   primary: {
-    backgroundColor: '#f97316', // orange-500
+    backgroundColor: Colors.warning, // orange-500
   },
   secondary: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: Colors.border,
   },
   ghost: {
     backgroundColor: 'transparent',
   },
   danger: {
-    backgroundColor: '#ef4444', // red-500
+    backgroundColor: Colors.error, // red-500
   },
   success: {
-    backgroundColor: '#16a34a', // green-600
+    backgroundColor: Colors.success, // green-600
   },
   disabled: {
-    backgroundColor: '#cbd5e1', // slate-300
-    borderColor: '#cbd5e1',
+    backgroundColor: Colors.borderDark, // slate-300
+    borderColor: Colors.borderDark,
   },
   // Text Colors
   textLight: {
-    color: '#ffffff',
+    color: Colors.cardBackground,
   },
   textSecondary: {
-    color: '#334155', // slate-700
+    color: Colors.textSecondary, // slate-700
   },
   textGhost: {
-    color: '#64748b', // slate-500
+    color: Colors.textMuted, // slate-500
   },
   textDisabled: {
-    color: '#94a3b8', // slate-400
+    color: Colors.textMuted, // slate-400
   },
   // Sizes
   sm: {

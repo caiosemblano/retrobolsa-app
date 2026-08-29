@@ -11,6 +11,7 @@ import {
   RegisterPayload,
   StoredUser,
 } from '../services/authService';
+import { userService } from '../services/userService';
 
 // ── Tipos do contexto ────────────────────────────────────────────────────────
 
@@ -41,11 +42,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // ── Inicialização: restaura sessão do localStorage ─────────────────────────
   useEffect(() => {
-    const storedUser = authService.getStoredUser();
-    if (authService.isAuthenticated() && storedUser) {
-      setUser(storedUser);
+    let storedUser: StoredUser | null = null;
+    try {
+      storedUser = authService.getStoredUser();
+    } catch {
+      authService.logout();
     }
-    setIsLoading(false);
+    if (authService.isAuthenticated() && storedUser) {
+      userService.getProfile()
+        .then(({ data }) => setUser({ email: data.email || storedUser!.email, role: data.role }))
+        .catch(() => setUser(storedUser))
+        .finally(() => setIsLoading(false));
+    } else {
+      setIsLoading(false);
+    }
   }, []);
 
   // ── Evento de sessão expirada (disparado pelo interceptor do Axios) ─────────
@@ -66,7 +76,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await authService.login(data);
       const stored = authService.getStoredUser();
-      setUser(stored);
+      if (stored) {
+        const profile = await userService.getProfile();
+        setUser({ email: stored.email, role: profile.data.role });
+      } else {
+        setUser(null);
+      }
     } finally {
       setIsLoading(false);
     }

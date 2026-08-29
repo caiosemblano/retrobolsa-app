@@ -10,8 +10,9 @@ import { SimulationWaitScreen } from './components/screens/SimulationWaitScreen'
 import { ResultsScreen } from './components/screens/ResultsScreen';
 import { LoginScreen } from './components/screens/LoginScreen';
 import { RegisterScreen } from './components/screens/RegisterScreen';
+import { AdminScreen } from './components/screens/AdminScreen';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { Home, GraduationCap, Trophy, User, LogOut } from 'lucide-react';
+import { Home, GraduationCap, Trophy, User, LogOut, Shield } from 'lucide-react';
 
 type Screen =
   | 'home'
@@ -23,12 +24,13 @@ type Screen =
   | 'simulation'
   | 'results'
   | 'login'
-  | 'register';
+  | 'register'
+  | 'admin';
 
 // ── Componente interno que usa o AuthContext ─────────────────────────────────
 
 function AppContent() {
-  const { isAuthenticated, isLoading, logout } = useAuth();
+  const { isAuthenticated, isLoading, logout, user } = useAuth();
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
 
   // Enquanto verifica sessão inicial, mostra loading
@@ -77,6 +79,8 @@ function AppContent() {
         return <RankingsScreen />;
       case 'profile':
         return <ProfileScreen />;
+      case 'admin':
+        return user?.role === 'ADMIN' ? <AdminScreen /> : <HomeScreen onStartCompetition={() => setCurrentScreen('context')} onViewResults={() => setCurrentScreen('results')} />;
       case 'context':
         return (
           <CompetitionContextScreen
@@ -92,7 +96,7 @@ function AppContent() {
           />
         );
       case 'simulation':
-        return <SimulationWaitScreen />;
+        return <SimulationWaitScreen onViewResults={() => setCurrentScreen('results')} />;
       case 'results':
         return (
           <ResultsScreen
@@ -110,7 +114,7 @@ function AppContent() {
     }
   };
 
-  const mainScreens: Screen[] = ['home', 'learn', 'rankings', 'profile'];
+  const mainScreens: Screen[] = ['home', 'learn', 'rankings', 'profile', ...(user?.role === 'ADMIN' ? ['admin' as Screen] : [])];
   const shouldShowNav = mainScreens.includes(currentScreen);
 
   return (
@@ -145,7 +149,7 @@ function AppContent() {
           <div className="max-w-4xl mx-auto flex items-center justify-around">
             <button
               onClick={() => setCurrentScreen('home')}
-              className={`flex flex-col items-center gap-1 py-3 px-6 transition-colors ${
+              className={`flex-1 flex flex-col items-center gap-1 py-3 px-1 sm:px-6 transition-colors ${
                 currentScreen === 'home' ? 'text-orange-500' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -155,7 +159,7 @@ function AppContent() {
 
             <button
               onClick={() => setCurrentScreen('learn')}
-              className={`flex flex-col items-center gap-1 py-3 px-6 transition-colors ${
+              className={`flex-1 flex flex-col items-center gap-1 py-3 px-1 sm:px-6 transition-colors ${
                 currentScreen === 'learn' ? 'text-orange-500' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -165,7 +169,7 @@ function AppContent() {
 
             <button
               onClick={() => setCurrentScreen('rankings')}
-              className={`flex flex-col items-center gap-1 py-3 px-6 transition-colors ${
+              className={`flex-1 flex flex-col items-center gap-1 py-3 px-1 sm:px-6 transition-colors ${
                 currentScreen === 'rankings' ? 'text-orange-500' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -175,13 +179,24 @@ function AppContent() {
 
             <button
               onClick={() => setCurrentScreen('profile')}
-              className={`flex flex-col items-center gap-1 py-3 px-6 transition-colors ${
+              className={`flex-1 flex flex-col items-center gap-1 py-3 px-1 sm:px-6 transition-colors ${
                 currentScreen === 'profile' ? 'text-orange-500' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <User className="w-6 h-6" />
               <span className="text-xs">Perfil</span>
             </button>
+            {user?.role === 'ADMIN' && (
+              <button
+                onClick={() => setCurrentScreen('admin')}
+                className={`flex-1 flex flex-col items-center gap-1 py-3 px-1 sm:px-4 transition-colors ${
+                  currentScreen === 'admin' ? 'text-orange-500' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Shield className="w-6 h-6" />
+                <span className="text-xs">Admin</span>
+              </button>
+            )}
           </div>
         </nav>
       )}

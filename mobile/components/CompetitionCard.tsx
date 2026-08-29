@@ -5,6 +5,7 @@ import { Card } from './ui/Card';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
 import { Icon } from './Icon';
+import { Colors } from '../constants/Colors';
 
 interface CompetitionCardProps {
   competition: Competition;
@@ -26,11 +27,11 @@ export function CompetitionCard({ competition, onAction }: CompetitionCardProps)
   const getStatusIcon = () => {
     switch (competition.status) {
       case 'open':
-        return <Icon name="Clock" size={24} color="#16a34a" />;
+        return <Icon name="Clock" size={24} color={Colors.success} />;
       case 'simulating':
-        return <Icon name="Trophy" size={24} color="#ea580c" />;
+        return <Icon name="Trophy" size={24} color={Colors.warningDark} />;
       case 'closed':
-        return <Icon name="CheckCircle" size={24} color="#64748b" />;
+        return <Icon name="CheckCircle" size={24} color={Colors.textMuted} />;
     }
   };
 
@@ -63,7 +64,7 @@ export function CompetitionCard({ competition, onAction }: CompetitionCardProps)
       {competition.status === 'open' && competition.daysLeft !== undefined ? (
         <View style={styles.alertBox}>
           <View style={styles.alertContent}>
-            <Icon name="Clock" size={16} color="#ea580c" style={styles.alertIcon} />
+            <Icon name="Clock" size={16} color={Colors.warningDark} style={styles.alertIcon} />
             <Text style={styles.alertText}>
               Faltam {competition.daysLeft} {competition.daysLeft === 1 ? 'dia' : 'dias'} para o fechamento
             </Text>
@@ -108,12 +109,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0f172a', // slate-900
+    color: Colors.textPrimary, // slate-900
     marginBottom: 2,
   },
   subtitle: {
     fontSize: 13,
-    color: '#64748b', // slate-600
+    color: Colors.textMuted, // slate-600
   },
   alertBox: {
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
@@ -130,10 +131,10 @@ const styles = StyleSheet.create({
   },
   alertText: {
     fontSize: 13,
-    color: '#334155', // slate-700
+    color: Colors.textSecondary, // slate-700
   },
   button: {
     width: '100%',
-    backgroundColor: '#f97316', // orange-500
+    backgroundColor: Colors.warning, // orange-500
   },
 });

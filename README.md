@@ -21,7 +21,7 @@ A versão web está localizada na raiz do repositório.
 
 2. Crie um arquivo `.env` na raiz do frontend (pasta `retrobolsa-app`) e adicione a URL da API (caso não tenha):
    ```env
-   VITE_API_URL=http://localhost:8081
+   VITE_API_URL=http://IP_DA_MAQUINA:8081
    ```
 
 3. Inicie o servidor de desenvolvimento:
@@ -29,7 +29,9 @@ A versão web está localizada na raiz do repositório.
    npm run dev
    ```
 
-4. Abra o endereço exibido no terminal (geralmente `http://localhost:5173`) no seu navegador.
+4. Para celulares na mesma rede Wi-Fi, use o endereço exibido com o IP da máquina
+   (por exemplo, `http://192.168.168.105:5173`) e configure `VITE_API_URL` com o
+   mesmo IP. Cada jogador deve criar sua própria conta.
 
 ---
 

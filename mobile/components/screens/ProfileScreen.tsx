@@ -1,11 +1,51 @@
-import React from 'react';
-import { ScrollView, View, Text, StyleSheet, Image, Platform } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, View, Text, StyleSheet, Platform, ActivityIndicator } from 'react-native';
 import { Card } from '../ui/Card';
 import { AchievementBadge } from '../AchievementBadge';
 import { Icon } from '../Icon';
-import { userProfile } from '../../data/mockData';
+import { userService } from '../../services/userService';
+import { UserProfile } from '../../types';
+import { Colors } from '../../constants/Colors';
 
 export function ProfileScreen() {
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setIsLoading(true);
+        const res = await userService.getProfile();
+        setUserProfile(res.data);
+      } catch (err) {
+        setError('Erro ao carregar o perfil do usuário.');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color={Colors.primaryHover} />
+        <Text style={styles.loadingText}>Carregando perfil...</Text>
+      </View>
+    );
+  }
+
+  if (error || !userProfile) {
+    return (
+      <View style={styles.centerContainer}>
+        <Icon name="AlertCircle" size={48} color={Colors.error} />
+        <Text style={styles.errorText}>{error || 'Perfil não encontrado'}</Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       {/* Page Header */}
@@ -17,14 +57,15 @@ export function ProfileScreen() {
       {/* User Info card */}
       <Card style={styles.profileCard}>
         <View style={styles.avatarRow}>
-          {/* Circular avatar fallback/initials since standard RN Image might not render Dicebear SVG */}
           <View style={styles.avatarCircle}>
-            <Text style={styles.avatarText}>VC</Text>
+            <Text style={styles.avatarText}>
+              {userProfile.username.substring(0, 2).toUpperCase()}
+            </Text>
           </View>
           <View style={styles.userTextContainer}>
             <Text style={styles.username}>{userProfile.username}</Text>
             <View style={styles.pointsRow}>
-              <Icon name="Trophy" size={16} color="#ea580c" style={styles.trophyIcon} />
+              <Icon name="Trophy" size={16} color={Colors.warningDark} style={styles.trophyIcon} />
               <Text style={styles.pointsText}>
                 {userProfile.totalPoints.toLocaleString('pt-BR')} pontos
               </Text>
@@ -35,21 +76,25 @@ export function ProfileScreen() {
         {/* Stats Grid (3 columns) */}
         <View style={styles.statsGrid}>
           <View style={styles.statCol}>
-            <Icon name="Target" size={18} color="#2563eb" style={styles.statIcon} />
+            <Icon name="Target" size={18} color={Colors.primaryHover} style={styles.statIcon} />
             <Text style={styles.statLabel}>Melhor Posição</Text>
-            <Text style={styles.statVal}>{userProfile.bestRank}º lugar</Text>
+            <Text style={styles.statVal}>
+              {userProfile.bestRank > 0 ? `${userProfile.bestRank}º lugar` : 'N/A'}
+            </Text>
           </View>
           
           <View style={[styles.statCol, styles.statColBorder]}>
-            <Icon name="Award" size={18} color="#16a34a" style={styles.statIcon} />
+            <Icon name="Award" size={18} color={Colors.success} style={styles.statIcon} />
             <Text style={styles.statLabel}>Competições</Text>
             <Text style={styles.statVal}>{userProfile.completedCompetitions}</Text>
           </View>
           
           <View style={styles.statCol}>
-            <Icon name="Heart" size={18} color="#ea580c" style={styles.statIcon} />
+            <Icon name="Heart" size={18} color={Colors.warningDark} style={styles.statIcon} />
             <Text style={styles.statLabel}>Ativo Favorito</Text>
-            <Text style={styles.statVal} numberOfLines={1}>{userProfile.favoriteAsset}</Text>
+            <Text style={styles.statVal} numberOfLines={1}>
+              {userProfile.favoriteAsset || 'Nenhum'}
+            </Text>
           </View>
         </View>
       </Card>
@@ -81,6 +126,21 @@ export function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    color: Colors.textSecondary,
+  },
+  errorText: {
+    marginTop: 10,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+  },
   container: {
     padding: 16,
     paddingBottom: 40,
@@ -91,16 +151,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: '#64748b',
+    color: Colors.textMuted,
   },
   profileCard: {
-    backgroundColor: '#f0fdf4', // light shade
-    borderColor: '#bfdbfe', // blue-200
+    backgroundColor: '#f0fdf4',
+    borderColor: Colors.primaryLightest,
     borderWidth: 2,
     padding: 16,
   },
@@ -113,14 +173,14 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#cbd5e1', // slate-300
+    backgroundColor: Colors.borderDark,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 3,
-    borderColor: '#ffffff',
+    borderColor: Colors.cardBackground,
     ...Platform.select({
       ios: {
-        shadowColor: '#64748b',
+        shadowColor: Colors.textMuted,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.15,
         shadowRadius: 3,
@@ -136,7 +196,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#334155', // slate-700
+    color: Colors.textSecondary,
   },
   userTextContainer: {
     marginLeft: 14,
@@ -144,7 +204,7 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 2,
   },
   pointsRow: {
@@ -156,7 +216,7 @@ const styles = StyleSheet.create({
   },
   pointsText: {
     fontSize: 14,
-    color: '#ea580c', // orange-600
+    color: Colors.warningDark,
     fontWeight: '600',
   },
   statsGrid: {
@@ -174,26 +234,26 @@ const styles = StyleSheet.create({
   statColBorder: {
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: '#e2e8f0', // slate-200
+    borderColor: Colors.border,
   },
   statIcon: {
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 10,
-    color: '#64748b',
+    color: Colors.textMuted,
     textAlign: 'center',
     marginBottom: 2,
   },
   statVal: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#1e293b', // slate-800
+    color: '#1e293b',
     textAlign: 'center',
   },
   divider: {
     height: 1,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: Colors.border,
     marginVertical: 24,
   },
   achievementsSection: {
@@ -202,7 +262,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   achievementsGrid: {
@@ -215,20 +275,20 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   tipCard: {
-    backgroundColor: '#eff6ff', // blue-50
-    borderColor: '#bfdbfe', // blue-200
+    backgroundColor: '#eff6ff',
+    borderColor: Colors.primaryLightest,
     padding: 16,
     marginTop: 16,
   },
   tipTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   tipText: {
     fontSize: 13,
-    color: '#475569',
+    color: Colors.textSecondary,
     lineHeight: 18,
   },
 });

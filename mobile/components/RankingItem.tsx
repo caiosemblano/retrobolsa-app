@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { RankingEntry } from '../types';
 import { Icon } from './Icon';
+import { Colors } from '../constants/Colors';
 
 interface RankingItemProps {
   entry: RankingEntry;
@@ -14,7 +15,7 @@ export function RankingItem({ entry, showRentability }: RankingItemProps) {
       case 1:
         return <Icon name="Trophy" size={18} color="#eab308" />;
       case 2:
-        return <Icon name="Medal" size={18} color="#94a3b8" />;
+        return <Icon name="Medal" size={18} color={Colors.textMuted} />;
       case 3:
         return <Icon name="Award" size={18} color="#d97706" />;
       default:
@@ -93,8 +94,8 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   containerNormal: {
-    backgroundColor: '#ffffff',
-    borderColor: '#e2e8f0', // slate-200
+    backgroundColor: Colors.cardBackground,
+    borderColor: Colors.border, // slate-200
   },
   containerUser: {
     backgroundColor: '#fff7ed', // orange-50
@@ -110,23 +111,23 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   badgeTopThree: {
-    backgroundColor: '#f97316', // orange-500 (using flat color instead of gradient)
+    backgroundColor: Colors.warning, // orange-500 (using flat color instead of gradient)
   },
   badgeTopTen: {
-    backgroundColor: '#2563eb', // blue-600
+    backgroundColor: Colors.primaryHover, // blue-600
   },
   badgeNormal: {
-    backgroundColor: '#e2e8f0', // slate-200
+    backgroundColor: Colors.border, // slate-200
   },
   badgeText: {
     fontSize: 13,
     fontWeight: '700',
   },
   badgeTextWhite: {
-    color: '#ffffff',
+    color: Colors.cardBackground,
   },
   badgeTextNormal: {
-    color: '#334155', // slate-700
+    color: Colors.textSecondary, // slate-700
   },
   iconContainer: {
     marginRight: 8,
@@ -141,14 +142,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   usernameNormal: {
-    color: '#0f172a', // slate-900
+    color: Colors.textPrimary, // slate-900
   },
   usernameUser: {
-    color: '#c2410c', // orange-700
+    color: Colors.warningDarker, // orange-700
   },
   rentability: {
     fontSize: 12,
-    color: '#64748b', // slate-500
+    color: Colors.textMuted, // slate-500
     marginTop: 2,
   },
   pointsContainer: {
@@ -159,9 +160,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   pointsTextNormal: {
-    color: '#0f172a',
+    color: Colors.textPrimary,
   },
   pointsTextUser: {
-    color: '#c2410c',
+    color: Colors.warningDarker,
   },
 });

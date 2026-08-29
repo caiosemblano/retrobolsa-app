@@ -1,10 +1,12 @@
-import React from 'react';
-import { ScrollView, View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { RentabilityChart } from '../RentabilityChart';
 import { Icon } from '../Icon';
-import { lastResult } from '../../data/mockData';
+import { portfolioService } from '../../services/portfolioService';
+import { Result } from '../../types';
+import { Colors } from '../../constants/Colors';
 
 interface ResultsScreenProps {
   onViewRanking: () => void;
@@ -12,6 +14,44 @@ interface ResultsScreenProps {
 }
 
 export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
+  const [result, setResult] = useState<Result | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchResult = async () => {
+      try {
+        setIsLoading(true);
+        const res = await portfolioService.getLastResult();
+        setResult(res.data);
+      } catch (err) {
+        setError('Nenhum resultado encontrado.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchResult();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color={Colors.primaryHover} />
+        <Text style={styles.loadingText}>Calculando resultados...</Text>
+      </View>
+    );
+  }
+
+  if (error || !result) {
+    return (
+      <View style={styles.centerContainer}>
+        <Icon name="AlertCircle" size={48} color={Colors.error} />
+        <Text style={styles.errorText}>{error || 'Resultados não disponíveis'}</Text>
+        <Button variant="ghost" onPress={onBack} style={{ marginTop: 20 }}>Voltar ao Início</Button>
+      </View>
+    );
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       {/* Back Button */}
@@ -20,7 +60,7 @@ export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
         onPress={onBack}
         style={styles.backBtn}
       >
-        <Icon name="ChevronLeft" size={16} color="#64748b" style={styles.backIcon} />
+        <Icon name="ChevronLeft" size={16} color={Colors.textMuted} style={styles.backIcon} />
         <Text style={styles.backText}>Voltar</Text>
       </Button>
 
@@ -33,28 +73,28 @@ export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
       {/* Performance Summary Card */}
       <Card style={styles.highlightCard}>
         <View style={styles.rankRow}>
-          <Icon name="Trophy" size={36} color="#ffffff" style={styles.trophyIcon} />
+          <Icon name="Trophy" size={36} color={Colors.cardBackground} style={styles.trophyIcon} />
           <View>
             <Text style={styles.highlightLabel}>Sua Posição</Text>
-            <Text style={styles.highlightVal}>{lastResult.rank}º lugar</Text>
+            <Text style={styles.highlightVal}>{result.rank}º lugar</Text>
           </View>
         </View>
 
         <View style={styles.grid}>
           <View style={styles.gridCol}>
             <Text style={styles.highlightSubLabel}>Rentabilidade Total</Text>
-            <Text style={styles.highlightSubVal}>{lastResult.rentability}%</Text>
+            <Text style={styles.highlightSubVal}>{result.rentability}%</Text>
           </View>
           <View style={styles.gridCol}>
             <Text style={styles.highlightSubLabel}>Retorno Anual</Text>
-            <Text style={styles.highlightSubVal}>{lastResult.annualReturn}% a.a.</Text>
+            <Text style={styles.highlightSubVal}>{result.annualReturn}% a.a.</Text>
           </View>
         </View>
 
         <View style={styles.portfolioValBox}>
           <Text style={styles.portfolioValLabel}>Valor Final da Carteira</Text>
           <Text style={styles.portfolioValText}>
-            R$ {lastResult.portfolioValue.toLocaleString('pt-BR')}
+            R$ {result.portfolioValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </Text>
           <Text style={styles.portfolioValSub}>
             De R$ 100.000 iniciais
@@ -64,7 +104,7 @@ export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
 
       {/* Rentability Chart */}
       <View style={styles.section}>
-        <RentabilityChart data={lastResult.chartData} />
+        <RentabilityChart data={result.chartData} />
       </View>
 
       <View style={styles.divider} />
@@ -72,20 +112,20 @@ export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
       {/* The Revelation Section */}
       <View style={styles.section}>
         <View style={styles.sectionTitleRow}>
-          <Icon name="Eye" size={22} color="#f97316" style={styles.sectionIcon} />
+          <Icon name="Eye" size={22} color={Colors.warning} style={styles.sectionIcon} />
           <Text style={styles.sectionTitle}>A Revelação</Text>
         </View>
 
         <Card style={styles.revealCard}>
           <Text style={styles.revealTitle}>Sua Carteira Revelada</Text>
           <View style={styles.revealedAssetsList}>
-            {lastResult.revealedAssets.map((asset) => (
+            {result.revealedAssets.map((asset) => (
               <View key={asset.id} style={styles.revealedAssetItem}>
                 <Text style={styles.revealedAssetIntro}>
                   Você investiu em "{asset.anonymousName}"
                 </Text>
                 <View style={styles.revealedAssetInfoRow}>
-                  <Icon name="TrendingUp" size={14} color="#c2410c" style={styles.revealedIcon} />
+                  <Icon name="TrendingUp" size={14} color={Colors.warningDarker} style={styles.revealedIcon} />
                   <Text style={styles.revealedAssetText}>
                     que era {asset.realName}
                   </Text>
@@ -103,12 +143,12 @@ export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
         {/* Period Simulated */}
         <Card style={styles.periodCard}>
           <View style={styles.periodHeader}>
-            <Icon name="Award" size={20} color="#2563eb" style={styles.periodIcon} />
+            <Icon name="Award" size={20} color={Colors.primaryHover} style={styles.periodIcon} />
             <Text style={styles.periodTitle}>Período Simulado</Text>
           </View>
           <Text style={styles.periodText}>
             O período histórico simulado foi de{' '}
-            <Text style={styles.periodHighlight}>{lastResult.period}</Text> no Brasil.
+            <Text style={styles.periodHighlight}>{result.period}</Text> no Brasil.
           </Text>
         </Card>
       </View>
@@ -135,6 +175,22 @@ export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
 }
 
 const styles = StyleSheet.create({
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: Colors.background,
+  },
+  loadingText: {
+    marginTop: 10,
+    color: Colors.textSecondary,
+  },
+  errorText: {
+    marginTop: 10,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+  },
   container: {
     padding: 16,
     paddingBottom: 40,
@@ -148,7 +204,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   backText: {
-    color: '#64748b',
+    color: Colors.textMuted,
     fontSize: 14,
     fontWeight: '500',
   },
@@ -158,16 +214,16 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#64748b',
+    color: Colors.textMuted,
   },
   highlightCard: {
-    backgroundColor: '#16a34a', // green-600 flat background
-    borderColor: '#15803d',
+    backgroundColor: Colors.success,
+    borderColor: Colors.successDark,
     padding: 20,
     marginBottom: 20,
   },
@@ -181,13 +237,13 @@ const styles = StyleSheet.create({
   },
   highlightLabel: {
     fontSize: 13,
-    color: '#dcfce7', // green-100
+    color: Colors.successLight,
     marginBottom: 2,
   },
   highlightVal: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#ffffff',
+    color: Colors.cardBackground,
   },
   grid: {
     flexDirection: 'row',
@@ -202,13 +258,13 @@ const styles = StyleSheet.create({
   },
   highlightSubLabel: {
     fontSize: 11,
-    color: '#dcfce7',
+    color: Colors.successLight,
     marginBottom: 2,
   },
   highlightSubVal: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: Colors.cardBackground,
   },
   portfolioValBox: {
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
@@ -217,17 +273,17 @@ const styles = StyleSheet.create({
   },
   portfolioValLabel: {
     fontSize: 12,
-    color: '#dcfce7',
+    color: Colors.successLight,
     marginBottom: 2,
   },
   portfolioValText: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#ffffff',
+    color: Colors.cardBackground,
   },
   portfolioValSub: {
     fontSize: 11,
-    color: '#dcfce7',
+    color: Colors.successLight,
     marginTop: 2,
   },
   section: {
@@ -235,7 +291,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: Colors.border,
     marginVertical: 20,
   },
   sectionTitleRow: {
@@ -249,11 +305,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#0f172a',
+    color: Colors.textPrimary,
   },
   revealCard: {
-    backgroundColor: '#fffdf5', // light gold shade
-    borderColor: '#fed7aa', // orange-200
+    backgroundColor: '#fffdf5',
+    borderColor: '#fed7aa',
     borderWidth: 2,
     padding: 16,
     marginBottom: 16,
@@ -261,7 +317,7 @@ const styles = StyleSheet.create({
   revealTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   revealedAssetsList: {
@@ -277,7 +333,7 @@ const styles = StyleSheet.create({
   },
   revealedAssetIntro: {
     fontSize: 12,
-    color: '#64748b',
+    color: Colors.textMuted,
     marginBottom: 4,
   },
   revealedAssetInfoRow: {
@@ -291,15 +347,15 @@ const styles = StyleSheet.create({
   revealedAssetText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#ea580c', // orange-600
+    color: Colors.warningDark,
   },
   revealedAssetSector: {
     fontSize: 12,
-    color: '#64748b',
+    color: Colors.textMuted,
   },
   periodCard: {
-    backgroundColor: '#eff6ff', // blue-50
-    borderColor: '#bfdbfe', // blue-200
+    backgroundColor: '#eff6ff',
+    borderColor: Colors.primaryLightest,
     borderWidth: 1,
     padding: 14,
   },
@@ -314,19 +370,19 @@ const styles = StyleSheet.create({
   periodTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#0f172a',
+    color: Colors.textPrimary,
   },
   periodText: {
     fontSize: 13,
-    color: '#475569',
+    color: Colors.textSecondary,
   },
   periodHighlight: {
-    color: '#1d4ed8',
+    color: Colors.primaryDark,
     fontWeight: '600',
   },
   learnCard: {
-    backgroundColor: '#f0fdf4', // green-50
-    borderColor: '#bbf7d0', // green-200
+    backgroundColor: '#f0fdf4',
+    borderColor: '#bbf7d0',
     borderWidth: 1,
     padding: 14,
     marginVertical: 20,
@@ -334,16 +390,16 @@ const styles = StyleSheet.create({
   learnTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#0f172a',
+    color: Colors.textPrimary,
     marginBottom: 6,
   },
   learnText: {
     fontSize: 13,
-    color: '#475569',
+    color: Colors.textSecondary,
     lineHeight: 18,
   },
   rankingBtn: {
-    backgroundColor: '#f97316', // orange-500
+    backgroundColor: Colors.warning,
     width: '100%',
   },
 });

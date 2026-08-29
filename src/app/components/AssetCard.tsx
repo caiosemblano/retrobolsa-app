@@ -56,15 +56,15 @@ export function AssetCard({ asset, onClick, allocatedAmount }: AssetCardProps) {
         <div className="grid grid-cols-3 gap-2">
           <div className="bg-blue-50 p-2 rounded">
             <div className="text-slate-600 text-xs">P/L</div>
-            <div className="text-blue-700">{asset.indicators.pl?.toFixed(1)}</div>
+            <div className="text-blue-700">{asset.indicators.pl !== undefined ? asset.indicators.pl.toFixed(1) : '—'}</div>
           </div>
           <div className="bg-blue-50 p-2 rounded">
-            <div className="text-slate-600 text-xs">ROE</div>
-            <div className="text-blue-700">{asset.indicators.roe}%</div>
+            <div className="text-slate-600 text-xs">LVP</div>
+            <div className="text-blue-700">{asset.indicators.lvp !== undefined ? asset.indicators.lvp : '—'}</div>
           </div>
           <div className="bg-blue-50 p-2 rounded">
-            <div className="text-slate-600 text-xs">Div. Yield</div>
-            <div className="text-blue-700">{asset.indicators.dividendYield}%</div>
+            <div className="text-slate-600 text-xs">Margem EBITDA</div>
+            <div className="text-blue-700">{asset.indicators.margemEbitda !== undefined ? `${asset.indicators.margemEbitda}%` : '—'}</div>
           </div>
         </div>
       )}

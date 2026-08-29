@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Achievement } from '../types';
 import { Card } from './ui/Card';
 import { Icon } from './Icon';
+import { Colors } from '../constants/Colors';
 
 interface AchievementBadgeProps {
   achievement: Achievement;
@@ -28,9 +29,9 @@ export function AchievementBadge({ achievement }: AchievementBadgeProps) {
           ]}
         >
           {achievement.unlocked ? (
-            <Icon name={achievement.icon} size={24} color="#ffffff" />
+            <Icon name={achievement.icon} size={24} color={Colors.cardBackground} />
           ) : (
-            <Icon name="Lock" size={24} color="#64748b" />
+            <Icon name="Lock" size={24} color={Colors.textMuted} />
           )}
         </View>
 
@@ -70,8 +71,8 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
   },
   cardLocked: {
-    backgroundColor: '#f8fafc', // slate-50
-    borderColor: '#e2e8f0', // slate-200
+    backgroundColor: Colors.background, // slate-50
+    borderColor: Colors.border, // slate-200
     opacity: 0.7,
   },
   container: {
@@ -84,10 +85,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   iconUnlocked: {
-    backgroundColor: '#f97316', // orange-500
+    backgroundColor: Colors.warning, // orange-500
   },
   iconLocked: {
-    backgroundColor: '#cbd5e1', // slate-300
+    backgroundColor: Colors.borderDark, // slate-300
   },
   title: {
     fontWeight: '600',
@@ -96,25 +97,25 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   titleUnlocked: {
-    color: '#0f172a', // slate-900
+    color: Colors.textPrimary, // slate-900
   },
   titleLocked: {
-    color: '#64748b', // slate-500
+    color: Colors.textMuted, // slate-500
   },
   description: {
     fontSize: 11,
-    color: '#64748b', // slate-500
+    color: Colors.textMuted, // slate-500
     textAlign: 'center',
     marginBottom: 6,
     lineHeight: 14,
   },
   date: {
     fontSize: 10,
-    color: '#ea580c', // orange-600
+    color: Colors.warningDark, // orange-600
     fontWeight: '500',
   },
   lockedText: {
     fontSize: 10,
-    color: '#64748b', // slate-500
+    color: Colors.textMuted, // slate-500
   },
 });

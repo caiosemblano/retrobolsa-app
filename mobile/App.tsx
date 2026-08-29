@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Platform, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Platform, StatusBar, ActivityIndicator } from 'react-native';
 import { HomeScreen } from './components/screens/HomeScreen';
 import { LearnScreen } from './components/screens/LearnScreen';
 import { RankingsScreen } from './components/screens/RankingsScreen';
@@ -8,12 +8,34 @@ import { CompetitionContextScreen } from './components/screens/CompetitionContex
 import { PortfolioBuilderScreen } from './components/screens/PortfolioBuilderScreen';
 import { SimulationWaitScreen } from './components/screens/SimulationWaitScreen';
 import { ResultsScreen } from './components/screens/ResultsScreen';
+import { LoginScreen } from './components/screens/LoginScreen';
+import { RegisterScreen } from './components/screens/RegisterScreen';
 import { Icon } from './components/Icon';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { Colors } from './constants/Colors';
 
-type Screen = 'home' | 'learn' | 'rankings' | 'profile' | 'context' | 'portfolio' | 'simulation' | 'results';
+type Screen = 'home' | 'learn' | 'rankings' | 'profile' | 'context' | 'portfolio' | 'simulation' | 'results' | 'login' | 'register';
 
-export default function App() {
+function AppContent() {
+  const { isAuthenticated, isLoading } = useAuth();
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
+  const [authScreen, setAuthScreen] = useState<'login' | 'register'>('login');
+
+  if (isLoading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color={Colors.primaryHover} />
+      </View>
+    );
+  }
+
+  if (!isAuthenticated) {
+    if (authScreen === 'login') {
+      return <LoginScreen onRegister={() => setAuthScreen('register')} />;
+    } else {
+      return <RegisterScreen onBackToLogin={() => setAuthScreen('login')} />;
+    }
+  }
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -45,7 +67,7 @@ export default function App() {
           />
         );
       case 'simulation':
-        return <SimulationWaitScreen />;
+        return <SimulationWaitScreen onSkipWait={() => setCurrentScreen('results')} />;
       case 'results':
         return (
           <ResultsScreen
@@ -68,7 +90,7 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#2563eb" />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.primaryHover} />
       
       {/* Header */}
       <View style={styles.header}>
@@ -94,7 +116,7 @@ export default function App() {
             <Icon
               name="Home"
               size={22}
-              color={currentScreen === 'home' ? '#f97316' : '#64748b'}
+              color={currentScreen === 'home' ? Colors.warning : Colors.textMuted}
             />
             <Text
               style={[
@@ -114,7 +136,7 @@ export default function App() {
             <Icon
               name="GraduationCap"
               size={22}
-              color={currentScreen === 'learn' ? '#f97316' : '#64748b'}
+              color={currentScreen === 'learn' ? Colors.warning : Colors.textMuted}
             />
             <Text
               style={[
@@ -134,7 +156,7 @@ export default function App() {
             <Icon
               name="Trophy"
               size={22}
-              color={currentScreen === 'rankings' ? '#f97316' : '#64748b'}
+              color={currentScreen === 'rankings' ? Colors.warning : Colors.textMuted}
             />
             <Text
               style={[
@@ -154,7 +176,7 @@ export default function App() {
             <Icon
               name="User"
               size={22}
-              color={currentScreen === 'profile' ? '#f97316' : '#64748b'}
+              color={currentScreen === 'profile' ? Colors.warning : Colors.textMuted}
             />
             <Text
               style={[
@@ -171,14 +193,28 @@ export default function App() {
   );
 }
 
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
+
 const styles = StyleSheet.create({
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.cardBackground,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.cardBackground,
     paddingTop: Platform.OS === 'android' ? 36 : 0, // Safe spacing for android statusbar
   },
   header: {
-    backgroundColor: '#2563eb', // blue-600 flat background
+    backgroundColor: Colors.primaryHover, // blue-600 flat background
     paddingVertical: 14,
     paddingHorizontal: 16,
     ...Platform.select({
@@ -202,7 +238,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: Colors.cardBackground,
   },
   headerSubtitle: {
     fontSize: 12,
@@ -211,18 +247,18 @@ const styles = StyleSheet.create({
   },
   main: {
     flex: 1,
-    backgroundColor: '#f8fafc', // slate-50
+    backgroundColor: Colors.background, // slate-50
   },
   navBar: {
     flexDirection: 'row',
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.cardBackground,
     borderTopWidth: 1,
-    borderTopColor: '#e2e8f0', // slate-200
+    borderTopColor: Colors.border, // slate-200
     paddingVertical: 8,
     paddingBottom: Platform.OS === 'ios' ? 24 : 8, // extra padding for iOS home indicator
     ...Platform.select({
       ios: {
-        shadowColor: '#64748b',
+        shadowColor: Colors.textMuted,
         shadowOffset: { width: 0, height: -2 },
         shadowOpacity: 0.08,
         shadowRadius: 4,
@@ -246,9 +282,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   navTextActive: {
-    color: '#f97316', // orange-500
+    color: Colors.warning, // orange-500
   },
   navTextInactive: {
-    color: '#64748b', // slate-500
+    color: Colors.textMuted, // slate-500
   },
 });

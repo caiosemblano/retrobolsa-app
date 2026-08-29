@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, ViewStyle, Platform } from 'react-native';
+import { Colors } from '../../constants/Colors';
 
 interface TabsContextProps {
   value: string;
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
   },
   tabsList: {
     flexDirection: 'row',
-    backgroundColor: '#f1f5f9', // slate-100
+    backgroundColor: Colors.background, // slate-100
     borderRadius: 8,
     padding: 4,
     marginBottom: 16,
@@ -129,10 +130,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tabsTriggerActive: {
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.cardBackground,
     ...Platform.select({
       ios: {
-        shadowColor: '#64748b',
+        shadowColor: Colors.textMuted,
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
         shadowRadius: 2,
@@ -147,11 +148,11 @@ const styles = StyleSheet.create({
   },
   triggerText: {
     fontSize: 14,
-    color: '#64748b', // slate-500
+    color: Colors.textMuted, // slate-500
     fontWeight: '500',
   },
   triggerTextActive: {
-    color: '#0f172a', // slate-900
+    color: Colors.textPrimary, // slate-900
     fontWeight: '600',
   },
   tabsContent: {
