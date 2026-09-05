@@ -50,7 +50,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     if (authService.isAuthenticated() && storedUser) {
       userService.getProfile()
-        .then(({ data }) => setUser({ email: data.email || storedUser!.email, role: data.role }))
+        .then(({ data }) => setUser({
+          email: data.email || storedUser!.email,
+          role: data.role,
+          username: data.username,
+        }))
         .catch(() => setUser(storedUser))
         .finally(() => setIsLoading(false));
     } else {
@@ -78,7 +82,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const stored = authService.getStoredUser();
       if (stored) {
         const profile = await userService.getProfile();
-        setUser({ email: stored.email, role: profile.data.role });
+        setUser({
+          email: stored.email,
+          role: profile.data.role,
+          username: profile.data.username,
+        });
       } else {
         setUser(null);
       }

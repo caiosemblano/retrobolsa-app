@@ -7,7 +7,8 @@ import { TrendingUp, Target } from 'lucide-react';
 import { competitionService } from '../../services/competitionService';
 import { portfolioService } from '../../services/portfolioService';
 import { rankingService } from '../../services/rankingService';
-import { userService } from '../../services/userService';
+import { useAuth } from '../../contexts/AuthContext';
+import { markCurrentUser } from '../../utils/ranking';
 import { Competition, RankingEntry, Result } from '../../types';
 
 interface HomeScreenProps {
@@ -20,12 +21,11 @@ export function HomeScreen({ onStartCompetition, onViewResults, onViewSimulation
   const [competition, setCompetition] = useState<Competition | null>(null);
   const [result, setResult] = useState<Result | null>(null);
   const [ranking, setRanking] = useState<RankingEntry[]>([]);
-  const [myUsername, setMyUsername] = useState<string>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { user } = useAuth();
 
   useEffect(() => {
-    userService.getProfile().then((response) => setMyUsername(response.data.username)).catch(() => undefined);
     Promise.allSettled([
       competitionService.getActive().catch(() => competitionService.getLatest()),
       portfolioService.getLastResult(),
@@ -81,10 +81,10 @@ export function HomeScreen({ onStartCompetition, onViewResults, onViewSimulation
       ) : <p className="mb-8 text-sm text-slate-500">Você ainda não possui um resultado. Submeta uma carteira para participar.</p>}
       <div>
         <h2 className="text-slate-900 mb-4">Ranking da Rodada</h2>
-        {ranking.length ? ranking.slice(0, 5).map((entry) => (
+        {ranking.length ? markCurrentUser(ranking.slice(0, 5), user?.username).map((entry) => (
           <RankingItem
             key={`${entry.rank}-${entry.username}`}
-            entry={{ ...entry, isCurrentUser: entry.username === myUsername }}
+            entry={entry}
             showRentability
           />
         )) : <p className="text-slate-500">Ainda não há participantes classificados.</p>}

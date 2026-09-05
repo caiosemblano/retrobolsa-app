@@ -23,6 +23,7 @@ export interface AuthResponse {
 export interface StoredUser {
   email: string;
   role?: string;
+  username?: string;
 }
 
 // ── Service ─────────────────────────────────────────────────────────────────
