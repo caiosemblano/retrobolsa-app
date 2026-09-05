@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import { adminCompetitionService, AdminCompetition } from '../../services/adminCompetitionService';
-import { CirclePlay, Eye, FastForward, RotateCcw, Shield, Square, WandSparkles } from 'lucide-react';
+import { CirclePlay, Eye, FastForward, RotateCcw, Shield, Square, WandSparkles, Zap } from 'lucide-react';
 
 export function AdminScreen() {
   const [competitions, setCompetitions] = useState<AdminCompetition[]>([]);
@@ -63,6 +63,7 @@ export function AdminScreen() {
                 {(competition.status === 'draft' || competition.status === 'closed') && <Button size="sm" disabled={!!busy} onClick={() => run(competition.id, () => adminCompetitionService.start(competition.id), 'Rodada iniciada')}><CirclePlay /> Iniciar</Button>}
                 {competition.status === 'open' && <Button size="sm" variant="outline" disabled={!!busy} onClick={() => run(competition.id, () => adminCompetitionService.close(competition.id), 'Rodada encerrada')}><Square /> Fechar</Button>}
                 {competition.status === 'closed' && <Button size="sm" variant="outline" disabled={!!busy} onClick={() => run(`${competition.id}-simulate`, () => adminCompetitionService.simulate(competition.id), 'Rodada simulada')}><WandSparkles /> Simular</Button>}
+                {competition.status === 'closed' && <Button size="sm" variant="outline" disabled={!!busy} onClick={() => run(`${competition.id}-quick`, () => adminCompetitionService.quickSimulate(competition.id), 'Rodada simulada e revelada')}><Zap /> Simulação rápida</Button>}
                 {competition.status === 'simulated' && <Button size="sm" variant="outline" disabled={!!busy} onClick={() => run(`${competition.id}-reveal`, () => adminCompetitionService.reveal(competition.id), 'Resultado revelado')}><Eye /> Revelar</Button>}
               </div>
             </div>

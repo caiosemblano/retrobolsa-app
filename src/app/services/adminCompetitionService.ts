@@ -15,6 +15,7 @@ export const adminCompetitionService = {
   start: (id: string) => api.post<void>(`/api/admin/competitions/${id}/start`),
   close: (id: string) => api.post<void>(`/api/admin/competitions/${id}/close`),
   simulate: (id: string) => api.post<void>(`/api/admin/competitions/${id}/simulate`),
+  quickSimulate: (id: string) => api.post<void>(`/api/admin/competitions/${id}/quick-simulate`),
   reveal: (id: string) => api.post<void>(`/api/admin/competitions/${id}/reveal`),
   reset: () => api.post<void>('/api/admin/competitions/reset'),
 };

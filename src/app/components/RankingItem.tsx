@@ -58,9 +58,11 @@ export function RankingItem({ entry, showRentability }: RankingItemProps) {
         )}
       </div>
 
-      <div className={`text-right ${entry.isCurrentUser ? 'text-orange-700' : 'text-slate-900'}`}>
-        <div>{entry.points.toLocaleString('pt-BR')} pts</div>
-      </div>
+      {!showRentability && (
+        <div className={`text-right ${entry.isCurrentUser ? 'text-orange-700' : 'text-slate-900'}`}>
+          <div>{entry.points.toLocaleString('pt-BR')} pts</div>
+        </div>
+      )}
     </div>
   );
 }
