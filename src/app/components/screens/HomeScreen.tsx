@@ -13,9 +13,10 @@ import { Competition, RankingEntry, Result } from '../../types';
 interface HomeScreenProps {
   onStartCompetition: () => void;
   onViewResults: () => void;
+  onViewSimulationStatus: () => void;
 }
 
-export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProps) {
+export function HomeScreen({ onStartCompetition, onViewResults, onViewSimulationStatus }: HomeScreenProps) {
   const [competition, setCompetition] = useState<Competition | null>(null);
   const [result, setResult] = useState<Result | null>(null);
   const [ranking, setRanking] = useState<RankingEntry[]>([]);
@@ -55,6 +56,8 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
           onAction={
             competition.status === 'simulated' || competition.status === 'revealed'
               ? onViewResults
+              : competition.status === 'closed' || competition.status === 'simulating'
+              ? onViewSimulationStatus
               : onStartCompetition
           }
         />

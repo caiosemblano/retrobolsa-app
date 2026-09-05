@@ -51,9 +51,8 @@ export function CompetitionCard({ competition, onAction }: CompetitionCardProps)
       case 'open':
         return 'Montar Carteira';
       case 'simulating':
-        return 'Aguardando Resultado';
       case 'closed':
-        return 'Aguardando Simulação';
+        return 'Ver Status da Rodada';
       case 'simulated':
       case 'revealed':
         return 'Ver Resultados';
@@ -103,7 +102,7 @@ export function CompetitionCard({ competition, onAction }: CompetitionCardProps)
         className="w-full bg-orange-500 hover:bg-orange-600"
         size="lg"
         onClick={onAction}
-        disabled={['draft', 'simulating', 'closed'].includes(competition.status)}
+        disabled={competition.status === 'draft'}
       >
         {getButtonText()}
       </Button>

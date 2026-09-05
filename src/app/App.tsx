@@ -71,6 +71,7 @@ function AppContent() {
           <HomeScreen
             onStartCompetition={() => setCurrentScreen('context')}
             onViewResults={() => setCurrentScreen('results')}
+            onViewSimulationStatus={() => setCurrentScreen('simulation')}
           />
         );
       case 'learn':
@@ -80,7 +81,13 @@ function AppContent() {
       case 'profile':
         return <ProfileScreen />;
       case 'admin':
-        return user?.role === 'ADMIN' ? <AdminScreen /> : <HomeScreen onStartCompetition={() => setCurrentScreen('context')} onViewResults={() => setCurrentScreen('results')} />;
+        return user?.role === 'ADMIN' ? <AdminScreen /> : (
+          <HomeScreen
+            onStartCompetition={() => setCurrentScreen('context')}
+            onViewResults={() => setCurrentScreen('results')}
+            onViewSimulationStatus={() => setCurrentScreen('simulation')}
+          />
+        );
       case 'context':
         return (
           <CompetitionContextScreen
@@ -96,7 +103,12 @@ function AppContent() {
           />
         );
       case 'simulation':
-        return <SimulationWaitScreen onViewResults={() => setCurrentScreen('results')} />;
+        return (
+          <SimulationWaitScreen
+            onViewResults={() => setCurrentScreen('results')}
+            onBack={() => setCurrentScreen('home')}
+          />
+        );
       case 'results':
         return (
           <ResultsScreen
@@ -109,6 +121,7 @@ function AppContent() {
           <HomeScreen
             onStartCompetition={() => setCurrentScreen('context')}
             onViewResults={() => setCurrentScreen('results')}
+            onViewSimulationStatus={() => setCurrentScreen('simulation')}
           />
         );
     }
