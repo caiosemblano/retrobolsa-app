@@ -23,12 +23,12 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
 
   useEffect(() => {
     Promise.allSettled([
-      competitionService.getActive(),
+      competitionService.getActive().catch(() => competitionService.getLatest()),
       portfolioService.getLastResult(),
       rankingService.get('quinzenal'),
     ]).then(([competitionResponse, resultResponse, rankingResponse]) => {
       if (competitionResponse.status === 'fulfilled') setCompetition(competitionResponse.value.data);
-      else setError('Não foi possível carregar a competição ativa.');
+      else setError('Nenhuma competição encontrada.');
       if (resultResponse.status === 'fulfilled') setResult(resultResponse.value.data);
       if (rankingResponse.status === 'fulfilled') setRanking(rankingResponse.value.data);
       setLoading(false);
@@ -46,7 +46,16 @@ export function HomeScreen({ onStartCompetition, onViewResults }: HomeScreenProp
         <h1 className="text-slate-900 mb-2">Competições</h1>
         <p className="text-slate-600">Participe e teste suas estratégias de investimento</p>
       </div>
-      <div className="mb-8"><CompetitionCard competition={competition} onAction={onStartCompetition} /></div>
+      <div className="mb-8">
+        <CompetitionCard
+          competition={competition}
+          onAction={
+            competition.status === 'simulated' || competition.status === 'revealed'
+              ? onViewResults
+              : onStartCompetition
+          }
+        />
+      </div>
       <Separator className="my-8" />
       {result ? (
         <>

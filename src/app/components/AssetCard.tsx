@@ -72,7 +72,9 @@ export function AssetCard({ asset, onClick, allocatedAmount }: AssetCardProps) {
       {asset.type === 'bond' && (
         <div className="bg-green-50 p-3 rounded">
           <div className="text-slate-600 text-xs mb-1">Taxa de Retorno</div>
-          <div className="text-green-700">{asset.rate}% a.a.</div>
+          <div className="text-green-700">
+            {asset.rate !== undefined ? `${(asset.rate * 100).toFixed(2)}% a.a.` : '—'}
+          </div>
         </div>
       )}
 

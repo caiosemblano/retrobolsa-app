@@ -2,7 +2,7 @@ import { Competition } from '../types';
 import { Card } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { Trophy, Clock, CheckCircle } from 'lucide-react';
+import { Trophy, Clock, CheckCircle, Eye, FileEdit } from 'lucide-react';
 
 interface CompetitionCardProps {
   competition: Competition;
@@ -12,33 +12,50 @@ interface CompetitionCardProps {
 export function CompetitionCard({ competition, onAction }: CompetitionCardProps) {
   const getStatusBadge = () => {
     switch (competition.status) {
+      case 'draft':
+        return <Badge variant="secondary">Em Preparação</Badge>;
       case 'open':
         return <Badge className="bg-green-600">Mercado Aberto</Badge>;
       case 'simulating':
         return <Badge className="bg-orange-500">Em Simulação</Badge>;
       case 'closed':
         return <Badge variant="secondary">Mercado Fechado</Badge>;
+      case 'simulated':
+        return <Badge className="bg-blue-600">Simulada</Badge>;
+      case 'revealed':
+        return <Badge className="bg-orange-500">Revelada</Badge>;
     }
   };
 
   const getStatusIcon = () => {
     switch (competition.status) {
+      case 'draft':
+        return <FileEdit className="w-5 h-5 text-slate-400" />;
       case 'open':
         return <Clock className="w-5 h-5 text-green-600" />;
       case 'simulating':
         return <Trophy className="w-5 h-5 text-orange-500" />;
       case 'closed':
         return <CheckCircle className="w-5 h-5 text-slate-400" />;
+      case 'simulated':
+        return <Trophy className="w-5 h-5 text-blue-600" />;
+      case 'revealed':
+        return <Eye className="w-5 h-5 text-orange-500" />;
     }
   };
 
   const getButtonText = () => {
     switch (competition.status) {
+      case 'draft':
+        return 'Aguardando Início';
       case 'open':
         return 'Montar Carteira';
       case 'simulating':
         return 'Aguardando Resultado';
       case 'closed':
+        return 'Aguardando Simulação';
+      case 'simulated':
+      case 'revealed':
         return 'Ver Resultados';
     }
   };
@@ -86,7 +103,7 @@ export function CompetitionCard({ competition, onAction }: CompetitionCardProps)
         className="w-full bg-orange-500 hover:bg-orange-600"
         size="lg"
         onClick={onAction}
-        disabled={competition.status === 'simulating'}
+        disabled={['draft', 'simulating', 'closed'].includes(competition.status)}
       >
         {getButtonText()}
       </Button>

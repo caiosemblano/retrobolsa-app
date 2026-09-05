@@ -16,6 +16,10 @@ export interface Asset {
   };
   bondType?: string;
   rate?: number;
+  /** Presentes apenas nos ativos revelados de um resultado (Result.revealedAssets). */
+  ticker?: string;
+  amountInvested?: number;
+  finalValue?: number;
 }
 
 export interface EconomicIndicator {
@@ -27,7 +31,7 @@ export interface EconomicIndicator {
 export interface Competition {
   id: string;
   round: number;
-  status: 'open' | 'closed' | 'simulating' | 'simulated' | 'revealed';
+  status: 'draft' | 'open' | 'closed' | 'simulating' | 'simulated' | 'revealed';
   daysLeft?: number;
   economicContext: {
     title: string;

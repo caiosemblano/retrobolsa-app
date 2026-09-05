@@ -80,4 +80,10 @@ export const competitionService = {
     const response = await api.get<ApiCompetition>('/api/competitions/active');
     return { ...response, data: mapCompetition(response.data) };
   },
+
+  /** Rodada mais recente independente do status — usado quando não há rodada aberta no momento. */
+  getLatest: async () => {
+    const response = await api.get<ApiCompetition>('/api/competitions/latest');
+    return { ...response, data: mapCompetition(response.data) };
+  },
 };
