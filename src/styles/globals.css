@@ -45,9 +45,14 @@
   --destructive: #f4626f;
   --destructive-foreground: #1a0509;
 
-  /* Bordas e campos */
+  /* Bordas e campos.
+     --border é decorativo (contornos de card, divisórias): o card já se
+     distingue pela superfície e pela sombra, então não precisa de 3:1.
+     --input delimita controles (campo, switch, slider, botão outline) e é o
+     que os identifica como interativos, então cumpre o mínimo de 3:1
+     do WCAG 1.4.11 contra o fundo do próprio campo. */
   --border: rgba(148, 170, 214, 0.16);
-  --input: rgba(148, 170, 214, 0.2);
+  --input: rgba(148, 170, 214, 0.6);
   --input-background: #131c33;
   --switch-background: #2a3757;
   --ring: #4ade80;
