@@ -84,9 +84,13 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
   };
 
   return (
-    <div className="mx-auto max-w-4xl p-4 pb-32">
-      {/* HUD de orçamento fixo no topo */}
-      <div className="fixed left-0 right-0 top-0 z-30 border-b border-border bg-background/90 p-4 backdrop-blur-md">
+    <div className="pb-32">
+      {/* HUD de orçamento: gruda logo abaixo do header do app (--app-header-h),
+          em vez de 'fixed top-0', que ficava escondido atrás dele. */}
+      <div
+        className="sticky z-30 border-b border-border bg-background/90 p-4 backdrop-blur-md"
+        style={{ top: 'var(--app-header-h, 0px)' }}
+      >
         <div className="mx-auto max-w-4xl">
           <div className="mb-3 flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={onBack}>
@@ -130,11 +134,11 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
         </div>
       </div>
 
-      <div className="mb-6 mt-52">
+      <div className="mx-auto mb-6 max-w-4xl px-4 pt-6">
         <h2 className="mb-4 font-display text-xl">Ativos disponíveis</h2>
-        <div className="space-y-3">
+        <div className="grid gap-3 md:grid-cols-2">
           {competition.assets.map((asset) => (
-            <div key={asset.id} className="relative">
+            <div key={asset.id} className="flex flex-col gap-1.5">
               <AssetCard
                 asset={asset}
                 allocatedAmount={portfolio[asset.id]}
@@ -143,19 +147,20 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
                   setAllocationAmount(portfolio[asset.id] || 0);
                 }}
               />
+              {/* Fica abaixo do card, e não sobreposto: sobrepor escondia o
+                  valor alocado e deixava o alvo de toque menor que 44px. */}
               {portfolio[asset.id] && (
                 <button
                   type="button"
-                  aria-label={`Remover alocação em ${asset.anonymousName}`}
-                  onClick={(event) => {
-                    event.stopPropagation();
+                  onClick={() => {
                     const next = { ...portfolio };
                     delete next[asset.id];
                     setPortfolio(next);
                   }}
-                  className="absolute right-3 top-3 grid size-8 cursor-pointer place-items-center rounded-full border border-loss/40 bg-loss-soft text-loss transition-[transform,background-color] duration-150 hover:bg-loss hover:text-loss-foreground active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
+                  className="flex min-h-11 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-loss/40 bg-loss-soft px-3 text-sm font-semibold text-loss transition-[transform,background-color] duration-150 hover:bg-loss hover:text-loss-foreground active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none"
                 >
                   <X className="size-4" aria-hidden="true" />
+                  Remover alocação em {asset.anonymousName}
                 </button>
               )}
             </div>

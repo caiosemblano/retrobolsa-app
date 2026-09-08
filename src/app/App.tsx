@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Toaster } from 'sonner';
 import { HomeScreen } from './components/screens/HomeScreen';
 import { LearnScreen } from './components/screens/LearnScreen';
@@ -32,6 +32,34 @@ type Screen =
 function AppContent() {
   const { isAuthenticated, isLoading, logout, user } = useAuth();
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
+  const headerRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
+  const isFirstScreen = useRef(true);
+
+  /* Publica a altura real do header em --app-header-h para que sub-telas
+     possam grudar logo abaixo dele sem depender de um valor fixo (o header
+     cresce quando o texto do sistema aumenta ou o título quebra em duas linhas). */
+  useLayoutEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+    const publicar = () =>
+      document.documentElement.style.setProperty('--app-header-h', `${header.offsetHeight}px`);
+    publicar();
+    const observer = new ResizeObserver(publicar);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, [isAuthenticated]);
+
+  /* Sem rotas, a troca de tela não move o foco: o leitor de tela continuaria
+     lendo o menu e o teclado voltaria ao topo da página. Move o foco para o
+     conteúdo, exceto na primeira renderização. */
+  useEffect(() => {
+    if (isFirstScreen.current) {
+      isFirstScreen.current = false;
+      return;
+    }
+    mainRef.current?.focus();
+  }, [currentScreen]);
 
   // Enquanto verifica sessão inicial, mostra loading
   if (isLoading) {
@@ -140,8 +168,19 @@ function AppContent() {
 
   return (
     <div className="min-h-dvh bg-background">
+      {/* Atalho para quem navega por teclado pular o header e ir direto ao conteúdo */}
+      <a
+        href="#conteudo-principal"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-xl focus:bg-primary focus:px-4 focus:py-2.5 focus:font-semibold focus:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+      >
+        Pular para o conteúdo
+      </a>
+
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
+      <header
+        ref={headerRef}
+        className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md"
+      >
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-3 px-4 py-3">
           <div className="flex items-center gap-3">
             <span
@@ -170,7 +209,14 @@ function AppContent() {
       </header>
 
       {/* Main Content */}
-      <main className="min-h-[calc(100dvh-9rem)]">{renderScreen()}</main>
+      <main
+        id="conteudo-principal"
+        ref={mainRef}
+        tabIndex={-1}
+        className="min-h-[calc(100dvh-9rem)] outline-none"
+      >
+        {renderScreen()}
+      </main>
 
       {/* Bottom Navigation */}
       {shouldShowNav && (
