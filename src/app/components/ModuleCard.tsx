@@ -1,7 +1,6 @@
 import { Module } from '../types';
-import { Card } from './ui/card';
 import { Progress } from './ui/progress';
-import { Calculator, TrendingUp, Globe, ChevronRight } from 'lucide-react';
+import { Calculator, TrendingUp, Globe, GraduationCap, ChevronRight } from 'lucide-react';
 
 interface ModuleCardProps {
   module: Module;
@@ -12,42 +11,50 @@ const iconMap: Record<string, any> = {
   Calculator,
   TrendingUp,
   Globe,
+  GraduationCap,
 };
 
 export function ModuleCard({ module, onClick }: ModuleCardProps) {
   const Icon = iconMap[module.icon] || Calculator;
-  const progress = (module.completedLessons / module.lessonsCount) * 100;
+  const progress = module.lessonsCount ? (module.completedLessons / module.lessonsCount) * 100 : 0;
+  const isComplete = progress >= 100;
 
   return (
-    <Card
-      className="p-5 cursor-pointer hover:bg-slate-50 transition-all border-2 hover:border-blue-300"
+    <button
+      type="button"
       onClick={onClick}
+      className="surface-glass block w-full cursor-pointer rounded-2xl border border-border bg-card p-5 text-left transition-[transform,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:border-ring/40 active:translate-y-0 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0"
     >
       <div className="flex items-start gap-4">
-        <div className="p-3 bg-blue-100 rounded-lg">
-          <Icon className="w-6 h-6 text-blue-700" />
-        </div>
-        
-        <div className="flex-1">
-          <h3 className="text-slate-900 mb-2">{module.title}</h3>
-          <p className="text-slate-600 mb-3">{module.description}</p>
-          
-          <div className="mb-2">
-            <Progress value={progress} className="h-2" />
-          </div>
-          
+        <span
+          aria-hidden="true"
+          className={`grid size-12 shrink-0 place-items-center rounded-xl border ${
+            isComplete
+              ? 'border-gain/30 bg-gain-soft text-gain'
+              : 'border-info/25 bg-info-soft text-info'
+          }`}
+        >
+          <Icon className="size-6" />
+        </span>
+
+        <div className="min-w-0 flex-1">
+          <h3 className="mb-1 font-display text-lg">{module.title}</h3>
+          <p className="mb-3 text-sm text-muted-foreground">{module.description}</p>
+
+          <Progress value={progress} className="mb-2" />
+
           <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-600">
+            <span className="tabular text-muted-foreground">
               {module.completedLessons} de {module.lessonsCount} aulas
             </span>
-            <span className="text-blue-600">
-              {Math.round(progress)}% completo
+            <span className={`tabular font-semibold ${isComplete ? 'text-gain' : 'text-info'}`}>
+              {Math.round(progress)}%
             </span>
           </div>
         </div>
 
-        <ChevronRight className="w-5 h-5 text-slate-400" />
+        <ChevronRight className="size-5 shrink-0 self-center text-muted-foreground" aria-hidden="true" />
       </div>
-    </Card>
+    </button>
   );
 }

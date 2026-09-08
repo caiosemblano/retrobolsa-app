@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Card } from '../ui/card';
+import { Button } from '../ui/button';
+import { Skeleton } from '../ui/skeleton';
 import { RankingItem } from '../RankingItem';
 import { Trophy } from 'lucide-react';
 import {
@@ -67,7 +70,11 @@ export function RankingsScreen() {
 
   const renderLista = (entries: RankingEntry[], showRentability: boolean) => {
     if (!entries.length) {
-      return <p className="text-slate-500">Ainda não há participantes classificados.</p>;
+      return (
+        <Card className="p-6 text-center">
+          <p className="text-sm text-muted-foreground">Ainda não há participantes classificados.</p>
+        </Card>
+      );
     }
     return markCurrentUser(entries, myUsername).map((entry) => (
       <RankingItem
@@ -79,21 +86,24 @@ export function RankingsScreen() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 pb-20">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-3 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg">
-          <Trophy className="w-8 h-8 text-white" />
-        </div>
+    <div className="mx-auto max-w-4xl p-4 pb-24">
+      <div className="mb-6 flex items-center gap-3">
+        <span
+          aria-hidden="true"
+          className="grid size-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-gold to-amber-600 text-gold-foreground shadow-[0_10px_30px_-12px_var(--gold)]"
+        >
+          <Trophy className="size-6" />
+        </span>
         <div>
-          <h1 className="text-slate-900 mb-1">Rankings</h1>
-          <p className="text-slate-600">Veja sua posição entre os investidores</p>
+          <h1 className="font-display text-3xl leading-tight">Rankings</h1>
+          <p className="text-muted-foreground text-sm">Veja sua posição entre os investidores</p>
         </div>
       </div>
 
       {myRank && (
-        <div className="mb-6 p-4 rounded-lg bg-orange-50 border-2 border-orange-300">
-          <div className="text-orange-700 mb-1">Sua posição</div>
-          <div className="flex flex-wrap gap-x-6 gap-y-1 text-slate-700 text-sm">
+        <Card className="mb-6 gap-2 border-primary/40 p-4 glow-primary">
+          <div className="font-display font-semibold text-primary">Sua posição</div>
+          <div className="tabular flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
             <span>
               Geral: {myRank.globalRank}º de {myRank.totalGlobalPlayers}
             </span>
@@ -105,28 +115,33 @@ export function RankingsScreen() {
               </span>
             )}
           </div>
-        </div>
+        </Card>
       )}
 
       {loading ? (
-        <p className="text-center text-slate-600">Carregando rankings...</p>
+        <div className="space-y-2">
+          <Skeleton className="h-11 w-full rounded-xl" />
+          <Skeleton className="h-16 w-full rounded-xl" />
+          <Skeleton className="h-16 w-full rounded-xl" />
+          <Skeleton className="h-16 w-full rounded-xl" />
+        </div>
       ) : error ? (
-        <p className="text-center text-slate-600">{error}</p>
+        <Card className="p-8 text-center">
+          <p className="text-muted-foreground">{error}</p>
+        </Card>
       ) : (
         <Tabs defaultValue="quinzenal" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className="mb-6 grid w-full grid-cols-3">
             <TabsTrigger value="quinzenal">Quinzenal</TabsTrigger>
             <TabsTrigger value="temporada">Temporada</TabsTrigger>
             <TabsTrigger value="geral">Geral</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="quinzenal" className="space-y-3">
-            {renderLista(quinzenal, true)}
-          </TabsContent>
+          <TabsContent value="quinzenal">{renderLista(quinzenal, true)}</TabsContent>
 
-          <TabsContent value="temporada" className="space-y-3">
+          <TabsContent value="temporada">
             {seasonInfo && (
-              <p className="text-slate-600 text-sm">
+              <p className="tabular mb-3 text-sm text-muted-foreground">
                 Temporada {seasonInfo.seasonNumber} · Rodadas {seasonInfo.roundStart}–
                 {seasonInfo.roundEnd}
               </p>
@@ -134,17 +149,17 @@ export function RankingsScreen() {
             {renderLista(season, false)}
           </TabsContent>
 
-          <TabsContent value="geral" className="space-y-3">
+          <TabsContent value="geral">
             {renderLista(global, false)}
             {hasMoreGlobal && (
-              <button
-                type="button"
+              <Button
+                variant="outline"
+                className="mt-2 w-full"
                 onClick={carregarMaisGlobal}
                 disabled={loadingMore}
-                className="w-full p-3 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-50"
               >
                 {loadingMore ? 'Carregando...' : 'Carregar mais'}
-              </button>
+              </Button>
             )}
           </TabsContent>
         </Tabs>

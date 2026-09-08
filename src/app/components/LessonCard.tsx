@@ -1,7 +1,5 @@
 import { Lesson } from '../types';
-import { Card } from './ui/card';
 import { CheckCircle, Circle, Clock, Play } from 'lucide-react';
-import { Button } from './ui/button';
 
 interface LessonCardProps {
   lesson: Lesson;
@@ -10,44 +8,47 @@ interface LessonCardProps {
 
 export function LessonCard({ lesson, onClick }: LessonCardProps) {
   return (
-    <Card
-      className={`p-4 cursor-pointer transition-all ${
-        lesson.completed
-          ? 'bg-green-50 border-green-200 hover:bg-green-100'
-          : 'hover:bg-slate-50 border-slate-200'
-      }`}
+    <button
+      type="button"
       onClick={onClick}
+      className={`surface-glass block w-full cursor-pointer rounded-2xl border p-4 text-left transition-[transform,border-color] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${
+        lesson.completed
+          ? 'border-gain/35 bg-gain-soft'
+          : 'border-border bg-card hover:border-ring/40'
+      }`}
     >
       <div className="flex items-center gap-4">
-        <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
-          lesson.completed ? 'bg-green-600' : 'bg-slate-200'
-        }`}>
-          {lesson.completed ? (
-            <CheckCircle className="w-6 h-6 text-white" />
-          ) : (
-            <Circle className="w-6 h-6 text-slate-500" />
-          )}
-        </div>
+        <span
+          aria-hidden="true"
+          className={`grid size-10 shrink-0 place-items-center rounded-full ${
+            lesson.completed ? 'bg-gain text-gain-foreground' : 'bg-muted text-muted-foreground'
+          }`}
+        >
+          {lesson.completed ? <CheckCircle className="size-5" /> : <Circle className="size-5" />}
+        </span>
 
-        <div className="flex-1">
-          <h4 className={lesson.completed ? 'text-green-900' : 'text-slate-900'}>
+        <div className="min-w-0 flex-1">
+          <h4 className={`truncate font-display ${lesson.completed ? 'text-gain' : 'text-foreground'}`}>
             {lesson.title}
           </h4>
-          <div className="flex items-center gap-2 mt-1 text-slate-600 text-sm">
-            <Clock className="w-4 h-4" />
-            <span>{lesson.duration}</span>
+          <div className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
+            <Clock className="size-3.5 shrink-0" aria-hidden="true" />
+            <span className="tabular">{lesson.duration}</span>
           </div>
         </div>
 
-        <Button
-          variant={lesson.completed ? 'secondary' : 'default'}
-          size="sm"
-          className={lesson.completed ? '' : 'bg-orange-500 hover:bg-orange-600'}
+        <span
+          aria-hidden="true"
+          className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold ${
+            lesson.completed
+              ? 'border border-border bg-secondary text-secondary-foreground'
+              : 'bg-primary text-primary-foreground'
+          }`}
         >
-          <Play className="w-4 h-4 mr-1" />
+          <Play className="size-4" />
           {lesson.completed ? 'Revisar' : 'Assistir'}
-        </Button>
+        </span>
       </div>
-    </Card>
+    </button>
   );
 }

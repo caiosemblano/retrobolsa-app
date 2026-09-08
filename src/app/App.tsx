@@ -12,7 +12,7 @@ import { LoginScreen } from './components/screens/LoginScreen';
 import { RegisterScreen } from './components/screens/RegisterScreen';
 import { AdminScreen } from './components/screens/AdminScreen';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { Home, GraduationCap, Trophy, User, LogOut, Shield } from 'lucide-react';
+import { Home, GraduationCap, Trophy, User, LogOut, Shield, CandlestickChart } from 'lucide-react';
 
 type Screen =
   | 'home'
@@ -36,10 +36,10 @@ function AppContent() {
   // Enquanto verifica sessão inicial, mostra loading
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900">
+      <div className="min-h-dvh flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <span className="w-10 h-10 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-          <p className="text-blue-300 text-sm">Carregando...</p>
+          <span className="w-10 h-10 border-4 border-primary/25 border-t-primary rounded-full animate-spin" />
+          <p className="text-muted-foreground text-sm">Carregando pregão...</p>
         </div>
       </div>
     );
@@ -130,23 +130,39 @@ function AppContent() {
   const mainScreens: Screen[] = ['home', 'learn', 'rankings', 'profile', ...(user?.role === 'ADMIN' ? ['admin' as Screen] : [])];
   const shouldShowNav = mainScreens.includes(currentScreen);
 
+  const navItems: { screen: Screen; label: string; icon: typeof Home }[] = [
+    { screen: 'home', label: 'Competir', icon: Home },
+    { screen: 'learn', label: 'Aprender', icon: GraduationCap },
+    { screen: 'rankings', label: 'Rankings', icon: Trophy },
+    { screen: 'profile', label: 'Perfil', icon: User },
+    ...(user?.role === 'ADMIN' ? [{ screen: 'admin' as Screen, label: 'Admin', icon: Shield }] : []),
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-dvh bg-background">
       {/* Header */}
-      <header className="bg-gradient-to-r from-blue-600 to-green-600 text-white p-4 shadow-lg">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-xl">📊 Cartola Financeiro</h1>
-            <p className="text-blue-100 text-sm">Simulador Histórico de Investimentos</p>
+      <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-3 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <span
+              aria-hidden="true"
+              className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-primary to-emerald-400 text-primary-foreground shadow-[0_8px_20px_-10px_var(--primary)]"
+            >
+              <CandlestickChart className="size-5" />
+            </span>
+            <div>
+              <h1 className="font-display text-lg leading-tight">Cartola Financeiro</h1>
+              <p className="text-muted-foreground text-xs">Simulador histórico de investimentos</p>
+            </div>
           </div>
           {/* Botão de logout visível apenas nas telas principais */}
           {shouldShowNav && (
             <button
               onClick={logout}
-              title="Sair da conta"
-              className="flex items-center gap-1.5 text-sm text-blue-100 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/20"
+              aria-label="Sair da conta"
+              className="flex min-h-11 cursor-pointer items-center gap-1.5 rounded-xl px-3 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="size-4" aria-hidden="true" />
               <span className="hidden sm:inline">Sair</span>
             </button>
           )}
@@ -154,62 +170,42 @@ function AppContent() {
       </header>
 
       {/* Main Content */}
-      <main className="min-h-[calc(100vh-120px)]">{renderScreen()}</main>
+      <main className="min-h-[calc(100dvh-9rem)]">{renderScreen()}</main>
 
       {/* Bottom Navigation */}
       {shouldShowNav && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg">
-          <div className="max-w-4xl mx-auto flex items-center justify-around">
-            <button
-              onClick={() => setCurrentScreen('home')}
-              className={`flex-1 flex flex-col items-center gap-1 py-3 px-1 sm:px-6 transition-colors ${
-                currentScreen === 'home' ? 'text-orange-500' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Home className="w-6 h-6" />
-              <span className="text-xs">Competir</span>
-            </button>
-
-            <button
-              onClick={() => setCurrentScreen('learn')}
-              className={`flex-1 flex flex-col items-center gap-1 py-3 px-1 sm:px-6 transition-colors ${
-                currentScreen === 'learn' ? 'text-orange-500' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <GraduationCap className="w-6 h-6" />
-              <span className="text-xs">Aprender</span>
-            </button>
-
-            <button
-              onClick={() => setCurrentScreen('rankings')}
-              className={`flex-1 flex flex-col items-center gap-1 py-3 px-1 sm:px-6 transition-colors ${
-                currentScreen === 'rankings' ? 'text-orange-500' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Trophy className="w-6 h-6" />
-              <span className="text-xs">Rankings</span>
-            </button>
-
-            <button
-              onClick={() => setCurrentScreen('profile')}
-              className={`flex-1 flex flex-col items-center gap-1 py-3 px-1 sm:px-6 transition-colors ${
-                currentScreen === 'profile' ? 'text-orange-500' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <User className="w-6 h-6" />
-              <span className="text-xs">Perfil</span>
-            </button>
-            {user?.role === 'ADMIN' && (
-              <button
-                onClick={() => setCurrentScreen('admin')}
-                className={`flex-1 flex flex-col items-center gap-1 py-3 px-1 sm:px-4 transition-colors ${
-                  currentScreen === 'admin' ? 'text-orange-500' : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <Shield className="w-6 h-6" />
-                <span className="text-xs">Admin</span>
-              </button>
-            )}
+        <nav
+          aria-label="Navegação principal"
+          className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md"
+        >
+          <div className="mx-auto flex max-w-4xl items-stretch justify-around">
+            {navItems.map(({ screen, label, icon: Icon }) => {
+              const isActive = currentScreen === screen;
+              return (
+                <button
+                  key={screen}
+                  onClick={() => setCurrentScreen(screen)}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`group relative flex min-h-14 flex-1 cursor-pointer flex-col items-center justify-center gap-1 px-1 pt-3 pb-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:px-6 ${
+                    isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`absolute top-0 h-0.5 w-10 rounded-full bg-primary transition-opacity duration-200 ${
+                      isActive ? 'opacity-100 shadow-[0_0_12px_var(--primary)]' : 'opacity-0'
+                    }`}
+                  />
+                  <Icon
+                    className={`size-6 transition-transform duration-200 ease-out group-active:scale-90 motion-reduce:transition-none ${
+                      isActive ? 'scale-110' : ''
+                    }`}
+                    aria-hidden="true"
+                  />
+                  <span className="text-xs font-medium">{label}</span>
+                </button>
+              );
+            })}
           </div>
         </nav>
       )}
@@ -225,9 +221,10 @@ export default function App() {
       <AppContent />
       <Toaster
         position="top-center"
+        theme="dark"
         richColors
         toastOptions={{
-          style: { borderRadius: '12px' },
+          style: { borderRadius: '14px' },
         }}
       />
     </AuthProvider>

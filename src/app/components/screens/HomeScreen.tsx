@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { CompetitionCard } from '../CompetitionCard';
 import { RankingItem } from '../RankingItem';
 import { Card } from '../ui/card';
-import { Separator } from '../ui/separator';
-import { TrendingUp, Target } from 'lucide-react';
+import { Button } from '../ui/button';
+import { Skeleton } from '../ui/skeleton';
+import { TrendingUp, TrendingDown, Target, Trophy, Wallet, Inbox } from 'lucide-react';
 import { competitionService } from '../../services/competitionService';
 import { portfolioService } from '../../services/portfolioService';
 import { rankingService } from '../../services/rankingService';
@@ -39,56 +40,127 @@ export function HomeScreen({ onStartCompetition, onViewResults, onViewSimulation
     });
   }, []);
 
-  if (loading) return <div className="p-8 text-center text-slate-600">Carregando competição...</div>;
-  if (error || !competition) {
-    return <div className="max-w-4xl mx-auto p-4 text-center text-slate-600">{error || 'Nenhuma competição ativa encontrada.'}</div>;
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-4xl space-y-4 p-4 pb-24">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-64 w-full rounded-2xl" />
+        <Skeleton className="h-40 w-full rounded-2xl" />
+      </div>
+    );
   }
 
+  if (error || !competition) {
+    return (
+      <div className="mx-auto max-w-4xl p-4 pb-24">
+        <Card className="items-center gap-3 p-10 text-center">
+          <Inbox className="size-10 text-muted-foreground" aria-hidden="true" />
+          <p className="text-muted-foreground">{error || 'Nenhuma competição ativa encontrada.'}</p>
+        </Card>
+      </div>
+    );
+  }
+
+  const isPositive = result ? result.rentability >= 0 : true;
+
   return (
-    <div className="max-w-4xl mx-auto p-4 pb-20">
-      <div className="mb-6">
-        <h1 className="text-slate-900 mb-2">Competições</h1>
-        <p className="text-slate-600">Participe e teste suas estratégias de investimento</p>
-      </div>
-      <div className="mb-8">
-        <CompetitionCard
-          competition={competition}
-          onAction={
-            competition.status === 'simulated' || competition.status === 'revealed'
-              ? onViewResults
-              : competition.status === 'closed' || competition.status === 'simulating'
-              ? onViewSimulationStatus
-              : onStartCompetition
-          }
-        />
-      </div>
-      <Separator className="my-8" />
-      {result ? (
-        <>
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-4"><TrendingUp className="w-5 h-5 text-green-600" /><h2 className="text-slate-900">Seu Último Resultado</h2></div>
-            <Card className="p-6 bg-gradient-to-br from-green-50 to-blue-50 border-2 border-green-200">
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div><div className="text-slate-600 text-sm mb-1">Sua Posição</div><div className="text-green-700 flex items-center gap-2"><Target className="w-5 h-5" /><span>{result.rank}º lugar</span></div></div>
-                <div><div className="text-slate-600 text-sm mb-1">Rentabilidade</div><div className="text-green-700">{result.rentability}% ({result.annualReturn}% a.a.)</div></div>
-              </div>
-              <div className="bg-white/60 p-3 rounded-lg mb-4"><div className="text-slate-600 text-sm mb-1">Valor Final da Carteira</div><div className="text-green-800">R$ {result.portfolioValue.toLocaleString('pt-BR')}</div></div>
-              <button onClick={onViewResults} className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg">Ver Detalhes Completos</button>
-            </Card>
-          </div>
-          <Separator className="my-8" />
-        </>
-      ) : <p className="mb-8 text-sm text-slate-500">Você ainda não possui um resultado. Submeta uma carteira para participar.</p>}
+    <div className="mx-auto max-w-4xl space-y-8 p-4 pb-24">
       <div>
-        <h2 className="text-slate-900 mb-4">Ranking da Rodada</h2>
-        {ranking.length ? markCurrentUser(ranking.slice(0, 5), user?.username).map((entry) => (
-          <RankingItem
-            key={`${entry.rank}-${entry.username}`}
-            entry={entry}
-            showRentability
-          />
-        )) : <p className="text-slate-500">Ainda não há participantes classificados.</p>}
+        <h1 className="font-display text-3xl">Competições</h1>
+        <p className="text-muted-foreground">Monte sua carteira e dispute o topo do ranking</p>
       </div>
+
+      <CompetitionCard
+        competition={competition}
+        onAction={
+          competition.status === 'simulated' || competition.status === 'revealed'
+            ? onViewResults
+            : competition.status === 'closed' || competition.status === 'simulating'
+            ? onViewSimulationStatus
+            : onStartCompetition
+        }
+      />
+
+      {result ? (
+        <section>
+          <div className="mb-4 flex items-center gap-2">
+            {isPositive ? (
+              <TrendingUp className="size-5 text-gain" aria-hidden="true" />
+            ) : (
+              <TrendingDown className="size-5 text-loss" aria-hidden="true" />
+            )}
+            <h2 className="font-display text-xl">Seu último resultado</h2>
+          </div>
+
+          <Card
+            className={`gap-4 p-6 ${isPositive ? 'border-gain/35 glow-primary' : 'border-loss/35 glow-loss'}`}
+          >
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl border border-border bg-muted/70 p-3.5">
+                <div className="mb-1 flex items-center gap-1.5 text-xs uppercase tracking-wide text-muted-foreground">
+                  <Target className="size-3.5" aria-hidden="true" />
+                  Sua posição
+                </div>
+                <div className="tabular font-display text-2xl font-semibold text-gold">
+                  {result.rank}º
+                </div>
+              </div>
+              <div className="rounded-xl border border-border bg-muted/70 p-3.5">
+                <div className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">
+                  Rentabilidade
+                </div>
+                <div
+                  className={`tabular font-display text-2xl font-semibold ${isPositive ? 'text-gain' : 'text-loss'}`}
+                >
+                  {isPositive ? '+' : ''}
+                  {result.rentability}%
+                </div>
+                <div className="tabular text-xs text-muted-foreground">
+                  {result.annualReturn}% a.a.
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/70 p-3.5">
+              <Wallet className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <div>
+                <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Valor final da carteira
+                </div>
+                <div className="tabular font-display text-lg font-semibold text-foreground">
+                  R$ {result.portfolioValue.toLocaleString('pt-BR')}
+                </div>
+              </div>
+            </div>
+
+            <Button onClick={onViewResults} className="w-full" variant={isPositive ? 'default' : 'outline'}>
+              Ver detalhes completos
+            </Button>
+          </Card>
+        </section>
+      ) : (
+        <Card className="items-center gap-2 p-6 text-center">
+          <p className="text-muted-foreground text-sm">
+            Você ainda não possui um resultado. Submeta uma carteira para participar.
+          </p>
+        </Card>
+      )}
+
+      <section>
+        <div className="mb-4 flex items-center gap-2">
+          <Trophy className="size-5 text-gold" aria-hidden="true" />
+          <h2 className="font-display text-xl">Ranking da rodada</h2>
+        </div>
+        {ranking.length ? (
+          markCurrentUser(ranking.slice(0, 5), user?.username).map((entry) => (
+            <RankingItem key={`${entry.rank}-${entry.username}`} entry={entry} showRentability />
+          ))
+        ) : (
+          <Card className="items-center gap-2 p-6 text-center">
+            <p className="text-muted-foreground text-sm">Ainda não há participantes classificados.</p>
+          </Card>
+        )}
+      </section>
     </div>
   );
 }

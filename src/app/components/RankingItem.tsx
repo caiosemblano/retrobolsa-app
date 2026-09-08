@@ -6,61 +6,79 @@ interface RankingItemProps {
   showRentability?: boolean;
 }
 
-export function RankingItem({ entry, showRentability }: RankingItemProps) {
-  const getRankIcon = () => {
-    switch (entry.rank) {
-      case 1:
-        return <Trophy className="w-5 h-5 text-yellow-500" />;
-      case 2:
-        return <Medal className="w-5 h-5 text-slate-400" />;
-      case 3:
-        return <Award className="w-5 h-5 text-amber-600" />;
-      default:
-        return null;
-    }
-  };
+const podium = {
+  1: {
+    icon: Trophy,
+    iconClass: 'text-gold',
+    badge: 'bg-gradient-to-br from-gold to-amber-600 text-gold-foreground pulse-gold',
+    row: 'border-gold/35 bg-gold-soft',
+  },
+  2: {
+    icon: Medal,
+    iconClass: 'text-slate-300',
+    badge: 'bg-gradient-to-br from-slate-200 to-slate-400 text-slate-900',
+    row: 'border-slate-400/30 bg-slate-400/10',
+  },
+  3: {
+    icon: Award,
+    iconClass: 'text-amber-600',
+    badge: 'bg-gradient-to-br from-amber-500 to-amber-800 text-amber-50',
+    row: 'border-amber-700/30 bg-amber-700/10',
+  },
+} as const;
 
-  const getRankBadgeColor = () => {
-    if (entry.rank <= 3) return 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white';
-    if (entry.rank <= 10) return 'bg-blue-600 text-white';
-    return 'bg-slate-200 text-slate-700';
-  };
+export function RankingItem({ entry, showRentability }: RankingItemProps) {
+  const place = podium[entry.rank as 1 | 2 | 3];
+  const PlaceIcon = place?.icon;
+
+  const rowClass = entry.isCurrentUser
+    ? 'border-primary/60 bg-primary/10 glow-primary'
+    : place
+      ? place.row
+      : 'border-border bg-card hover:border-ring/30 hover:bg-accent';
+
+  const badgeClass =
+    place?.badge ??
+    (entry.rank <= 10 ? 'bg-info/20 text-info border border-info/40' : 'bg-muted text-muted-foreground');
+
+  const rentabilityClass =
+    entry.rentability !== undefined && entry.rentability < 0 ? 'text-loss' : 'text-gain';
 
   return (
     <div
-      className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${
-        entry.isCurrentUser
-          ? 'bg-orange-50 border-orange-300 border-2'
-          : 'bg-white border-slate-200 hover:bg-slate-50'
-      }`}
+      className={`mb-2 flex items-center gap-3 rounded-xl border p-3.5 transition-colors duration-200 ${rowClass}`}
     >
       <div
-        className={`flex items-center justify-center w-10 h-10 rounded-full ${getRankBadgeColor()}`}
+        className={`tabular grid size-10 shrink-0 place-items-center rounded-full font-display font-bold ${badgeClass}`}
       >
         {entry.rank}
       </div>
 
-      {getRankIcon() && (
-        <div className="flex items-center justify-center">
-          {getRankIcon()}
-        </div>
+      {PlaceIcon && (
+        <PlaceIcon className={`size-5 shrink-0 ${place.iconClass}`} aria-hidden="true" />
       )}
 
-      <div className="flex-1">
-        <div className={entry.isCurrentUser ? 'text-orange-700' : 'text-slate-900'}>
+      <div className="min-w-0 flex-1">
+        <div
+          className={`truncate font-medium ${entry.isCurrentUser ? 'text-primary' : 'text-foreground'}`}
+        >
           {entry.username}
           {entry.isCurrentUser && ' (Você)'}
         </div>
         {showRentability && entry.rentability !== undefined && (
-          <div className="text-slate-600 text-sm">
+          <div className={`tabular text-sm ${rentabilityClass}`}>
             Rentabilidade: {entry.rentability}%
           </div>
         )}
       </div>
 
       {!showRentability && (
-        <div className={`text-right ${entry.isCurrentUser ? 'text-orange-700' : 'text-slate-900'}`}>
-          <div>{entry.points.toLocaleString('pt-BR')} pts</div>
+        <div
+          className={`tabular font-display font-semibold ${
+            entry.isCurrentUser ? 'text-primary' : 'text-foreground'
+          }`}
+        >
+          {entry.points.toLocaleString('pt-BR')} pts
         </div>
       )}
     </div>
