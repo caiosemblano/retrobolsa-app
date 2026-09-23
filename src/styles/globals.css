@@ -41,6 +41,10 @@
   --info: #4f9dff;
   --info-foreground: #04101f;
   --info-soft: rgba(79, 157, 255, 0.14);
+  /* Raridade épica das conquistas (mesmo violeta de --chart-5) */
+  --epic: #a78bfa;
+  --epic-foreground: #140a2e;
+  --epic-soft: rgba(167, 139, 250, 0.14);
 
   --destructive: #f4626f;
   --destructive-foreground: #1a0509;
@@ -127,6 +131,9 @@
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
   --color-info-soft: var(--info-soft);
+  --color-epic: var(--epic);
+  --color-epic-foreground: var(--epic-foreground);
+  --color-epic-soft: var(--epic-soft);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-input-background: var(--input-background);

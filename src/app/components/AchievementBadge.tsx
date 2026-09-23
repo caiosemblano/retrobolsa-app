@@ -1,51 +1,51 @@
+import { Lock } from 'lucide-react';
 import { Achievement } from '../types';
-import { Trophy, Award, GraduationCap, Medal, Crown, Lock } from 'lucide-react';
 import { Card } from './ui/card';
+import { AchievementArt } from './achievements/AchievementArt';
+import { rarityStyle } from './achievements/rarity';
+import { formatarData } from '../utils/date';
 
 interface AchievementBadgeProps {
   achievement: Achievement;
 }
 
-const iconMap: Record<string, any> = {
-  Trophy,
-  Award,
-  GraduationCap,
-  Medal,
-  Crown,
-};
-
 export function AchievementBadge({ achievement }: AchievementBadgeProps) {
-  const Icon = iconMap[achievement.icon] || Trophy;
+  const style = rarityStyle(achievement.rarity);
+  const { unlocked } = achievement;
 
+  // Bloqueada não usa opacidade no card inteiro: apagaria o texto abaixo do contraste
+  // mínimo. O estado vem da silhueta, do cadeado e do rótulo "Bloqueada".
   return (
-    <Card
-      className={`items-center gap-2 p-4 text-center ${
-        achievement.unlocked ? 'border-gold/35 bg-gold-soft' : 'border-border opacity-60'
-      }`}
-    >
-      <span
-        aria-hidden="true"
-        className={`grid size-12 place-items-center rounded-full ${
-          achievement.unlocked
-            ? 'pop-in bg-gradient-to-br from-gold to-amber-600 text-gold-foreground shadow-[0_10px_26px_-12px_var(--gold)]'
-            : 'bg-muted text-muted-foreground'
-        }`}
-      >
-        {achievement.unlocked ? <Icon className="size-6" /> : <Lock className="size-6" />}
+    <Card className={`items-center gap-2 p-4 text-center ${unlocked ? style.card : 'border-border'}`}>
+      <span className="relative block size-16">
+        <AchievementArt
+          code={achievement.code}
+          rarity={achievement.rarity}
+          unlocked={unlocked}
+          className={`size-16 ${unlocked ? 'pop-in drop-shadow-[0_8px_18px_rgba(2,6,18,0.7)]' : ''}`}
+        />
+        {!unlocked && (
+          <span
+            aria-hidden="true"
+            className="absolute -bottom-1 -right-1 grid size-6 place-items-center rounded-full border border-border bg-card text-muted-foreground"
+          >
+            <Lock className="size-3.5" />
+          </span>
+        )}
       </span>
 
-      <h4 className={`font-display ${achievement.unlocked ? 'text-foreground' : 'text-muted-foreground'}`}>
-        {achievement.title}
-      </h4>
+      <h4 className={`font-display ${unlocked ? 'text-foreground' : 'text-muted-foreground'}`}>{achievement.title}</h4>
+
+      <span className={`text-[11px] font-medium uppercase tracking-wider ${unlocked ? style.text : 'text-muted-foreground'}`}>
+        {style.label}
+      </span>
 
       <p className="text-sm text-muted-foreground">{achievement.description}</p>
 
-      {achievement.unlocked && achievement.unlockedAt ? (
-        <div className="tabular text-xs text-gold">
-          Desbloqueado em {new Date(achievement.unlockedAt).toLocaleDateString('pt-BR')}
-        </div>
+      {unlocked && achievement.unlockedAt ? (
+        <div className={`tabular text-xs ${style.text}`}>Desbloqueada em {formatarData(achievement.unlockedAt)}</div>
       ) : (
-        !achievement.unlocked && <div className="text-xs text-muted-foreground">Bloqueado</div>
+        !unlocked && <div className="text-xs text-muted-foreground">Bloqueada</div>
       )}
     </Card>
   );

@@ -85,11 +85,15 @@ export interface Lesson {
   completed: boolean;
 }
 
+/** Raridade das conquistas, como a API envia (sem acento). */
+export type AchievementRarity = 'comum' | 'raro' | 'epico' | 'lendario';
+
 export interface Achievement {
-  id: string;
+  /** Identificador estável vindo da API (ex.: "CAMPEAO_RODADA"); também escolhe a arte do emblema. */
+  code: string;
   title: string;
   description: string;
-  icon: string;
+  rarity: AchievementRarity;
   unlocked: boolean;
   unlockedAt?: string;
 }
