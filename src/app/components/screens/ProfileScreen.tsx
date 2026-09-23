@@ -6,6 +6,8 @@ import { Skeleton } from '../ui/skeleton';
 import { Trophy, Target, Award, History } from 'lucide-react';
 import { userService } from '../../services/userService';
 import { UserProfile } from '../../types';
+import { AchievementBadge } from '../AchievementBadge';
+import { formatarData } from '../../utils/date';
 
 export function ProfileScreen() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -107,7 +109,7 @@ export function ProfileScreen() {
                         <Badge variant="info">Rodada {item.roundNumber}</Badge>
                         {item.submittedAt && (
                           <span className="tabular text-xs text-muted-foreground">
-                            {new Date(item.submittedAt).toLocaleDateString('pt-BR')}
+                            {formatarData(item.submittedAt)}
                           </span>
                         )}
                       </div>
@@ -158,13 +160,32 @@ export function ProfileScreen() {
         )}
       </section>
 
+      {/* Conquistas */}
       <section>
-        <h2 className="mb-4 font-display text-xl">Conquistas</h2>
-        <Card className="p-6 text-center">
-          <p className="text-sm text-muted-foreground">
-            Conquistas e ativo favorito ainda não são fornecidos pela API.
-          </p>
-        </Card>
+        <div className="mb-4 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Award className="size-5 text-muted-foreground" aria-hidden="true" />
+            <h2 className="font-display text-xl">Conquistas</h2>
+          </div>
+          {profile.achievements.length > 0 && (
+            <span className="tabular text-sm text-muted-foreground">
+              {profile.achievements.filter((achievement) => achievement.unlocked).length} de{' '}
+              {profile.achievements.length} desbloqueadas
+            </span>
+          )}
+        </div>
+
+        {profile.achievements.length > 0 ? (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {profile.achievements.map((achievement) => (
+              <AchievementBadge key={achievement.code} achievement={achievement} />
+            ))}
+          </div>
+        ) : (
+          <Card className="p-6 text-center">
+            <p className="text-sm text-muted-foreground">Nenhuma conquista disponível no momento.</p>
+          </Card>
+        )}
       </section>
     </div>
   );

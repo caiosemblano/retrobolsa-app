@@ -1,5 +1,15 @@
 import api from './api';
-import { UserProfile } from '../types';
+import { AchievementRarity, UserProfile } from '../types';
+
+interface ApiAchievement {
+  code: string;
+  title: string;
+  description: string;
+  rarity: string;
+  unlocked: boolean;
+  /** LocalDateTime em ISO; null enquanto bloqueada. */
+  unlockedAt?: string | null;
+}
 
 interface ApiProfile {
   username: string;
@@ -16,6 +26,8 @@ interface ApiProfile {
     rank: number;
     submittedAt: string;
   }>;
+  /** Catálogo completo, com as desbloqueadas marcadas. */
+  achievements?: ApiAchievement[];
 }
 
 /**
@@ -39,7 +51,15 @@ export const userService = {
         completedCompetitions: response.data.competitions,
         avatar: '',
         favoriteAsset: '',
-        achievements: [],
+        achievements: (response.data.achievements || []).map((a) => ({
+          code: a.code,
+          title: a.title,
+          description: a.description,
+          // Raridade desconhecida (API mais nova) é tratada na exibição, que cai em "comum".
+          rarity: a.rarity as AchievementRarity,
+          unlocked: a.unlocked,
+          unlockedAt: a.unlockedAt ?? undefined,
+        })),
         history: (response.data.history || []).map((h) => ({
           roundNumber: h.roundNumber,
           scenarioTitle: h.scenarioTitle,

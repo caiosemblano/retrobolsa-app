@@ -50,7 +50,57 @@ describe('userService.getProfile', () => {
     });
   });
 
-  it('usa 0 como melhor posição e histórico vazio para quem nunca jogou', async () => {
+  it('mapeia as conquistas, trocando o null da data das bloqueadas por undefined', async () => {
+    mockedGet.mockResolvedValue({
+      data: {
+        username: 'ana',
+        email: 'ana@retrobolsa.com',
+        totalScore: 46,
+        competitions: 1,
+        achievements: [
+          {
+            code: 'CAMPEAO_RODADA',
+            title: 'Campeão da Rodada',
+            description: 'Venceu uma rodada disputada com pelo menos 2 jogadores.',
+            rarity: 'lendario',
+            unlocked: true,
+            unlockedAt: '2026-09-20T14:30:00.123456',
+          },
+          {
+            code: 'FORMADO',
+            title: 'Formado',
+            description: 'Concluiu todas as aulas de todos os módulos.',
+            rarity: 'lendario',
+            unlocked: false,
+            unlockedAt: null,
+          },
+        ],
+      },
+    } as never);
+
+    const { data } = await userService.getProfile();
+
+    expect(data.achievements).toEqual([
+      {
+        code: 'CAMPEAO_RODADA',
+        title: 'Campeão da Rodada',
+        description: 'Venceu uma rodada disputada com pelo menos 2 jogadores.',
+        rarity: 'lendario',
+        unlocked: true,
+        unlockedAt: '2026-09-20T14:30:00.123456',
+      },
+      {
+        code: 'FORMADO',
+        title: 'Formado',
+        description: 'Concluiu todas as aulas de todos os módulos.',
+        rarity: 'lendario',
+        unlocked: false,
+        unlockedAt: undefined,
+      },
+    ]);
+  });
+
+  it('usa 0 como melhor posição e listas vazias para quem nunca jogou', async () => {
     mockedGet.mockResolvedValue({
       data: {
         username: 'novato',
@@ -64,5 +114,6 @@ describe('userService.getProfile', () => {
 
     expect(data.bestRank).toBe(0);
     expect(data.history).toEqual([]);
+    expect(data.achievements).toEqual([]);
   });
 });
