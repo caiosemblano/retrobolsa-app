@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { ModuleCard } from '../ModuleCard';
 import { LessonCard } from '../LessonCard';
+import { LessonView } from '../LessonView';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Skeleton } from '../ui/skeleton';
@@ -9,10 +10,21 @@ import { ChevronLeft, GraduationCap } from 'lucide-react';
 import { articleService, ArticleDetail } from '../../services/articleService';
 import { Module } from '../../types';
 
+/** A API grava o ícone em kebab-case ("trending-up"); o ModuleCard usa o nome do componente ("TrendingUp"). */
+function nomeDoIcone(kebab?: string | null): string {
+  if (!kebab) return 'GraduationCap';
+  return kebab
+    .split('-')
+    .map((parte) => parte.charAt(0).toUpperCase() + parte.slice(1))
+    .join('');
+}
+
 export function LearnScreen() {
   const [articles, setArticles] = useState<ArticleDetail[]>([]);
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
+  const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     articleService.getAll()
@@ -28,8 +40,8 @@ export function LearnScreen() {
           const current = grouped[article.moduleId] || {
             id: article.moduleId,
             title: article.moduleTitle,
-            description: 'Conteúdos financeiros para suas competições.',
-            icon: 'GraduationCap',
+            description: article.moduleDescription || 'Conteúdos financeiros para suas competições.',
+            icon: nomeDoIcone(article.moduleIcon),
             lessonsCount: 0,
             completedLessons: 0,
           };
@@ -46,6 +58,26 @@ export function LearnScreen() {
     ? articles.filter((article) => article.moduleId === selectedModule.id)
     : [];
 
+  // Lida de `articles` a cada render (e não guardada em estado) para refletir a conclusão na hora.
+  const selectedArticle = articles.find((article) => article.id === selectedArticleId) ?? null;
+
+  const concluir = async (article: ArticleDetail) => {
+    setSaving(true);
+    try {
+      await articleService.complete(article.id);
+      // Só marca depois que a API confirmou: antes, uma falha deixava a aula
+      // "concluída" na tela sem ter sido salva.
+      setArticles((current) =>
+        current.map((item) => (item.id === article.id ? { ...item, completed: true } : item)),
+      );
+      toast.success('Aula concluída!');
+    } catch {
+      toast.error('Não foi possível salvar a conclusão. Tente de novo.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="mx-auto max-w-4xl space-y-4 p-4">
@@ -53,6 +85,23 @@ export function LearnScreen() {
         <Skeleton className="h-32 w-full rounded-2xl" />
         <Skeleton className="h-32 w-full rounded-2xl" />
       </div>
+    );
+  }
+
+  if (selectedArticle) {
+    const aulasDoModulo = articles.filter((article) => article.moduleId === selectedArticle.moduleId);
+    const indice = aulasDoModulo.findIndex((article) => article.id === selectedArticle.id);
+    const proxima = aulasDoModulo[indice + 1];
+    return (
+      <LessonView
+        article={selectedArticle}
+        position={indice + 1}
+        total={aulasDoModulo.length}
+        saving={saving}
+        onBack={() => setSelectedArticleId(null)}
+        onComplete={() => concluir(selectedArticle)}
+        onNext={proxima ? () => setSelectedArticleId(proxima.id) : undefined}
+      />
     );
   }
 
@@ -80,17 +129,7 @@ export function LearnScreen() {
                 duration: `${article.durationMin} min`,
                 completed: article.completed,
               }}
-              onClick={async () => {
-                if (!article.completed) {
-                  await articleService.complete(article.id);
-                  setArticles((current) =>
-                    current.map((item) => (item.id === article.id ? { ...item, completed: true } : item)),
-                  );
-                  toast.success('Aula concluída!');
-                } else {
-                  toast.info(article.content || 'Aula concluída.');
-                }
-              }}
+              onClick={() => setSelectedArticleId(article.id)}
             />
           ))}
         </div>
