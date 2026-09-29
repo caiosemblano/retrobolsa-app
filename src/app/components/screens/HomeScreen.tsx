@@ -10,7 +10,7 @@ import { portfolioService } from '../../services/portfolioService';
 import { rankingService } from '../../services/rankingService';
 import { useAuth } from '../../contexts/AuthContext';
 import { markCurrentUser } from '../../utils/ranking';
-import { formatarNumero } from '../../utils/numero';
+import { formatarNumero, formatarReais } from '../../utils/numero';
 import { Termo } from '../Termo';
 import { diferenca } from '../ComparacaoReferencias';
 import { Competition, RankingEntry, Result } from '../../types';
@@ -168,7 +168,7 @@ export function HomeScreen({ onStartCompetition, onViewResults, onViewSimulation
                   Valor final da carteira
                 </div>
                 <div className="tabular font-display text-lg font-semibold text-foreground">
-                  R$ {result.portfolioValue.toLocaleString('pt-BR')}
+                  {formatarReais(result.portfolioValue)}
                 </div>
               </div>
             </div>

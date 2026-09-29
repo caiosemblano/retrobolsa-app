@@ -4,7 +4,7 @@ import { ComparacaoReferencias } from './ComparacaoReferencias';
 import { ComoFoiARodada, DicasDaRodada, OQueAconteceu, OQueMaisPesou } from './ResultadoDetalhado';
 import { Dumbbell, Eye, TrendingDown, TrendingUp, Trophy } from 'lucide-react';
 import { Result } from '../types';
-import { formatarNumero } from '../utils/numero';
+import { formatarNumero, formatarReais } from '../utils/numero';
 
 interface ResultadoViewProps {
   result: Result;
@@ -71,7 +71,7 @@ export function ResultadoView({ result, treino = false }: ResultadoViewProps) {
         <div className="rounded-xl border border-border bg-muted/70 p-3.5">
           <div className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">Valor final</div>
           <div className="tabular font-display text-2xl font-semibold text-foreground">
-            R$ {result.portfolioValue.toLocaleString('pt-BR')}
+            {formatarReais(result.portfolioValue)}
           </div>
         </div>
       </Card>

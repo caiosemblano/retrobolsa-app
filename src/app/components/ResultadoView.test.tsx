@@ -38,6 +38,11 @@ describe('ResultadoView', () => {
     expect(screen.getByText('5 carteiras; a do meio rendeu +8,3%. A sua ficou acima dela.')).toBeInTheDocument();
   });
 
+  it('o valor final sai sempre com os centavos', () => {
+    renderizar(resultado({ portfolioValue: 77512.8 }));
+    expect(screen.getByText('R$ 77.512,80')).toBeInTheDocument();
+  });
+
   it('no treino não há posição, e a comparação é com quem jogou a rodada de verdade', () => {
     renderizar(resultado(), true);
     expect(screen.queryByText('Sua posição')).not.toBeInTheDocument();
