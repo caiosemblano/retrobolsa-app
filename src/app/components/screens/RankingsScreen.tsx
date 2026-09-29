@@ -11,6 +11,7 @@ import {
   SeasonInfo,
   rankingService,
 } from '../../services/rankingService';
+import { classroomService, MinhaTurma } from '../../services/classroomService';
 import { useAuth } from '../../contexts/AuthContext';
 import { markCurrentUser } from '../../utils/ranking';
 import { RankingEntry } from '../../types';
@@ -29,6 +30,10 @@ export function RankingsScreen() {
   const [myRank, setMyRank] = useState<MyRankSummary>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [turmas, setTurmas] = useState<MinhaTurma[]>([]);
+  const [turmaId, setTurmaId] = useState<string>();
+  const [daTurma, setDaTurma] = useState<{ rodada: RankingEntry[]; temporada: RankingEntry[] } | null>(null);
+  const [erroTurma, setErroTurma] = useState(false);
 
   useEffect(() => {
     rankingService.getMyRank()
@@ -36,6 +41,12 @@ export function RankingsScreen() {
       .catch(() => undefined);
     rankingService.getSeasonInfo()
       .then((response) => setSeasonInfo(response.data))
+      .catch(() => undefined);
+    classroomService.mine()
+      .then((response) => {
+        setTurmas(response.data);
+        setTurmaId(response.data[0]?.id);
+      })
       .catch(() => undefined);
 
     Promise.all([
@@ -52,6 +63,24 @@ export function RankingsScreen() {
       .catch(() => setError('Não foi possível carregar os rankings.'))
       .finally(() => setLoading(false));
   }, []);
+
+  // O ranking da turma escolhida: a rodada e a temporada, só entre os alunos dela.
+  useEffect(() => {
+    if (!turmaId) return;
+    let cancelado = false;
+    setDaTurma(null);
+    setErroTurma(false);
+    Promise.all([rankingService.get('quinzenal', turmaId), rankingService.get('season', turmaId)])
+      .then(([rodada, temporada]) => {
+        if (!cancelado) setDaTurma({ rodada: rodada.data, temporada: temporada.data });
+      })
+      .catch(() => {
+        if (!cancelado) setErroTurma(true);
+      });
+    return () => {
+      cancelado = true;
+    };
+  }, [turmaId]);
 
   const carregarMaisGlobal = async () => {
     setLoadingMore(true);
@@ -131,10 +160,11 @@ export function RankingsScreen() {
         </Card>
       ) : (
         <Tabs defaultValue="quinzenal" className="w-full">
-          <TabsList className="mb-6 grid w-full grid-cols-3">
+          <TabsList className={`mb-6 grid w-full ${turmas.length ? 'grid-cols-4' : 'grid-cols-3'}`}>
             <TabsTrigger value="quinzenal">Quinzenal</TabsTrigger>
             <TabsTrigger value="temporada">Temporada</TabsTrigger>
             <TabsTrigger value="geral">Geral</TabsTrigger>
+            {turmas.length > 0 && <TabsTrigger value="turma">Minha turma</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="quinzenal">{renderLista(quinzenal, true)}</TabsContent>
@@ -148,6 +178,48 @@ export function RankingsScreen() {
             )}
             {renderLista(season, false)}
           </TabsContent>
+
+          {turmas.length > 0 && (
+            <TabsContent value="turma" className="space-y-6">
+              {turmas.length > 1 && (
+                <div className="space-y-1.5">
+                  <label htmlFor="turma-ranking" className="text-sm font-medium">
+                    Turma
+                  </label>
+                  <select
+                    id="turma-ranking"
+                    value={turmaId}
+                    onChange={(event) => setTurmaId(event.target.value)}
+                    className="flex h-10 w-full rounded-md border border-input bg-input-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {turmas.map((turma) => (
+                      <option key={turma.id} value={turma.id}>
+                        {turma.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {erroTurma ? (
+                <Card className="p-6 text-center">
+                  <p className="text-sm text-muted-foreground">Não foi possível carregar o ranking da turma.</p>
+                </Card>
+              ) : !daTurma ? (
+                <Skeleton className="h-16 w-full rounded-xl" />
+              ) : (
+                <>
+                  <section>
+                    <h2 className="mb-3 font-display text-lg">Rodada</h2>
+                    {renderLista(daTurma.rodada, true)}
+                  </section>
+                  <section>
+                    <h2 className="mb-3 font-display text-lg">Temporada</h2>
+                    {renderLista(daTurma.temporada, false)}
+                  </section>
+                </>
+              )}
+            </TabsContent>
+          )}
 
           <TabsContent value="geral">
             {renderLista(global, false)}

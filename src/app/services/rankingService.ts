@@ -61,9 +61,11 @@ export const rankingService = {
   /**
    * Retorna a lista de jogadores classificados pelo tipo de ranking.
    * @param type 'quinzenal' | 'season' | 'general'
+   * @param turma só os alunos desta turma (rodada e temporada), com a posição recontada entre eles
    */
-  get: async (type: RankingType) => {
-    const response = await api.get<ApiRanking[]>(`/api/rankings?type=${type}`);
+  get: async (type: RankingType, turma?: string) => {
+    const filtro = turma ? `&turma=${encodeURIComponent(turma)}` : '';
+    const response = await api.get<ApiRanking[]>(`/api/rankings?type=${type}${filtro}`);
     return { ...response, data: response.data.map(mapRanking) };
   },
 
