@@ -4,8 +4,9 @@ import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Skeleton } from '../ui/skeleton';
+import { NovaRodadaForm } from '../admin/NovaRodadaForm';
 import { adminCompetitionService, AdminCompetition } from '../../services/adminCompetitionService';
-import { CirclePlay, Eye, FastForward, RotateCcw, Shield, Square, WandSparkles, Zap } from 'lucide-react';
+import { CirclePlay, Eye, FastForward, Plus, RotateCcw, Shield, Square, WandSparkles, Zap } from 'lucide-react';
 
 const statusVariant: Record<string, 'gain' | 'gold' | 'info' | 'secondary'> = {
   open: 'gain',
@@ -16,10 +17,23 @@ const statusVariant: Record<string, 'gain' | 'gold' | 'info' | 'secondary'> = {
   closed: 'secondary',
 };
 
+const statusLabel: Record<string, string> = {
+  draft: 'Rascunho',
+  open: 'Aberta',
+  closed: 'Fechada',
+  simulating: 'Simulando',
+  simulated: 'Simulada',
+  revealed: 'Revelada',
+};
+
+const mensagemDaApi = (error: any) =>
+  error?.response?.data?.erro || error?.response?.data?.message || 'Não foi possível executar essa ação.';
+
 export function AdminScreen() {
   const [competitions, setCompetitions] = useState<AdminCompetition[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [criando, setCriando] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -40,8 +54,8 @@ export function AdminScreen() {
       await action();
       toast.success(message);
       await load();
-    } catch {
-      toast.error('Não foi possível executar essa ação.');
+    } catch (error) {
+      toast.error(mensagemDaApi(error));
     } finally {
       setBusy(null);
     }
@@ -80,6 +94,9 @@ export function AdminScreen() {
           >
             <FastForward aria-hidden="true" /> Avançar rodada
           </Button>
+          <Button variant="outline" disabled={!!busy || criando} onClick={() => setCriando(true)}>
+            <Plus aria-hidden="true" /> Nova rodada
+          </Button>
           {/* Ação destrutiva separada visualmente das demais */}
           <Button
             variant="destructive"
@@ -92,6 +109,18 @@ export function AdminScreen() {
         </div>
       </Card>
 
+      {criando && (
+        <NovaRodadaForm
+          proximoNumero={Math.max(0, ...competitions.map((competition) => competition.roundNumber)) + 1}
+          onCancelar={() => setCriando(false)}
+          onCriada={(numero) => {
+            setCriando(false);
+            toast.success(`Rodada ${numero} criada como rascunho. Use "Iniciar" quando quiser abri-la.`);
+            void load();
+          }}
+        />
+      )}
+
       <div className="space-y-3">
         {competitions.map((competition) => (
           <Card key={competition.id} className="p-4">
@@ -100,7 +129,7 @@ export function AdminScreen() {
                 <div className="mb-1 flex items-center gap-2">
                   <h2 className="font-display text-lg">Rodada {competition.roundNumber}</h2>
                   <Badge variant={statusVariant[competition.status] || 'secondary'}>
-                    {competition.status}
+                    {statusLabel[competition.status] || competition.status}
                   </Badge>
                 </div>
                 <p className="tabular text-sm text-muted-foreground">
