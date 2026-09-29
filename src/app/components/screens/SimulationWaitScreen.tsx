@@ -2,14 +2,34 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
-import { Loader2, TrendingUp, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { Loader2, TrendingUp, ArrowLeft, CheckCircle2, PencilLine } from 'lucide-react';
 import { portfolioService } from '../../services/portfolioService';
 
-interface Props { onViewResults: () => void; onBack: () => void; }
+interface Props {
+  onViewResults: () => void;
+  onBack: () => void;
+  /** Abre a montagem preenchida para trocar a carteira enquanto o mercado está aberto. */
+  onEdit: () => void;
+}
 
-export function SimulationWaitScreen({ onViewResults, onBack }: Props) {
+export function SimulationWaitScreen({ onViewResults, onBack, onEdit }: Props) {
   const [ready, setReady] = useState(false);
   const [checking, setChecking] = useState(true);
+  /** A rodada ainda está aberta e o jogador tem carteira nela: dá para editar. */
+  const [podeEditar, setPodeEditar] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    portfolioService
+      .getCurrent()
+      .then((atual) => {
+        if (!cancelled) setPodeEditar(!!atual);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,6 +84,18 @@ export function SimulationWaitScreen({ onViewResults, onBack }: Props) {
             <Button onClick={onViewResults} className="w-full">
               Ver resultado
             </Button>
+          )}
+
+          {podeEditar && !ready && (
+            <div className="w-full space-y-2">
+              <p className="text-sm text-muted-foreground">
+                O mercado ainda está aberto: você pode trocar os ativos até ele fechar.
+              </p>
+              <Button variant="outline" onClick={onEdit} className="w-full">
+                <PencilLine className="size-4" aria-hidden="true" />
+                Editar carteira
+              </Button>
+            </div>
           )}
 
           {checking && !ready && (

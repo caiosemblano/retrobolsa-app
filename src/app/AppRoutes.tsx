@@ -119,6 +119,7 @@ function SimulationRoute() {
     <SimulationWaitScreen
       onViewResults={() => navigate(rotas.resultado)}
       onBack={() => navigate(rotas.inicio)}
+      onEdit={() => navigate(rotas.carteira)}
     />
   );
 }
