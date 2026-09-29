@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { CodigoDaTurma } from '../professor/CodigoDaTurma';
 import { TabelaAlunos } from '../professor/TabelaAlunos';
 import { PerguntasMaisErradas } from '../professor/PerguntasMaisErradas';
+import { TarefasDoProfessor } from '../professor/TarefasDoProfessor';
 import { AlunoDaTurma, nomeDoCsv, PerguntaErrada, teacherService, TurmaDoProfessor } from '../../services/teacherService';
 import { rotas } from '../../routes';
 
@@ -284,9 +285,10 @@ function PainelDaTurma({
       </Card>
 
       <Tabs defaultValue="alunos">
-        <TabsList className="mb-4 grid w-full grid-cols-2">
+        <TabsList className="mb-4 grid w-full grid-cols-3">
           <TabsTrigger value="alunos">Alunos</TabsTrigger>
-          <TabsTrigger value="perguntas">Perguntas mais erradas</TabsTrigger>
+          <TabsTrigger value="tarefas">Tarefas</TabsTrigger>
+          <TabsTrigger value="perguntas">Mais erradas</TabsTrigger>
         </TabsList>
         <TabsContent value="alunos">
           {!alunos ? (
@@ -301,6 +303,9 @@ function PainelDaTurma({
           ) : (
             <TabelaAlunos alunos={alunos} />
           )}
+        </TabsContent>
+        <TabsContent value="tarefas">
+          <TarefasDoProfessor turmaId={turma.id} arquivada={turma.archived} />
         </TabsContent>
         <TabsContent value="perguntas">
           {!perguntas ? <Skeleton className="h-40 w-full rounded-xl" /> : <PerguntasMaisErradas perguntas={perguntas} />}

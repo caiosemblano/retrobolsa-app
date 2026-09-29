@@ -125,7 +125,7 @@ describe('ProfessorScreen', () => {
     const user = userEvent.setup();
     renderizar('/professor/t1');
 
-    await user.click(await screen.findByRole('tab', { name: 'Perguntas mais erradas' }));
+    await user.click(await screen.findByRole('tab', { name: 'Mais erradas' }));
     const item = await screen.findByRole('listitem');
     expect(item).toHaveTextContent('67% de erro');
     expect(item).toHaveTextContent('4 de 6 respostas erradas, de 3 alunos');

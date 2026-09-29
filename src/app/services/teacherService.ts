@@ -41,6 +41,20 @@ export interface PerguntaErrada {
   commonWrongAnswer?: string | null;
 }
 
+/** Uma tarefa da turma, com a situação de cada aluno. */
+export interface TarefaDaTurma {
+  id: string;
+  articleId: string;
+  moduleId: string;
+  articleTitle: string;
+  dueAt: string;
+  createdAt: string;
+  done: number;
+  late: number;
+  pending: number;
+  students: { username: string; status: 'FEITA' | 'ATRASADA' | 'PENDENTE'; completedAt?: string | null }[];
+}
+
 const base = '/api/teacher/classrooms';
 
 /** "1º ano B" → "turma-1o-ano-b.csv", como a API nomeia. */
@@ -73,6 +87,11 @@ export const teacherService = {
   regenerateCode: (id: string) => api.post<TurmaDoProfessor>(`${base}/${id}/code`),
   students: (id: string) => api.get<AlunoDaTurma[]>(`${base}/${id}/students`),
   questions: (id: string) => api.get<PerguntaErrada[]>(`${base}/${id}/questions`),
+  assignments: (id: string) => api.get<TarefaDaTurma[]>(`${base}/${id}/assignments`),
+  /** @param dueAt data e hora locais, como o input datetime-local (2026-10-05T23:59) */
+  assign: (id: string, articleId: string, dueAt: string) =>
+    api.post<TarefaDaTurma>(`${base}/${id}/assignments`, { articleId, dueAt }),
+  unassign: (id: string, assignmentId: string) => api.delete<void>(`${base}/${id}/assignments/${assignmentId}`),
 
   /**
    * Baixa o CSV dos alunos pelo navegador (a rota exige o token, então não dá para ser um link simples).
