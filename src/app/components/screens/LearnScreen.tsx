@@ -8,7 +8,7 @@ import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Skeleton } from '../ui/skeleton';
 import { ChevronLeft, GraduationCap } from 'lucide-react';
-import { articleService, ArticleDetail } from '../../services/articleService';
+import { articleService, ArticleDetail, QuizResult } from '../../services/articleService';
 import { Module } from '../../types';
 import { rotas } from '../../routes';
 
@@ -85,6 +85,22 @@ export function LearnScreen() {
     }
   };
 
+  // A API já concluiu a aula se passou; aqui só reflete a nota e a conclusão na tela.
+  const registrarQuiz = (article: ArticleDetail, result: QuizResult) => {
+    setArticles((current) =>
+      current.map((item) =>
+        item.id === article.id
+          ? {
+              ...item,
+              completed: item.completed || result.passed,
+              bestQuizScore: Math.max(item.bestQuizScore ?? 0, result.score),
+            }
+          : item,
+      ),
+    );
+    if (result.passed && !article.completed) toast.success('Aula concluída!');
+  };
+
   if (loading) {
     return (
       <div className="mx-auto max-w-4xl space-y-4 p-4">
@@ -112,6 +128,7 @@ export function LearnScreen() {
         onBack={() => navigate(rotas.modulo(selectedArticle.moduleId))}
         onComplete={() => concluir(selectedArticle)}
         onNext={proxima ? () => navigate(rotas.aula(proxima.moduleId, proxima.id)) : undefined}
+        onQuizResult={(result) => registrarQuiz(selectedArticle, result)}
       />
     );
   }

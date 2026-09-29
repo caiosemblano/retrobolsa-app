@@ -1,5 +1,6 @@
 import { CheckCircle, ChevronLeft, ChevronRight, Clock, PlayCircle } from 'lucide-react';
-import { ArticleDetail } from '../services/articleService';
+import { ArticleDetail, QuizResult } from '../services/articleService';
+import { Quiz } from './Quiz';
 import { AspectRatio } from './ui/aspect-ratio';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
@@ -22,9 +23,11 @@ interface LessonViewProps {
   onComplete: () => void;
   /** Ausente na última aula do módulo. */
   onNext?: () => void;
+  /** Correção de uma tentativa do quiz (só para aulas com quiz). */
+  onQuizResult?: (result: QuizResult) => void;
 }
 
-export function LessonView({ article, position, total, saving, onBack, onComplete, onNext }: LessonViewProps) {
+export function LessonView({ article, position, total, saving, onBack, onComplete, onNext, onQuizResult }: LessonViewProps) {
   const videoUrl = urlDoVideo(article.videoId);
 
   return (
@@ -74,13 +77,21 @@ export function LessonView({ article, position, total, saving, onBack, onComplet
         </Card>
       )}
 
+      {article.hasQuiz && <Quiz articleId={article.id} onResult={(result) => onQuizResult?.(result)} />}
+
       <div className="flex flex-col gap-3 sm:flex-row">
         {article.completed ? (
           <Button variant="outline" disabled className="sm:flex-1">
             <CheckCircle className="size-4" aria-hidden="true" />
             Aula concluída
+            {article.hasQuiz && article.bestQuizScore != null && (
+              <span className="tabular">
+                · melhor nota {article.bestQuizScore} de {article.quizTotal}
+              </span>
+            )}
           </Button>
-        ) : (
+        ) : article.hasQuiz ? null : (
+          // Aula com quiz se conclui passando nele (a API recusa o botão).
           <Button onClick={onComplete} disabled={saving} className="sm:flex-1">
             {saving ? 'Salvando…' : 'Marcar como concluída'}
           </Button>

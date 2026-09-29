@@ -7,7 +7,7 @@ import { LearnScreen } from './LearnScreen';
 import { articleService, ArticleDetail } from '../../services/articleService';
 
 vi.mock('../../services/articleService', () => ({
-  articleService: { getAll: vi.fn(), complete: vi.fn() },
+  articleService: { getAll: vi.fn(), complete: vi.fn(), getQuiz: vi.fn(), submitQuiz: vi.fn() },
 }));
 
 vi.mock('sonner', () => ({
@@ -242,5 +242,29 @@ describe('LearnScreen', () => {
     const segundo = screen.getByTitle(/Vídeo da aula/);
     expect(segundo).not.toBe(primeiro);
     expect(primeiro).not.toBeInTheDocument();
+  });
+  it('aula com quiz: não tem botão de concluir, e passar no quiz conclui a aula e avança o módulo', async () => {
+    vi.mocked(articleService.getQuiz).mockResolvedValue({
+      data: [{ id: 'q1', prompt: 'Quanto é 10% de R$ 1.000?', options: [{ id: 'o1', text: 'R$ 100' }, { id: 'o2', text: 'R$ 10' }] }],
+    } as never);
+    vi.mocked(articleService.submitQuiz).mockResolvedValue({
+      data: { score: 1, total: 1, passed: true, results: [
+        { questionId: 'q1', selectedOptionId: 'o1', correctOptionId: 'o1', correct: true, explanation: '10% = 0,10 × 1.000.' },
+      ] },
+    } as never);
+    const user = await renderizar([aula({ hasQuiz: true, quizTotal: 1, bestQuizScore: null }), aula({ id: 'a2', title: 'Juros simples vs. compostos', displayOrder: 2 })]);
+    await abrirAula(user, /Matemática Financeira/, /O que é rentabilidade/);
+
+    expect(screen.queryByRole('button', { name: 'Marcar como concluída' })).not.toBeInTheDocument();
+    await user.click(await screen.findByRole('radio', { name: 'R$ 100' }));
+    await user.click(screen.getByRole('button', { name: 'Ver resultado' }));
+
+    expect(toast.success).toHaveBeenCalledWith('Aula concluída!');
+    expect(await screen.findByRole('button', { name: /Aula concluída · melhor nota 1 de 1/ })).toBeDisabled();
+    expect(mockedComplete).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: /Voltar para Matemática Financeira/ }));
+    await user.click(screen.getByRole('button', { name: /Voltar para módulos/ }));
+    expect(screen.getByText('1 de 2 aulas')).toBeInTheDocument();
   });
 });
