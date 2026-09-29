@@ -4,11 +4,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProgressProvider, useProgress } from './ProgressContext';
 import { NivelCard } from '../components/NivelCard';
 import { progressService, Progress, ProgressNews } from '../services/progressService';
+import { missionService } from '../services/missionService';
 
 vi.mock('../services/progressService', async (original) => ({
   ...(await original<typeof import('../services/progressService')>()),
   progressService: { get: vi.fn(), news: vi.fn(), acknowledge: vi.fn() },
 }));
+
+vi.mock('../services/missionService', () => ({ missionService: { visit: vi.fn().mockResolvedValue({}) } }));
 
 const mocked = vi.mocked(progressService);
 
@@ -147,5 +150,12 @@ describe('NivelCard', () => {
     const card = (await screen.findByRole('heading', { name: 'Nível 8: Lenda do Pregão' })).closest('[data-slot="card"]') as HTMLElement;
     expect(card).toHaveTextContent('Você chegou ao nível máximo!');
     expect(card).toHaveTextContent('Estude ou jogue esta semana para começar uma sequência.');
+  });
+
+  it('abrir o app conta a visita para as missões', async () => {
+    mocked.get.mockResolvedValue({ data: progresso() } as never);
+    mocked.news.mockResolvedValue({ data: semNovidades } as never);
+    render(<ProgressProvider><span>app</span></ProgressProvider>);
+    await waitFor(() => expect(missionService.visit).toHaveBeenCalledTimes(1));
   });
 });

@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Sparkles, TrendingUp } from 'lucide-react';
 import { progressService, Progress, ProgressNews } from '../services/progressService';
+import { missionService } from '../services/missionService';
 import { AchievementBadge } from '../components/AchievementBadge';
 import { Button } from '../components/ui/button';
 import {
@@ -51,6 +52,11 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  // Abrir o app conta para a missão "volte em 2 dias" (a API conta uma vez por dia).
+  useEffect(() => {
+    missionService.visit().catch(() => undefined);
+  }, []);
 
   const fechar = () => {
     if (!news) return;

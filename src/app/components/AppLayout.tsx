@@ -4,6 +4,7 @@ import { Home, GraduationCap, Trophy, User, LogOut, Shield, CandlestickChart, Pr
 import { useAuth } from '../contexts/AuthContext';
 import { useProgress } from '../contexts/ProgressContext';
 import { progressoNoNivel } from '../services/progressService';
+import { SinoDeNotificacoes } from './SinoDeNotificacoes';
 import { rotas } from '../routes';
 
 /** Header, conteúdo e bottom nav das telas autenticadas. */
@@ -87,6 +88,7 @@ export function AppLayout() {
             </div>
           </div>
           <div className="flex items-center gap-1">
+          <SinoDeNotificacoes />
           {progress && (
             <Link
               to={rotas.perfil}

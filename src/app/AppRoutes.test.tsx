@@ -16,6 +16,12 @@ vi.mock('./services/progressService', () => ({
   progressoNoNivel: () => 0,
 }));
 
+vi.mock('./services/missionService', () => ({ missionService: { visit: vi.fn().mockResolvedValue({}) } }));
+vi.mock('./services/notificationService', () => ({
+  NOTIFICACOES_POR_PAGINA: 20,
+  notificationService: { unreadCount: vi.fn().mockResolvedValue(0), list: vi.fn(), markRead: vi.fn() },
+}));
+
 // As telas viram botões simples: aqui o que se testa é a navegação entre elas.
 vi.mock('./components/screens/HomeScreen', () => ({
   HomeScreen: (p: { onStartCompetition: () => void; onTrain: () => void }) => (
