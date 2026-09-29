@@ -20,11 +20,17 @@ export function anosSimulados(periodo: string): string {
   return fim > inicio ? `${inicio}–${fim}` : `${inicio}`;
 }
 
-function comparacaoComAMediana(stats: RoundStats, rentabilidade: number): string | null {
+function comparacaoComAMediana(stats: RoundStats, rentabilidade: number, treino: boolean): string | null {
   if (stats.medianReturn === undefined || stats.participants === 0) return null;
-  if (stats.participants === 1) return 'Só a sua carteira participou desta rodada.';
   const posicao =
     rentabilidade > stats.medianReturn ? 'acima dela' : rentabilidade < stats.medianReturn ? 'abaixo dela' : 'exatamente nela';
+  // No treino, as carteiras são as de quem jogou a rodada de verdade; o treino não está entre elas.
+  if (treino) {
+    return stats.participants === 1
+      ? `Uma carteira jogou esta rodada e rendeu ${pct(stats.medianReturn)}. O seu treino ficou ${posicao}.`
+      : `${stats.participants} carteiras jogaram esta rodada; a do meio rendeu ${pct(stats.medianReturn)}. O seu treino ficou ${posicao}.`;
+  }
+  if (stats.participants === 1) return 'Só a sua carteira participou desta rodada.';
   return `${stats.participants} carteiras; a do meio rendeu ${pct(stats.medianReturn)}. A sua ficou ${posicao}.`;
 }
 
@@ -93,10 +99,19 @@ export function OQueAconteceu({ texto, periodo }: { texto?: string; periodo: str
 }
 
 /** Como foi a rodada para todos: mediana e o melhor ativo, para se situar além da posição. */
-export function ComoFoiARodada({ stats, rentabilidade }: { stats?: RoundStats; rentabilidade: number }) {
+export function ComoFoiARodada({
+  stats,
+  rentabilidade,
+  treino = false,
+}: {
+  stats?: RoundStats;
+  rentabilidade: number;
+  /** A rentabilidade é de um treino, comparada com as carteiras da rodada de verdade. */
+  treino?: boolean;
+}) {
   if (!stats || (stats.participants === 0 && !stats.bestAsset)) return null;
   const melhor = stats.bestAsset;
-  const mediana = comparacaoComAMediana(stats, rentabilidade);
+  const mediana = comparacaoComAMediana(stats, rentabilidade, treino);
 
   return (
     <Card className="gap-2 p-6">
