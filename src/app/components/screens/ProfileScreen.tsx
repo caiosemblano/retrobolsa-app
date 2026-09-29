@@ -3,13 +3,15 @@ import { Card } from '../ui/card';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Badge } from '../ui/badge';
 import { Skeleton } from '../ui/skeleton';
-import { Trophy, Target, Award, History } from 'lucide-react';
+import { Link } from 'react-router';
+import { Trophy, Target, Award, History, CircleHelp } from 'lucide-react';
 import { userService } from '../../services/userService';
 import { UserProfile } from '../../types';
 import { AchievementBadge } from '../AchievementBadge';
 import { NivelCard } from '../NivelCard';
 import { MinhasTurmas } from '../MinhasTurmas';
 import { formatarData } from '../../utils/date';
+import { rotas } from '../../routes';
 
 export function ProfileScreen() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -92,6 +94,14 @@ export function ProfileScreen() {
       <NivelCard />
 
       <MinhasTurmas />
+
+      <Link
+        to={rotas.comoFunciona}
+        className="flex min-h-12 items-center gap-3 rounded-2xl border border-border bg-card p-4 font-medium transition-colors hover:border-info/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <CircleHelp className="size-5 shrink-0 text-info" aria-hidden="true" />
+        Como funciona o jogo: pontos, XP, turmas e de onde vêm os dados
+      </Link>
 
       {/* Histórico de rodadas */}
       <section>

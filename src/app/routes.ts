@@ -12,6 +12,7 @@ export const rotas = {
   aula: (moduloId: string, aulaId: string) => `/aprender/${moduloId}/${aulaId}`,
   rankings: '/rankings',
   perfil: '/perfil',
+  comoFunciona: '/como-funciona',
   admin: '/admin',
   professor: '/professor',
   turma: (turmaId: string) => `/professor/${turmaId}`,

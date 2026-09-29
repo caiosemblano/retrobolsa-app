@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { MemoryRouter } from 'react-router';
 import { ProfileScreen } from './ProfileScreen';
 import { userService } from '../../services/userService';
 import { Achievement, UserProfile } from '../../types';
@@ -54,7 +55,7 @@ describe('ProfileScreen', () => {
   it('mostra pontuação, melhor posição e competições do usuário', async () => {
     mockedGetProfile.mockResolvedValue({ data: perfil() } as never);
 
-    render(<ProfileScreen />);
+    render(<ProfileScreen />, { wrapper: MemoryRouter });
 
     expect(await screen.findByText('ana')).toBeInTheDocument();
     expect(screen.getByText('1.234 pontos')).toBeInTheDocument();
@@ -65,7 +66,7 @@ describe('ProfileScreen', () => {
   it('mostra o histórico de rodadas com retorno e patrimônio', async () => {
     mockedGetProfile.mockResolvedValue({ data: perfil() } as never);
 
-    render(<ProfileScreen />);
+    render(<ProfileScreen />, { wrapper: MemoryRouter });
 
     expect(await screen.findByText('Rodada 2')).toBeInTheDocument();
     expect(screen.getByText('Crise de 2008')).toBeInTheDocument();
@@ -78,7 +79,7 @@ describe('ProfileScreen', () => {
       data: perfil({ history: [], bestRank: 0, completedCompetitions: 0, totalPoints: 0 }),
     } as never);
 
-    render(<ProfileScreen />);
+    render(<ProfileScreen />, { wrapper: MemoryRouter });
 
     expect(
       await screen.findByText('Você ainda não completou nenhuma rodada de competição.'),
@@ -93,7 +94,7 @@ describe('ProfileScreen', () => {
       }),
     } as never);
 
-    render(<ProfileScreen />);
+    render(<ProfileScreen />, { wrapper: MemoryRouter });
 
     expect(await screen.findByText('02/01/2026')).toBeInTheDocument();
   });
@@ -109,7 +110,7 @@ describe('ProfileScreen', () => {
       }),
     } as never);
 
-    render(<ProfileScreen />);
+    render(<ProfileScreen />, { wrapper: MemoryRouter });
 
     expect(await screen.findByText('2 de 3 desbloqueadas')).toBeInTheDocument();
     expect(screen.getByText('No Azul')).toBeInTheDocument();
@@ -123,7 +124,7 @@ describe('ProfileScreen', () => {
   it('sem catálogo de conquistas mostra aviso e nenhum contador', async () => {
     mockedGetProfile.mockResolvedValue({ data: perfil({ achievements: [] }) } as never);
 
-    render(<ProfileScreen />);
+    render(<ProfileScreen />, { wrapper: MemoryRouter });
 
     expect(await screen.findByText('Nenhuma conquista disponível no momento.')).toBeInTheDocument();
     expect(screen.queryByText(/desbloqueadas/)).not.toBeInTheDocument();
@@ -132,7 +133,7 @@ describe('ProfileScreen', () => {
   it('mostra mensagem quando o perfil não carrega', async () => {
     mockedGetProfile.mockRejectedValue(new Error('falhou'));
 
-    render(<ProfileScreen />);
+    render(<ProfileScreen />, { wrapper: MemoryRouter });
 
     expect(await screen.findByText('Não foi possível carregar o perfil.')).toBeInTheDocument();
   });

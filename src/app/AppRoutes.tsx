@@ -12,6 +12,7 @@ import { RegisterScreen } from './components/screens/RegisterScreen';
 import { AdminScreen } from './components/screens/AdminScreen';
 import { TreinarScreen } from './components/screens/TreinarScreen';
 import { ProfessorScreen } from './components/screens/ProfessorScreen';
+import { ComoFuncionaScreen } from './components/screens/ComoFuncionaScreen';
 import { TreinoScreen } from './components/screens/TreinoScreen';
 import { AppLayout } from './components/AppLayout';
 import { useAuth } from './contexts/AuthContext';
@@ -98,6 +99,11 @@ function TreinoRoute() {
   return <TreinoScreen key={rodadaId} rodadaId={rodadaId} onVoltar={() => navigate(rotas.treinar)} />;
 }
 
+function ComoFuncionaRoute() {
+  const navigate = useNavigate();
+  return <ComoFuncionaScreen onBack={() => navigate(-1)} />;
+}
+
 function ContextRoute() {
   const navigate = useNavigate();
   return (
@@ -175,6 +181,7 @@ export function AppRoutes() {
           <Route path="aprender/:moduloId?/:aulaId?" element={<LearnScreen />} />
           <Route path={rotas.rankings} element={<RankingsScreen />} />
           <Route path={rotas.perfil} element={<ProfileScreen />} />
+          <Route path={rotas.comoFunciona} element={<ComoFuncionaRoute />} />
           <Route element={<RequireAdmin />}>
             <Route path={rotas.admin} element={<AdminScreen />} />
           </Route>
