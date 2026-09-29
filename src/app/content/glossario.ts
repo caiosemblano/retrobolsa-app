@@ -19,6 +19,8 @@ export interface Verbete {
 const MATEMATICA = 'aaaaaaaa-0001-0000-0000-000000000001';
 const FUNDAMENTOS = 'aaaaaaaa-0002-0000-0000-000000000002';
 const MACRO = 'aaaaaaaa-0003-0000-0000-000000000003';
+const RENDA_FIXA = 'aaaaaaaa-0004-0000-0000-000000000004';
+const AULA_TESOURO = { moduloId: RENDA_FIXA, aulaId: 'bbbbbbbb-0009-0000-0000-000000000009' };
 
 export const glossario = {
   PL: {
@@ -104,13 +106,14 @@ export const glossario = {
     oQueE: 'Taxa dos empréstimos de um dia entre bancos. Anda colada na Selic e é a principal referência da renda fixa.',
     comoLer:
       'Um CDB que paga 100% do CDI rende o mesmo que ele. Se uma carteira com ações rende menos que o CDI, o risco extra não compensou.',
-    aula: { moduloId: MACRO, aulaId: 'bbbbbbbb-0007-0000-0000-000000000007' },
+    aula: { moduloId: RENDA_FIXA, aulaId: 'bbbbbbbb-0010-0000-0000-000000000010' },
   },
   POUPANCA: {
     sigla: 'Poupança',
     nome: 'Poupança',
     oQueE: 'A aplicação mais popular do país: rende 0,5% ao mês mais a TR, ou 70% da Selic quando ela está em 8,5% ao ano ou menos.',
     comoLer: 'É simples e não tem imposto de renda, mas quase sempre rende menos que o CDI e, em alguns anos, menos que a inflação.',
+    aula: { moduloId: RENDA_FIXA, aulaId: 'bbbbbbbb-0011-0000-0000-000000000011' },
   },
   IBOVESPA: {
     sigla: 'Ibovespa',
@@ -139,13 +142,14 @@ export const glossario = {
     oQueE: 'Título do governo com a taxa de juros definida no dia da compra.',
     comoLer:
       'Levando até o vencimento, você sabe quanto vai receber. Se os juros do país subirem depois da compra, o título perde valor no caminho.',
+    aula: AULA_TESOURO,
   },
   IPCA_MAIS: {
     sigla: 'IPCA+',
     nome: 'Título IPCA+',
     oQueE: 'Título do governo que paga a inflação do período mais uma taxa fixa.',
     comoLer: 'Protege o poder de compra: rende acima da inflação, seja ela alta ou baixa.',
-    aula: { moduloId: MACRO, aulaId: 'bbbbbbbb-0008-0000-0000-000000000008' },
+    aula: AULA_TESOURO,
   },
   TESOURO_SELIC: {
     sigla: 'Selic',
@@ -153,7 +157,7 @@ export const glossario = {
     oQueE: 'Título do governo que rende a taxa Selic de cada dia.',
     comoLer:
       'É o título mais estável: acompanha os juros e quase não oscila de preço. Costuma ser usado como reserva de emergência.',
-    aula: { moduloId: MACRO, aulaId: 'bbbbbbbb-0007-0000-0000-000000000007' },
+    aula: AULA_TESOURO,
   },
 } satisfies Record<string, Verbete>;
 

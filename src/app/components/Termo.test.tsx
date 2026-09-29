@@ -45,8 +45,9 @@ describe('glossário', () => {
   it('toda aula citada aponta para um ID de aula e de módulo do seed', () => {
     for (const verbete of Object.values(glossario)) {
       if (!('aula' in verbete)) continue;
-      expect(verbete.aula.moduloId).toMatch(/^aaaaaaaa-000\d-0000-0000-00000000000\d$/);
-      expect(verbete.aula.aulaId).toMatch(/^bbbbbbbb-000\d-0000-0000-00000000000\d$/);
+      // Mesmo número nos dois grupos, como no seed: aaaaaaaa-0004-0000-0000-000000000004.
+      expect(verbete.aula.moduloId).toMatch(/^aaaaaaaa-(\d{4})-0000-0000-0{8}\1$/);
+      expect(verbete.aula.aulaId).toMatch(/^bbbbbbbb-(\d{4})-0000-0000-0{8}\1$/);
     }
   });
 

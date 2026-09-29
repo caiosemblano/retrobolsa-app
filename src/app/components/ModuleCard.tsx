@@ -1,17 +1,33 @@
 import { Module } from '../types';
 import { Progress } from './ui/progress';
-import { Calculator, TrendingUp, Globe, GraduationCap, ChevronRight } from 'lucide-react';
+import {
+  Brain,
+  Calculator,
+  ChevronRight,
+  Globe,
+  GraduationCap,
+  Landmark,
+  ShieldCheck,
+  TrendingUp,
+  Wallet,
+  type LucideIcon,
+} from 'lucide-react';
 
 interface ModuleCardProps {
   module: Module;
   onClick: () => void;
 }
 
-const iconMap: Record<string, any> = {
+// Nomes vindos de modules.icon (kebab-case no banco, convertido na LearnScreen).
+const iconMap: Record<string, LucideIcon> = {
   Calculator,
   TrendingUp,
   Globe,
   GraduationCap,
+  Landmark,
+  ShieldCheck,
+  Wallet,
+  Brain,
 };
 
 export function ModuleCard({ module, onClick }: ModuleCardProps) {
