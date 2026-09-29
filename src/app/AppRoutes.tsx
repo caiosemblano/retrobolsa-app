@@ -12,6 +12,7 @@ import { RegisterScreen } from './components/screens/RegisterScreen';
 import { AdminScreen } from './components/screens/AdminScreen';
 import { AppLayout } from './components/AppLayout';
 import { useAuth } from './contexts/AuthContext';
+import { ProgressProvider } from './contexts/ProgressContext';
 import { rotas } from './routes';
 
 /** Estado que a rota privada deixa ao mandar para o login, para voltar ao destino depois. */
@@ -140,7 +141,13 @@ export function AppRoutes() {
       </Route>
 
       <Route element={<RequireAuth />}>
-        <Route element={<AppLayout />}>
+        <Route
+          element={
+            <ProgressProvider>
+              <AppLayout />
+            </ProgressProvider>
+          }
+        >
           <Route index element={<HomeRoute />} />
           {/* Uma rota só para as três visões de Aprender: a lista de aulas não é recarregada ao navegar entre elas. */}
           <Route path="aprender/:moduloId?/:aulaId?" element={<LearnScreen />} />

@@ -1,12 +1,15 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
-import { NavLink, Outlet, useLocation, useNavigationType } from 'react-router';
+import { Link, NavLink, Outlet, useLocation, useNavigationType } from 'react-router';
 import { Home, GraduationCap, Trophy, User, LogOut, Shield, CandlestickChart } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useProgress } from '../contexts/ProgressContext';
+import { progressoNoNivel } from '../services/progressService';
 import { rotas } from '../routes';
 
 /** Header, conteúdo e bottom nav das telas autenticadas. */
 export function AppLayout() {
   const { logout, user } = useAuth();
+  const { progress, refresh } = useProgress();
   const location = useLocation();
   const navigationType = useNavigationType();
   const headerRef = useRef<HTMLElement>(null);
@@ -38,7 +41,9 @@ export function AppLayout() {
     }
     if (navigationType !== 'POP') window.scrollTo(0, 0);
     mainRef.current?.focus({ preventScroll: true });
-  }, [location.pathname, navigationType]);
+    // Ganhos que chegaram sem ação na tela (ex.: a rodada foi simulada) aparecem na próxima troca de tela.
+    refresh();
+  }, [location.pathname, navigationType, refresh]);
 
   // O fluxo da rodada (contexto → carteira → espera → resultado) tem seus próprios botões de voltar.
   const shouldShowNav = !location.pathname.startsWith('/rodada');
@@ -79,6 +84,27 @@ export function AppLayout() {
               <p className="text-muted-foreground text-xs">Simulador histórico de investimentos</p>
             </div>
           </div>
+          <div className="flex items-center gap-1">
+          {progress && (
+            <Link
+              to={rotas.perfil}
+              aria-label={`Nível ${progress.level}, ${progress.levelTitle}: ${progress.xp} XP. Ver perfil`}
+              className="flex min-h-11 items-center gap-2 rounded-xl px-2 text-left hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <span
+                aria-hidden="true"
+                className="tabular grid size-8 place-items-center rounded-lg border border-gold/40 bg-gold-soft font-display text-sm font-bold text-gold"
+              >
+                {progress.level}
+              </span>
+              <span aria-hidden="true" className="hidden w-24 sm:block">
+                <span className="block truncate text-xs font-semibold">{progress.levelTitle}</span>
+                <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-muted">
+                  <span className="block h-full rounded-full bg-gold" style={{ width: `${progressoNoNivel(progress)}%` }} />
+                </span>
+              </span>
+            </Link>
+          )}
           {/* Botão de logout visível apenas nas telas principais */}
           {shouldShowNav && (
             <button
@@ -90,6 +116,7 @@ export function AppLayout() {
               <span className="hidden sm:inline">Sair</span>
             </button>
           )}
+          </div>
         </div>
       </header>
 

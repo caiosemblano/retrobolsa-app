@@ -7,6 +7,7 @@ import { Trophy, Target, Award, History } from 'lucide-react';
 import { userService } from '../../services/userService';
 import { UserProfile } from '../../types';
 import { AchievementBadge } from '../AchievementBadge';
+import { NivelCard } from '../NivelCard';
 import { formatarData } from '../../utils/date';
 
 export function ProfileScreen() {
@@ -86,6 +87,8 @@ export function ProfileScreen() {
           </div>
         </div>
       </Card>
+
+      <NivelCard />
 
       {/* Histórico de rodadas */}
       <section>

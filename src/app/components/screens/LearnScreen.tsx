@@ -11,6 +11,7 @@ import { ChevronLeft, GraduationCap } from 'lucide-react';
 import { articleService, ArticleDetail, QuizResult } from '../../services/articleService';
 import { Module } from '../../types';
 import { rotas } from '../../routes';
+import { useProgress } from '../../contexts/ProgressContext';
 
 /** A API grava o ícone em kebab-case ("trending-up"); o ModuleCard usa o nome do componente ("TrendingUp"). */
 function nomeDoIcone(kebab?: string | null): string {
@@ -29,6 +30,7 @@ export function LearnScreen() {
   const [articles, setArticles] = useState<ArticleDetail[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const { refresh: atualizarProgresso } = useProgress();
 
   useEffect(() => {
     articleService.getAll()
@@ -78,6 +80,7 @@ export function LearnScreen() {
         current.map((item) => (item.id === article.id ? { ...item, completed: true } : item)),
       );
       toast.success('Aula concluída!');
+      atualizarProgresso();
     } catch {
       toast.error('Não foi possível salvar a conclusão. Tente de novo.');
     } finally {
@@ -99,6 +102,8 @@ export function LearnScreen() {
       ),
     );
     if (result.passed && !article.completed) toast.success('Aula concluída!');
+    // Aula e quiz podem ter dado XP e conquistas: a comemoração aparece sem trocar de tela.
+    atualizarProgresso();
   };
 
   if (loading) {

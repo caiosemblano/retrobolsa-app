@@ -6,6 +6,15 @@ import { AppRoutes } from './AppRoutes';
 import { useAuth } from './contexts/AuthContext';
 
 vi.mock('./contexts/AuthContext', () => ({ useAuth: vi.fn() }));
+// O progresso (XP e comemoração) tem testes próprios; aqui ele só não pode ir à rede.
+vi.mock('./services/progressService', () => ({
+  progressService: {
+    get: vi.fn().mockResolvedValue({ data: { xp: 0, level: 1, levelTitle: 'Curioso', levelMinXp: 0, nextLevelMinXp: 50, streakWeeks: 0 } }),
+    news: vi.fn().mockResolvedValue({ data: { items: [], xpGained: 0, levelUp: false, level: 1, levelTitle: 'Curioso', achievements: [] } }),
+    acknowledge: vi.fn(),
+  },
+  progressoNoNivel: () => 0,
+}));
 
 // As telas viram botões simples: aqui o que se testa é a navegação entre elas.
 vi.mock('./components/screens/HomeScreen', () => ({
@@ -206,6 +215,16 @@ describe('AppRoutes', () => {
 
     await act(async () => router.navigate('/rodada/contexto'));
     expect(screen.queryByRole('navigation', { name: 'Navegação principal' })).not.toBeInTheDocument();
+  });
+
+  it('o cabeçalho mostra o nível e leva ao perfil', async () => {
+    autenticar('jogador');
+    const user = userEvent.setup();
+    abrir('/');
+
+    const chip = await screen.findByRole('link', { name: 'Nível 1, Curioso: 0 XP. Ver perfil' });
+    await user.click(chip);
+    expect(titulo('Tela Perfil')).toBeInTheDocument();
   });
 
   it('mostra o carregamento enquanto verifica a sessão', () => {
