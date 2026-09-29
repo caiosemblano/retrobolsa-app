@@ -4,6 +4,7 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Skeleton } from '../ui/skeleton';
 import { RentabilityChart } from '../RentabilityChart';
+import { ComparacaoReferencias } from '../ComparacaoReferencias';
 import { Trophy, TrendingUp, TrendingDown, Eye, Award, ArrowLeft } from 'lucide-react';
 import { portfolioService } from '../../services/portfolioService';
 import { Result } from '../../types';
@@ -92,7 +93,8 @@ export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
         </div>
       </Card>
 
-      <RentabilityChart data={result.chartData} />
+      <RentabilityChart data={result.chartData} benchmarks={result.benchmarks} />
+      <ComparacaoReferencias rentabilidade={result.rentability} benchmarks={result.benchmarks} />
 
       {/* A revelação */}
       <section className="space-y-4">

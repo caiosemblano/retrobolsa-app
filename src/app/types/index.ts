@@ -26,6 +26,12 @@ export interface Asset {
   ticker?: string;
   amountInvested?: number;
   finalValue?: number;
+  /** Quanto o ativo rendeu no período, em %. */
+  returnPct?: number;
+  /** Quanto somou (ou tirou) da carteira, em pontos percentuais do orçamento. */
+  contribution?: number;
+  /** Frase sobre o ativo no período; só depois da revelação. */
+  revealNote?: string;
 }
 
 /** Um número do cenário econômico da rodada, do ano anterior ao início. */
@@ -61,14 +67,48 @@ export interface Portfolio {
   [assetId: string]: number;
 }
 
+export interface ChartPoint {
+  year: number;
+  value: number;
+}
+
+/** O orçamento da rodada aplicado numa referência do mercado. */
+export interface Benchmark {
+  /** CDI, POUPANCA, IBOVESPA ou IPCA. */
+  code: string;
+  name: string;
+  /** Rentabilidade no período, em %. */
+  totalReturn: number;
+  chartData: ChartPoint[];
+}
+
+/** Lição tirada da carteira, com a aula do assunto quando existe. */
+export interface Tip {
+  code: string;
+  message: string;
+  moduleId?: string;
+  articleId?: string;
+}
+
+export interface RoundStats {
+  participants: number;
+  medianReturn?: number;
+  bestAsset?: { anonymousName: string; realName?: string; returnPct: number };
+}
+
 export interface Result {
   rank: number;
   rentability: number;
   annualReturn: number;
   portfolioValue: number;
-  chartData: { year: number; value: number }[];
+  chartData: ChartPoint[];
   revealedAssets: Asset[];
   period: string;
+  benchmarks: Benchmark[];
+  roundStats?: RoundStats;
+  /** O que aconteceu de verdade no período; só depois da revelação. */
+  debrief?: string;
+  tips: Tip[];
 }
 
 export interface RankingEntry {

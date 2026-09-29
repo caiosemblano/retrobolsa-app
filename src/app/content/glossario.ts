@@ -98,6 +98,27 @@ export const glossario = {
       'IPCA de 10% = o que custava R$ 100 passou a custar R$ 110. Um investimento que rende menos que isso faz você perder poder de compra.',
     aula: { moduloId: MACRO, aulaId: 'bbbbbbbb-0008-0000-0000-000000000008' },
   },
+  CDI: {
+    sigla: 'CDI',
+    nome: 'CDI',
+    oQueE: 'Taxa dos empréstimos de um dia entre bancos. Anda colada na Selic e é a principal referência da renda fixa.',
+    comoLer:
+      'Um CDB que paga 100% do CDI rende o mesmo que ele. Se uma carteira com ações rende menos que o CDI, o risco extra não compensou.',
+    aula: { moduloId: MACRO, aulaId: 'bbbbbbbb-0007-0000-0000-000000000007' },
+  },
+  POUPANCA: {
+    sigla: 'Poupança',
+    nome: 'Poupança',
+    oQueE: 'A aplicação mais popular do país: rende 0,5% ao mês mais a TR, ou 70% da Selic quando ela está em 8,5% ao ano ou menos.',
+    comoLer: 'É simples e não tem imposto de renda, mas quase sempre rende menos que o CDI e, em alguns anos, menos que a inflação.',
+  },
+  IBOVESPA: {
+    sigla: 'Ibovespa',
+    nome: 'Ibovespa',
+    oQueE: 'Índice que acompanha as ações mais negociadas da bolsa brasileira.',
+    comoLer:
+      'Mostra como foi a bolsa, em média. Ganhar do Ibovespa escolhendo ações é difícil até para profissionais.',
+  },
   DOLAR: {
     sigla: 'Dólar',
     nome: 'Dólar',

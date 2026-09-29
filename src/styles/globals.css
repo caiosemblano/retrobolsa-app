@@ -73,6 +73,14 @@
   --chart-4: #4f9dff;
   --chart-5: #a78bfa;
 
+  /* Resultado: carteira x referências. Validado para daltonismo no fundo do card
+     (pares vizinhos; verde x magenta fica no limite e a carteira usa traço mais
+     grosso e pontos). A inflação é linha de referência, tracejada e neutra. */
+  --viz-carteira: #16a34a;
+  --viz-cdi: #3987e5;
+  --viz-ibovespa: #d55181;
+  --viz-inflacao: #9aa8c4;
+
   --radius: 0.875rem;
 
   /* Elevação e brilho */
