@@ -90,7 +90,7 @@ vi.mock('./components/screens/RegisterScreen', () => ({
 
 const mockedUseAuth = vi.mocked(useAuth);
 
-type Sessao = 'visitante' | 'jogador' | 'admin' | 'professor' | 'novato' | 'carregando';
+type Sessao = 'visitante' | 'jogador' | 'admin' | 'professor' | 'novato' | 'senhaTemporaria' | 'carregando';
 
 const autenticar = (sessao: Sessao) => {
   const user =
@@ -98,6 +98,7 @@ const autenticar = (sessao: Sessao) => {
     : sessao === 'admin' ? { username: 'root', email: 'root@retrobolsa.com', role: 'ADMIN' }
     : sessao === 'professor' ? { username: 'marta', email: 'marta@retrobolsa.com', role: 'TEACHER' }
     : sessao === 'novato' ? { username: 'caio', email: 'caio@retrobolsa.com', role: 'PLAYER', onboarded: false }
+    : sessao === 'senhaTemporaria' ? { username: 'dani', email: 'dani@retrobolsa.com', role: 'PLAYER', mustChangePassword: true }
     : null;
   mockedUseAuth.mockReturnValue({
     user,
@@ -297,6 +298,20 @@ describe('AppRoutes', () => {
     abrir('/');
     expect(titulo('Tela Competir')).toBeInTheDocument();
     expect(screen.queryByRole('dialog', { name: 'Como funciona uma rodada' })).not.toBeInTheDocument();
+  });
+
+  it('com a senha temporária do admin, qualquer tela leva à troca de senha', async () => {
+    autenticar('senhaTemporaria');
+    const { router } = abrir('/rankings');
+    expect(await screen.findByRole('heading', { name: 'Crie uma senha nova' })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe('/trocar-senha');
+    expect(screen.getByLabelText('Senha temporária')).toBeInTheDocument();
+  });
+
+  it('sem a senha temporária, a tela de troca obrigatória manda para o início', () => {
+    autenticar('jogador');
+    const { router } = abrir('/trocar-senha');
+    expect(router.state.location.pathname).toBe('/');
   });
 
   it('mostra o carregamento enquanto verifica a sessão', () => {

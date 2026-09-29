@@ -10,6 +10,7 @@ import { UserProfile } from '../../types';
 import { AchievementBadge } from '../AchievementBadge';
 import { NivelCard } from '../NivelCard';
 import { MinhasTurmas } from '../MinhasTurmas';
+import { SuaConta } from '../SuaConta';
 import { formatarData } from '../../utils/date';
 import { rotas } from '../../routes';
 
@@ -102,6 +103,8 @@ export function ProfileScreen() {
         <CircleHelp className="size-5 shrink-0 text-info" aria-hidden="true" />
         Como funciona o jogo: pontos, XP, turmas e de onde vêm os dados
       </Link>
+
+      <SuaConta />
 
       {/* Histórico de rodadas */}
       <section>

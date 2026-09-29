@@ -78,4 +78,7 @@ export const userService = {
 
   /** O jogador terminou (ou pulou) o passo a passo do primeiro acesso. */
   markOnboarded: () => api.post<void>('/api/users/me/onboarded'),
+
+  changePassword: (senhaAtual: string, novaSenha: string, confirmarSenha: string) =>
+    api.post<void>('/api/users/me/password', { senhaAtual, novaSenha, confirmarSenha }),
 };

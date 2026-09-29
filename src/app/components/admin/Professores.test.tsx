@@ -7,7 +7,7 @@ import { adminUserService, UsuarioDoAdmin } from '../../services/adminUserServic
 
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 vi.mock('../../services/adminUserService', () => ({
-  adminUserService: { search: vi.fn(), changeRole: vi.fn() },
+  adminUserService: { search: vi.fn(), changeRole: vi.fn(), resetPassword: vi.fn() },
 }));
 
 const usuario = (overrides: Partial<UsuarioDoAdmin>): UsuarioDoAdmin => ({
@@ -44,6 +44,22 @@ describe('Professores (admin)', () => {
     expect(adminUserService.changeRole).toHaveBeenCalledWith('u1', 'TEACHER');
     expect(toast.success).toHaveBeenCalledWith('joao agora é professor(a).');
     expect(await within(item).findByRole('button', { name: 'Voltar a jogador' })).toBeInTheDocument();
+  });
+
+  it('redefine a senha depois de confirmar e mostra a temporária uma vez', async () => {
+    vi.mocked(adminUserService.resetPassword).mockResolvedValue('k7q2mxa9bc');
+    const user = userEvent.setup();
+    render(<Professores />);
+
+    await user.click(await screen.findByRole('button', { name: 'Redefinir a senha de marta' }));
+    const confirmacao = await screen.findByRole('alertdialog', { name: 'Redefinir a senha de marta?' });
+    expect(confirmacao).toHaveTextContent('A senha atual deixa de valer.');
+    await user.click(within(confirmacao).getByRole('button', { name: 'Redefinir' }));
+
+    expect(adminUserService.resetPassword).toHaveBeenCalledWith('u2');
+    const resultado = await screen.findByRole('alertdialog', { name: 'Senha temporária de marta' });
+    expect(resultado).toHaveTextContent('k7q2mxa9bc');
+    expect(resultado).toHaveTextContent('Ela só aparece agora');
   });
 
   it('mostra o motivo quando a API recusa', async () => {

@@ -1,10 +1,20 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { toast } from 'sonner';
-import { Presentation, Search } from 'lucide-react';
+import { KeyRound, Presentation, Search } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Input } from '../ui/input';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../ui/alert-dialog';
 import { adminUserService, UsuarioDoAdmin } from '../../services/adminUserService';
 
 const papel: Record<UsuarioDoAdmin['role'], string> = { PLAYER: 'Jogador', TEACHER: 'Professor', ADMIN: 'Admin' };
@@ -16,6 +26,8 @@ export function Professores() {
   const [resultado, setResultado] = useState<UsuarioDoAdmin[] | null>(null);
   const [titulo, setTitulo] = useState('Professores atuais');
   const [ocupado, setOcupado] = useState<string | null>(null);
+  const [redefinindo, setRedefinindo] = useState<UsuarioDoAdmin | null>(null);
+  const [temporaria, setTemporaria] = useState<{ username: string; senha: string } | null>(null);
 
   const buscar = async (termo: string) => {
     try {
@@ -50,6 +62,18 @@ export function Professores() {
     }
   };
 
+  const redefinirSenha = async () => {
+    if (!redefinindo) return;
+    const usuario = redefinindo;
+    setRedefinindo(null);
+    try {
+      const senha = await adminUserService.resetPassword(usuario.id);
+      setTemporaria({ username: usuario.username, senha });
+    } catch (error) {
+      toast.error((error as any)?.response?.data?.erro || 'Não foi possível redefinir a senha.');
+    }
+  };
+
   return (
     <Card className="gap-4 p-5">
       <div className="flex items-center gap-2">
@@ -57,7 +81,8 @@ export function Professores() {
         <h2 className="font-display text-lg">Professores</h2>
       </div>
       <p className="text-sm text-muted-foreground">
-        Não há cadastro de professor: encontre a pessoa pelo nome de usuário ou e-mail e promova-a aqui.
+        Não há cadastro de professor: encontre a pessoa pelo nome de usuário ou e-mail e promova-a aqui. Quem
+        esqueceu a senha também é atendido aqui: gere uma senha temporária e passe a ela.
       </p>
       <form onSubmit={enviar} className="flex gap-2" role="search">
         <div className="relative flex-1">
@@ -94,22 +119,68 @@ export function Professores() {
                     </div>
                     <div className="truncate text-sm text-muted-foreground">{usuario.email}</div>
                   </div>
-                  {usuario.role === 'PLAYER' && (
-                    <Button size="sm" disabled={ocupado === usuario.id} onClick={() => mudar(usuario, 'TEACHER')}>
-                      Tornar professor
-                    </Button>
-                  )}
-                  {usuario.role === 'TEACHER' && (
-                    <Button size="sm" variant="outline" disabled={ocupado === usuario.id} onClick={() => mudar(usuario, 'PLAYER')}>
-                      Voltar a jogador
-                    </Button>
-                  )}
+                  <div className="flex flex-wrap gap-2">
+                    {usuario.role === 'PLAYER' && (
+                      <Button size="sm" disabled={ocupado === usuario.id} onClick={() => mudar(usuario, 'TEACHER')}>
+                        Tornar professor
+                      </Button>
+                    )}
+                    {usuario.role === 'TEACHER' && (
+                      <Button size="sm" variant="outline" disabled={ocupado === usuario.id} onClick={() => mudar(usuario, 'PLAYER')}>
+                        Voltar a jogador
+                      </Button>
+                    )}
+                    {usuario.role !== 'ADMIN' && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setRedefinindo(usuario)}
+                        aria-label={`Redefinir a senha de ${usuario.username}`}
+                      >
+                        <KeyRound className="size-4" aria-hidden="true" />
+                        Redefinir senha
+                      </Button>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>
           )}
         </div>
       )}
+
+      <AlertDialog open={!!redefinindo} onOpenChange={(aberto) => !aberto && setRedefinindo(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Redefinir a senha de {redefinindo?.username}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              A senha atual deixa de valer. Você recebe uma senha temporária para passar à pessoa, que vai criar uma
+              senha nova no próximo acesso.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={redefinirSenha}>Redefinir</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!temporaria} onOpenChange={(aberto) => !aberto && setTemporaria(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Senha temporária de {temporaria?.username}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Passe esta senha à pessoa. Ela só aparece agora: depois de fechar, não dá para ver de novo.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <p className="tabular select-all rounded-xl border border-border bg-muted p-4 text-center font-display text-2xl tracking-widest">
+            {temporaria?.senha}
+          </p>
+          <AlertDialogFooter>
+            <AlertDialogAction>Anotei</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

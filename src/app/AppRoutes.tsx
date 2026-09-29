@@ -13,6 +13,7 @@ import { AdminScreen } from './components/screens/AdminScreen';
 import { TreinarScreen } from './components/screens/TreinarScreen';
 import { ProfessorScreen } from './components/screens/ProfessorScreen';
 import { ComoFuncionaScreen } from './components/screens/ComoFuncionaScreen';
+import { TrocarSenhaScreen } from './components/screens/TrocarSenhaScreen';
 import { TreinoScreen } from './components/screens/TreinoScreen';
 import { AppLayout } from './components/AppLayout';
 import { useAuth } from './contexts/AuthContext';
@@ -30,12 +31,23 @@ function destinoDepoisDoLogin(state: unknown): string {
 }
 
 function RequireAuth() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const location = useLocation();
   if (!isAuthenticated) {
     return <Navigate to={rotas.entrar} replace state={{ from: location } satisfies EstadoDeLogin} />;
   }
+  // Com a senha temporária do admin, nada abre antes de criar uma senha nova.
+  if (user?.mustChangePassword && location.pathname !== rotas.trocarSenha) {
+    return <Navigate to={rotas.trocarSenha} replace />;
+  }
   return <Outlet />;
+}
+
+function TrocarSenhaRoute() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  if (!user?.mustChangePassword) return <Navigate to={rotas.inicio} replace />;
+  return <TrocarSenhaScreen onTrocada={() => navigate(rotas.inicio, { replace: true })} />;
 }
 
 function RequireAdmin() {
@@ -169,6 +181,7 @@ export function AppRoutes() {
       </Route>
 
       <Route element={<RequireAuth />}>
+        <Route path={rotas.trocarSenha} element={<TrocarSenhaRoute />} />
         <Route
           element={
             <ProgressProvider>

@@ -18,4 +18,5 @@ export const rotas = {
   turma: (turmaId: string) => `/professor/${turmaId}`,
   entrar: '/entrar',
   cadastro: '/cadastro',
+  trocarSenha: '/trocar-senha',
 } as const;
