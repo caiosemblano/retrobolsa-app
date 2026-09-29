@@ -12,6 +12,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { markCurrentUser } from '../../utils/ranking';
 import { formatarNumero, formatarReais } from '../../utils/numero';
 import { Termo } from '../Termo';
+import { MissoesDaSemana } from '../MissoesDaSemana';
+import { TarefasDaTurma } from '../TarefasDaTurma';
 import { diferenca } from '../ComparacaoReferencias';
 import { Competition, RankingEntry, Result } from '../../types';
 
@@ -87,6 +89,10 @@ export function HomeScreen({ onStartCompetition, onViewResults, onViewSimulation
             : onStartCompetition
         }
       />
+
+      <TarefasDaTurma />
+
+      <MissoesDaSemana />
 
       <button
         type="button"

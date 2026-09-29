@@ -10,6 +10,9 @@ import { Competition, Result } from '../../types';
 vi.mock('../../services/competitionService', () => ({ competitionService: { getActive: vi.fn(), getLatest: vi.fn() } }));
 vi.mock('../../services/portfolioService', () => ({ portfolioService: { getLastResult: vi.fn() } }));
 vi.mock('../../services/rankingService', () => ({ rankingService: { get: vi.fn() } }));
+// Missões e tarefas têm testes próprios; aqui só não podem ir à rede.
+vi.mock('../MissoesDaSemana', () => ({ MissoesDaSemana: () => null }));
+vi.mock('../TarefasDaTurma', () => ({ TarefasDaTurma: () => null }));
 vi.mock('../../contexts/AuthContext', () => ({ useAuth: () => ({ user: { username: 'ana' } }) }));
 
 const rodada: Competition = {
