@@ -49,7 +49,7 @@ export function nomeDoCsv(nomeDaTurma: string): string {
     .replace(/º/g, 'o')
     .replace(/ª/g, 'a')
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');

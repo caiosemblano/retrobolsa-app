@@ -14,6 +14,7 @@ vi.mock('../../services/adminCompetitionService', () => ({
     close: vi.fn(),
   },
 }));
+vi.mock('../admin/Professores', () => ({ Professores: () => <h2>Professores</h2> }));
 // O formulário tem testes próprios; aqui basta saber como o painel o abre e reage.
 vi.mock('../admin/NovaRodadaForm', () => ({
   NovaRodadaForm: (p: { proximoNumero: number; onCriada: (n: number) => void; onCancelar: () => void }) => (

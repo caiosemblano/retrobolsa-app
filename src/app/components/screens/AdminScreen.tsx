@@ -5,6 +5,7 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Skeleton } from '../ui/skeleton';
 import { NovaRodadaForm } from '../admin/NovaRodadaForm';
+import { Professores } from '../admin/Professores';
 import { adminCompetitionService, AdminCompetition } from '../../services/adminCompetitionService';
 import { CirclePlay, Eye, FastForward, Plus, RotateCcw, Shield, Square, WandSparkles, Zap } from 'lucide-react';
 
@@ -198,6 +199,8 @@ export function AdminScreen() {
           <p className="text-muted-foreground">Nenhuma rodada cadastrada.</p>
         </Card>
       )}
+
+      <Professores />
     </div>
   );
 }
