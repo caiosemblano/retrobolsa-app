@@ -90,13 +90,14 @@ vi.mock('./components/screens/RegisterScreen', () => ({
 
 const mockedUseAuth = vi.mocked(useAuth);
 
-type Sessao = 'visitante' | 'jogador' | 'admin' | 'professor' | 'carregando';
+type Sessao = 'visitante' | 'jogador' | 'admin' | 'professor' | 'novato' | 'carregando';
 
 const autenticar = (sessao: Sessao) => {
   const user =
     sessao === 'jogador' ? { username: 'ana', email: 'ana@retrobolsa.com', role: 'PLAYER' }
     : sessao === 'admin' ? { username: 'root', email: 'root@retrobolsa.com', role: 'ADMIN' }
     : sessao === 'professor' ? { username: 'marta', email: 'marta@retrobolsa.com', role: 'TEACHER' }
+    : sessao === 'novato' ? { username: 'caio', email: 'caio@retrobolsa.com', role: 'PLAYER', onboarded: false }
     : null;
   mockedUseAuth.mockReturnValue({
     user,
@@ -105,6 +106,7 @@ const autenticar = (sessao: Sessao) => {
     login: vi.fn(),
     register: vi.fn(),
     logout: vi.fn(),
+    updateUser: vi.fn(),
   } as ReturnType<typeof useAuth>);
 };
 
@@ -283,6 +285,18 @@ describe('AppRoutes', () => {
     expect(titulo('Tela Professor')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Professor' })).toHaveAttribute('aria-current', 'page');
     expect(screen.queryByRole('link', { name: 'Admin' })).not.toBeInTheDocument();
+  });
+
+  it('no primeiro acesso aparece o passo a passo; depois, não', async () => {
+    autenticar('novato');
+    const { unmount } = abrir('/');
+    expect(await screen.findByRole('dialog', { name: 'Como funciona uma rodada' })).toBeInTheDocument();
+    unmount();
+
+    autenticar('jogador');
+    abrir('/');
+    expect(titulo('Tela Competir')).toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: 'Como funciona uma rodada' })).not.toBeInTheDocument();
   });
 
   it('mostra o carregamento enquanto verifica a sessão', () => {

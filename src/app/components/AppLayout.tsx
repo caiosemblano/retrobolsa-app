@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useProgress } from '../contexts/ProgressContext';
 import { progressoNoNivel } from '../services/progressService';
 import { SinoDeNotificacoes } from './SinoDeNotificacoes';
+import { PrimeiroAcesso } from './PrimeiroAcesso';
 import { rotas } from '../routes';
 
 /** Header, conteúdo e bottom nav das telas autenticadas. */
@@ -133,6 +134,8 @@ export function AppLayout() {
       >
         <Outlet />
       </main>
+
+      {user?.onboarded === false && !user.mustChangePassword && <PrimeiroAcesso />}
 
       {/* Bottom Navigation */}
       {shouldShowNav && (

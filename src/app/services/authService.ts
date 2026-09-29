@@ -26,6 +26,10 @@ export interface StoredUser {
   email: string;
   role?: string;
   username?: string;
+  /** Já viu o passo a passo do primeiro acesso (vem do perfil). */
+  onboarded?: boolean;
+  /** Entrou com a senha temporária do admin: o app obriga a trocar. */
+  mustChangePassword?: boolean;
 }
 
 // ── Service ─────────────────────────────────────────────────────────────────

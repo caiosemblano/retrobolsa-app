@@ -22,6 +22,7 @@ beforeEach(() => {
     login,
     register,
     logout: vi.fn(),
+    updateUser: vi.fn(),
   } as ReturnType<typeof useAuth>);
 });
 

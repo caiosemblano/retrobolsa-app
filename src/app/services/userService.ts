@@ -28,6 +28,8 @@ interface ApiProfile {
   }>;
   /** Catálogo completo, com as desbloqueadas marcadas. */
   achievements?: ApiAchievement[];
+  onboarded?: boolean;
+  mustChangePassword?: boolean;
 }
 
 /**
@@ -46,6 +48,8 @@ export const userService = {
         username: response.data.username,
         email: response.data.email,
         role: response.data.role,
+        onboarded: response.data.onboarded,
+        mustChangePassword: response.data.mustChangePassword,
         totalPoints: response.data.totalScore,
         bestRank: response.data.bestRank ?? 0,
         completedCompetitions: response.data.competitions,
@@ -71,4 +75,7 @@ export const userService = {
       } satisfies UserProfile,
     };
   },
+
+  /** O jogador terminou (ou pulou) o passo a passo do primeiro acesso. */
+  markOnboarded: () => api.post<void>('/api/users/me/onboarded'),
 };

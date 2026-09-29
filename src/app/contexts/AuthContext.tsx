@@ -28,6 +28,8 @@ interface AuthContextValue {
   register: (data: RegisterPayload) => Promise<void>;
   /** Faz logout e limpa o estado global. */
   logout: () => void;
+  /** Atualiza o usuário em memória (ex.: depois do primeiro acesso ou da troca de senha). */
+  updateUser: (changes: Partial<StoredUser>) => void;
 }
 
 // ── Criação do Contexto ──────────────────────────────────────────────────────
@@ -54,6 +56,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: data.email || storedUser!.email,
           role: data.role,
           username: data.username,
+          onboarded: data.onboarded,
+          mustChangePassword: data.mustChangePassword,
         }))
         .catch(() => setUser(storedUser))
         .finally(() => setIsLoading(false));
@@ -86,6 +90,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: stored.email,
           role: profile.data.role,
           username: profile.data.username,
+          onboarded: profile.data.onboarded,
+          mustChangePassword: profile.data.mustChangePassword,
         });
       } else {
         setUser(null);
@@ -109,6 +115,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   }, []);
 
+  const updateUser = useCallback((changes: Partial<StoredUser>) => {
+    setUser((atual) => (atual ? { ...atual, ...changes } : atual));
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -118,6 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         logout,
+        updateUser,
       }}
     >
       {children}

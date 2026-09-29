@@ -171,6 +171,10 @@ export interface UserProfile {
   username: string;
   email?: string;
   role?: string;
+  /** Já viu o passo a passo do primeiro acesso. */
+  onboarded?: boolean;
+  /** Está com a senha temporária do admin: precisa trocar antes de seguir. */
+  mustChangePassword?: boolean;
   avatar: string;
   totalPoints: number;
   bestRank: number;
