@@ -232,4 +232,15 @@ describe('LearnScreen', () => {
     expect(endereco()).toBe('/aprender/m1');
     expect(screen.queryByRole('heading', { name: 'O que é a Taxa Selic?' })).not.toBeInTheDocument();
   });
+  it('cada aula ganha um iframe novo, em vez de trocar o src do anterior (que sujaria o histórico)', async () => {
+    const user = await renderizar();
+    await abrirAula(user, /Matemática Financeira/, /O que é rentabilidade/);
+    const primeiro = screen.getByTitle(/Vídeo da aula/);
+
+    await user.click(screen.getByRole('button', { name: /Próxima aula/ }));
+
+    const segundo = screen.getByTitle(/Vídeo da aula/);
+    expect(segundo).not.toBe(primeiro);
+    expect(primeiro).not.toBeInTheDocument();
+  });
 });

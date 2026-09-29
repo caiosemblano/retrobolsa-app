@@ -47,7 +47,10 @@ export function LessonView({ article, position, total, saving, onBack, onComplet
 
       {videoUrl ? (
         <AspectRatio ratio={16 / 9} className="overflow-hidden rounded-2xl border border-border bg-muted">
+          {/* key: um iframe novo por vídeo. Trocar o src do mesmo iframe cria uma entrada
+              extra no histórico, e o voltar do celular parecia não funcionar. */}
           <iframe
+            key={videoUrl}
             src={videoUrl}
             title={`Vídeo da aula: ${article.title}`}
             className="size-full"
