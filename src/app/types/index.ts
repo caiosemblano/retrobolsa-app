@@ -134,6 +134,10 @@ export interface Lesson {
   title: string;
   duration: string;
   completed: boolean;
+  /** Perguntas do quiz da aula (ausente se não há quiz). */
+  quizTotal?: number;
+  /** Melhor nota no quiz; ausente se nunca tentou. */
+  quizBestScore?: number | null;
 }
 
 /** Raridade das conquistas, como a API envia (sem acento). */

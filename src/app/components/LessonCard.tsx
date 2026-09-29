@@ -1,5 +1,5 @@
 import { Lesson } from '../types';
-import { CheckCircle, Circle, Clock, Play } from 'lucide-react';
+import { CheckCircle, Circle, Clock, ListChecks, Play } from 'lucide-react';
 
 interface LessonCardProps {
   lesson: Lesson;
@@ -34,6 +34,17 @@ export function LessonCard({ lesson, onClick }: LessonCardProps) {
           <div className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
             <Clock className="size-3.5 shrink-0" aria-hidden="true" />
             <span className="tabular">{lesson.duration}</span>
+            {lesson.quizTotal ? (
+              <>
+                <span aria-hidden="true">·</span>
+                <ListChecks className="size-3.5 shrink-0" aria-hidden="true" />
+                <span className="tabular">
+                  {lesson.quizBestScore != null
+                    ? `Quiz: ${lesson.quizBestScore} de ${lesson.quizTotal}`
+                    : `Quiz com ${lesson.quizTotal} ${lesson.quizTotal === 1 ? 'pergunta' : 'perguntas'}`}
+                </span>
+              </>
+            ) : null}
           </div>
         </div>
 

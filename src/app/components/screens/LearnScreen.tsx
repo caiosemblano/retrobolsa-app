@@ -156,6 +156,8 @@ export function LearnScreen() {
                 title: article.title,
                 duration: `${article.durationMin} min`,
                 completed: article.completed,
+                quizTotal: article.hasQuiz ? article.quizTotal : undefined,
+                quizBestScore: article.bestQuizScore,
               }}
               onClick={() => navigate(rotas.aula(article.moduleId, article.id))}
             />

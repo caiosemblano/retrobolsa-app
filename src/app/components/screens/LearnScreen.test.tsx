@@ -264,6 +264,9 @@ describe('LearnScreen', () => {
     expect(mockedComplete).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole('button', { name: /Voltar para Matemática Financeira/ }));
+    // O card da aula mostra a nota; o da aula sem quiz, nada.
+    expect(screen.getByRole('button', { name: /O que é rentabilidade/ })).toHaveTextContent('Quiz: 1 de 1');
+    expect(screen.getByRole('button', { name: /Juros simples/ })).not.toHaveTextContent('Quiz');
     await user.click(screen.getByRole('button', { name: /Voltar para módulos/ }));
     expect(screen.getByText('1 de 2 aulas')).toBeInTheDocument();
   });
