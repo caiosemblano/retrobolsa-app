@@ -45,8 +45,9 @@ export function AppLayout() {
     refresh();
   }, [location.pathname, navigationType, refresh]);
 
-  // O fluxo da rodada (contexto → carteira → espera → resultado) tem seus próprios botões de voltar.
-  const shouldShowNav = !location.pathname.startsWith('/rodada');
+  // O fluxo da rodada (contexto → carteira → espera → resultado) e o treino numa rodada
+  // têm seus próprios botões de voltar, e a barra fixa de confirmação ficaria atrás da nav.
+  const shouldShowNav = !location.pathname.startsWith('/rodada') && !location.pathname.startsWith('/treinar/');
 
   const navItems: { to: string; label: string; icon: typeof Home }[] = [
     { to: rotas.inicio, label: 'Competir', icon: Home },

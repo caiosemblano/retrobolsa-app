@@ -18,10 +18,27 @@ vi.mock('./services/progressService', () => ({
 
 // As telas viram botões simples: aqui o que se testa é a navegação entre elas.
 vi.mock('./components/screens/HomeScreen', () => ({
-  HomeScreen: (p: { onStartCompetition: () => void }) => (
+  HomeScreen: (p: { onStartCompetition: () => void; onTrain: () => void }) => (
     <div>
       <h2>Tela Competir</h2>
       <button onClick={p.onStartCompetition}>Começar rodada</button>
+      <button onClick={p.onTrain}>Treinar</button>
+    </div>
+  ),
+}));
+vi.mock('./components/screens/TreinarScreen', () => ({
+  TreinarScreen: (p: { onEscolher: (id: string) => void }) => (
+    <div>
+      <h2>Tela Treinar</h2>
+      <button onClick={() => p.onEscolher('r7')}>Treinar a rodada 7</button>
+    </div>
+  ),
+}));
+vi.mock('./components/screens/TreinoScreen', () => ({
+  TreinoScreen: (p: { rodadaId: string; onVoltar: () => void }) => (
+    <div>
+      <h2>Tela Treino {p.rodadaId}</h2>
+      <button onClick={p.onVoltar}>Outras rodadas</button>
     </div>
   ),
 }));
@@ -200,6 +217,25 @@ describe('AppRoutes', () => {
     expect(titulo('Tela Contexto')).toBeInTheDocument();
     await act(async () => router.navigate(-1));
     expect(titulo('Tela Competir')).toBeInTheDocument();
+  });
+
+  it('o treino tem endereço próprio: da tela inicial para a lista e da lista para a rodada escolhida', async () => {
+    autenticar('jogador');
+    const user = userEvent.setup();
+    const { router } = abrir('/');
+
+    await user.click(screen.getByRole('button', { name: 'Treinar' }));
+    expect(router.state.location.pathname).toBe('/treinar');
+    expect(screen.getByRole('navigation', { name: 'Navegação principal' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Treinar a rodada 7' }));
+    expect(router.state.location.pathname).toBe('/treinar/r7');
+    expect(titulo('Tela Treino r7')).toBeInTheDocument();
+    // A montagem tem a própria barra de confirmação fixa: a bottom nav sai do caminho.
+    expect(screen.queryByRole('navigation', { name: 'Navegação principal' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Outras rodadas' }));
+    expect(titulo('Tela Treinar')).toBeInTheDocument();
   });
 
   it('a bottom nav troca de tela, marca a atual e some no fluxo da rodada', async () => {

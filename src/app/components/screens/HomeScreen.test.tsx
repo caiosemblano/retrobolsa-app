@@ -29,7 +29,7 @@ const renderizar = async (dados: Result) => {
   vi.mocked(rankingService.get).mockResolvedValue({ data: [] } as never);
   render(
     <MemoryRouter>
-      <HomeScreen onStartCompetition={vi.fn()} onViewResults={vi.fn()} onViewSimulationStatus={vi.fn()} />
+      <HomeScreen onStartCompetition={vi.fn()} onViewResults={vi.fn()} onViewSimulationStatus={vi.fn()} onTrain={vi.fn()} />
     </MemoryRouter>,
   );
   await screen.findByRole('heading', { name: 'Seu último resultado' });

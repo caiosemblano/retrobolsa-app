@@ -1,4 +1,4 @@
-import { Navigate, Outlet, Route, Routes, useLocation, useNavigate, type Location } from 'react-router';
+import { Navigate, Outlet, Route, Routes, useLocation, useNavigate, useParams, type Location } from 'react-router';
 import { HomeScreen } from './components/screens/HomeScreen';
 import { LearnScreen } from './components/screens/LearnScreen';
 import { RankingsScreen } from './components/screens/RankingsScreen';
@@ -10,6 +10,8 @@ import { ResultsScreen } from './components/screens/ResultsScreen';
 import { LoginScreen } from './components/screens/LoginScreen';
 import { RegisterScreen } from './components/screens/RegisterScreen';
 import { AdminScreen } from './components/screens/AdminScreen';
+import { TreinarScreen } from './components/screens/TreinarScreen';
+import { TreinoScreen } from './components/screens/TreinoScreen';
 import { AppLayout } from './components/AppLayout';
 import { useAuth } from './contexts/AuthContext';
 import { ProgressProvider } from './contexts/ProgressContext';
@@ -73,8 +75,21 @@ function HomeRoute() {
       onStartCompetition={() => navigate(rotas.contexto)}
       onViewResults={() => navigate(rotas.resultado)}
       onViewSimulationStatus={() => navigate(rotas.aguardando)}
+      onTrain={() => navigate(rotas.treinar)}
     />
   );
+}
+
+function TreinarRoute() {
+  const navigate = useNavigate();
+  return <TreinarScreen onEscolher={(id) => navigate(rotas.treino(id))} onBack={() => navigate(rotas.inicio)} />;
+}
+
+function TreinoRoute() {
+  const navigate = useNavigate();
+  const { rodadaId = '' } = useParams();
+  // key: trocar de rodada começa um treino do zero.
+  return <TreinoScreen key={rodadaId} rodadaId={rodadaId} onVoltar={() => navigate(rotas.treinar)} />;
 }
 
 function ContextRoute() {
@@ -160,6 +175,8 @@ export function AppRoutes() {
           <Route path={rotas.carteira} element={<PortfolioRoute />} />
           <Route path={rotas.aguardando} element={<SimulationRoute />} />
           <Route path={rotas.resultado} element={<ResultsRoute />} />
+          <Route path={rotas.treinar} element={<TreinarRoute />} />
+          <Route path="treinar/:rodadaId" element={<TreinoRoute />} />
         </Route>
       </Route>
 

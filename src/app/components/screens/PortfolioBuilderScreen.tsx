@@ -2,34 +2,90 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { AssetCard } from '../AssetCard';
 import { ResumoCarteira } from '../ResumoCarteira';
+import { formatarIndicador } from '../EconomicIndicatorCard';
 import { Button } from '../ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Slider } from '../ui/slider';
 import { Card } from '../ui/card';
 import { Skeleton } from '../ui/skeleton';
-import { Wallet, AlertCircle, ArrowLeft, X } from 'lucide-react';
+import { Wallet, AlertCircle, ArrowLeft, X, Dumbbell, PencilLine } from 'lucide-react';
 import { competitionService } from '../../services/competitionService';
 import { portfolioService } from '../../services/portfolioService';
-import { Asset, Competition, Portfolio } from '../../types';
+import { practiceService } from '../../services/practiceService';
+import { anosSimulados } from '../ResultadoDetalhado';
+import { Asset, Competition, Portfolio, Result } from '../../types';
 
-interface PortfolioBuilderScreenProps { onConfirm: () => void; onBack: () => void; }
+interface PortfolioBuilderScreenProps {
+  onBack: () => void;
+  /** Rodada de verdade: chamado depois de enviar a carteira ou salvar a edição. */
+  onConfirm?: () => void;
+  /** "treino" monta a carteira numa rodada já revelada: não vale ranking e o resultado sai na hora. */
+  modo?: 'rodada' | 'treino';
+  /** Treino: a rodada a remontar. */
+  competitionId?: string;
+  /** Treino: a carteira para começar (ao treinar de novo a mesma rodada). */
+  carteiraInicial?: Portfolio;
+  /** Treino: o resultado simulado e a carteira que o gerou. */
+  onResultado?: (resultado: Result, carteira: Portfolio) => void;
+}
 
-const errorMessage = (error: any) =>
-  error?.response?.data?.erro || error?.response?.data?.message || 'Não foi possível enviar a carteira.';
+const errorMessage = (error: any, padrao = 'Não foi possível enviar a carteira.') =>
+  error?.response?.data?.erro || error?.response?.data?.message || padrao;
 
-export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderScreenProps) {
+export function PortfolioBuilderScreen({
+  onConfirm,
+  onBack,
+  modo = 'rodada',
+  competitionId,
+  carteiraInicial,
+  onResultado,
+}: PortfolioBuilderScreenProps) {
+  const treino = modo === 'treino';
   const [competition, setCompetition] = useState<Competition | null>(null);
   const [portfolio, setPortfolio] = useState<Portfolio>({});
+  /** Já existe carteira enviada nesta rodada: o envio vira edição (PUT). */
+  const [editando, setEditando] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [allocationAmount, setAllocationAmount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    competitionService.getActive().then((response) => setCompetition(response.data)).catch((error) => toast.error(errorMessage(error))).finally(() => setLoading(false));
-  }, []);
+    let cancelado = false;
+    const carregar = async () => {
+      try {
+        if (treino) {
+          const response = await practiceService.round(competitionId ?? '');
+          if (cancelado) return;
+          setCompetition(response.data);
+          if (carteiraInicial) setPortfolio(carteiraInicial);
+        } else {
+          const [rodada, atual] = await Promise.all([
+            competitionService.getActive(),
+            // Sem a carteira atual, a tela ainda serve para enviar a primeira.
+            portfolioService.getCurrent().catch(() => null),
+          ]);
+          if (cancelado) return;
+          setCompetition(rodada.data);
+          if (atual && atual.competitionId === rodada.data.id) {
+            setPortfolio(atual.portfolio);
+            setEditando(true);
+          }
+        }
+      } catch (error) {
+        if (!cancelado) toast.error(errorMessage(error, 'Não foi possível carregar a rodada.'));
+      } finally {
+        if (!cancelado) setLoading(false);
+      }
+    };
+    carregar();
+    return () => {
+      cancelado = true;
+    };
+    // A carteira inicial só vale na primeira carga.
+  }, [treino, competitionId]);
 
   if (loading) {
     return (
@@ -54,6 +110,7 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
   const remaining = totalBudget - allocatedTotal;
   const allocationPercentage = Math.min((allocatedTotal / totalBudget) * 100, 100);
   const canConfirm = allocatedTotal > 0;
+  const titulo = treino ? 'Monte sua carteira de treino' : editando ? 'Edite sua carteira' : 'Monte sua carteira';
 
   const handleAllocate = () => {
     if (!selectedAsset || allocationAmount <= 0) return;
@@ -70,15 +127,21 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      const response = await portfolioService.submit({
+      if (treino) {
+        const response = await practiceService.practice(competition.id, portfolio);
+        onResultado?.(response.data, portfolio);
+        return;
+      }
+      const payload = {
         competitionId: competition.id,
         allocations: Object.entries(portfolio).map(([assetId, amount]) => ({ assetId, amount })),
-      });
+      };
+      const response = editando ? await portfolioService.update(payload) : await portfolioService.submit(payload);
       response.data.warnings?.forEach((warning) => toast.warning(warning));
       toast.success(response.data.message || 'Carteira submetida com sucesso.');
-      onConfirm();
+      onConfirm?.();
     } catch (error) {
-      toast.error(errorMessage(error));
+      toast.error(errorMessage(error, treino ? 'Não foi possível simular o treino.' : undefined));
     } finally {
       setSubmitting(false);
     }
@@ -98,7 +161,7 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
               <ArrowLeft className="size-4" aria-hidden="true" />
               Voltar
             </Button>
-            <h1 className="font-display text-sm font-semibold">Monte sua carteira</h1>
+            <h1 className="font-display text-sm font-semibold">{titulo}</h1>
           </div>
 
           <Card className="gap-3 border-primary/30 p-4">
@@ -136,6 +199,44 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
       </div>
 
       <div className="mx-auto mb-6 max-w-4xl px-4 pt-6">
+        {treino && (
+          <Card className="mb-6 gap-3 border-info/30 p-5">
+            <div className="flex items-center gap-2 text-info">
+              <Dumbbell className="size-5" aria-hidden="true" />
+              <span className="text-xs font-semibold uppercase tracking-wide">
+                Treino · Rodada {competition.round}
+                {competition.startYear && competition.endYear
+                  ? ` · ${anosSimulados(`${competition.startYear}-${competition.endYear}`)}`
+                  : ''}
+              </span>
+            </div>
+            <h2 className="font-display text-lg leading-tight">{competition.economicContext.title}</h2>
+            {competition.scenarioDescription && (
+              <p className="max-w-prose text-sm text-muted-foreground">{competition.scenarioDescription}</p>
+            )}
+            {competition.economicContext.indicators.length > 0 && (
+              <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm" aria-label="Indicadores do ano anterior">
+                {competition.economicContext.indicators.map((indicador) => (
+                  <li key={indicador.code}>
+                    <span className="text-muted-foreground">{indicador.label}:</span>{' '}
+                    <span className="tabular font-semibold">{formatarIndicador(indicador)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Os nomes aparecem no resultado. O treino não vale para o ranking e pode ser repetido quantas vezes você quiser.
+            </p>
+          </Card>
+        )}
+        {editando && (
+          <Card className="mb-6 flex-row items-start gap-3 border-gold/30 p-4">
+            <PencilLine className="mt-0.5 size-5 shrink-0 text-gold" aria-hidden="true" />
+            <p className="text-sm">
+              Você já enviou uma carteira nesta rodada. Pode mudar o que quiser até o mercado fechar.
+            </p>
+          </Card>
+        )}
         <div className="mb-6 empty:hidden">
           <ResumoCarteira assets={competition.assets} portfolio={portfolio} budget={totalBudget} />
         </div>
@@ -188,12 +289,16 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
                   aria-hidden="true"
                   className="size-4 animate-spin rounded-full border-2 border-current/30 border-t-current"
                 />
-                Enviando...
+                {treino ? 'Simulando...' : 'Enviando...'}
               </>
             ) : (
               <>
-                <Wallet className="size-5" aria-hidden="true" />
-                Confirmar carteira
+                {treino ? (
+                  <Dumbbell className="size-5" aria-hidden="true" />
+                ) : (
+                  <Wallet className="size-5" aria-hidden="true" />
+                )}
+                {treino ? 'Ver resultado do treino' : editando ? 'Salvar alterações' : 'Confirmar carteira'}
               </>
             )}
           </Button>
@@ -204,6 +309,7 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="font-display">Alocar em {selectedAsset?.anonymousName}</DialogTitle>
+            <DialogDescription>Quanto do orçamento colocar neste ativo.</DialogDescription>
           </DialogHeader>
           <div className="py-2">
             <Label htmlFor="allocation-amount" className="mb-2 block">

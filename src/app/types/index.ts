@@ -111,6 +111,20 @@ export interface Result {
   tips: Tip[];
 }
 
+/** Uma rodada já revelada, disponível para treino. */
+export interface PracticeRound {
+  id: string;
+  round: number;
+  scenarioTitle?: string;
+  startYear: number;
+  endYear: number;
+  assetCount: number;
+  /** Quantas vezes o jogador já treinou nela. */
+  runs: number;
+  /** A melhor rentabilidade dos treinos dele aqui, em %. */
+  bestReturn?: number;
+}
+
 export interface RankingEntry {
   rank: number;
   username: string;

@@ -4,7 +4,7 @@ import { RankingItem } from '../RankingItem';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
-import { TrendingUp, TrendingDown, Target, Trophy, Wallet, Inbox } from 'lucide-react';
+import { TrendingUp, TrendingDown, Target, Trophy, Wallet, Inbox, Dumbbell, ChevronRight } from 'lucide-react';
 import { competitionService } from '../../services/competitionService';
 import { portfolioService } from '../../services/portfolioService';
 import { rankingService } from '../../services/rankingService';
@@ -19,9 +19,11 @@ interface HomeScreenProps {
   onStartCompetition: () => void;
   onViewResults: () => void;
   onViewSimulationStatus: () => void;
+  /** Abre o modo treino, com as rodadas que já acabaram. */
+  onTrain: () => void;
 }
 
-export function HomeScreen({ onStartCompetition, onViewResults, onViewSimulationStatus }: HomeScreenProps) {
+export function HomeScreen({ onStartCompetition, onViewResults, onViewSimulationStatus, onTrain }: HomeScreenProps) {
   const [competition, setCompetition] = useState<Competition | null>(null);
   const [result, setResult] = useState<Result | null>(null);
   const [ranking, setRanking] = useState<RankingEntry[]>([]);
@@ -85,6 +87,29 @@ export function HomeScreen({ onStartCompetition, onViewResults, onViewSimulation
             : onStartCompetition
         }
       />
+
+      <button
+        type="button"
+        onClick={onTrain}
+        className="group flex w-full cursor-pointer items-center gap-4 rounded-2xl border border-info/30 bg-card p-4 text-left transition-colors duration-200 hover:border-info/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      >
+        <span
+          aria-hidden="true"
+          className="grid size-11 shrink-0 place-items-center rounded-xl border border-info/30 bg-info-soft text-info"
+        >
+          <Dumbbell className="size-5" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-display font-semibold">Treinar com rodadas passadas</span>
+          <span className="block text-sm text-muted-foreground">
+            Remonte a carteira de uma rodada que já acabou e veja o resultado na hora.
+          </span>
+        </span>
+        <ChevronRight
+          className="size-5 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none"
+          aria-hidden="true"
+        />
+      </button>
 
       {result ? (
         <section>

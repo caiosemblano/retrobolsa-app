@@ -1,5 +1,5 @@
 import api from './api';
-import { ChartPoint, Result } from '../types';
+import { ChartPoint, Portfolio, Result } from '../types';
 
 export interface SubmitPortfolioPayload {
   competitionId: string;
@@ -89,9 +89,36 @@ export function mapResult(data: ApiResult): Result {
   };
 }
 
+/** A carteira enviada na rodada aberta, como a API devolve. */
+interface ApiCurrentPortfolio {
+  competitionId: string;
+  allocations: Array<{ assetId: string; amount: number | string }>;
+}
+
+export interface CurrentPortfolio {
+  competitionId: string;
+  portfolio: Portfolio;
+}
+
 export const portfolioService = {
   submit: (payload: SubmitPortfolioPayload) =>
     api.post<{ message: string; warnings?: string[] }>('/api/portfolios', payload),
+
+  /** Troca as alocações da carteira já enviada, enquanto a rodada está aberta. */
+  update: (payload: SubmitPortfolioPayload) =>
+    api.put<{ message: string; warnings?: string[] }>('/api/portfolios', payload),
+
+  /** A carteira enviada na rodada aberta; null se não há rodada aberta ou se ainda não enviou (204). */
+  getCurrent: async (): Promise<CurrentPortfolio | null> => {
+    const response = await api.get<ApiCurrentPortfolio | ''>('/api/portfolios/current');
+    if (response.status === 204 || !response.data) return null;
+    return {
+      competitionId: response.data.competitionId,
+      portfolio: Object.fromEntries(
+        response.data.allocations.map((allocation) => [allocation.assetId, Number(allocation.amount)]),
+      ),
+    };
+  },
 
   getLastResult: async () => {
     const response = await api.get<ApiResult>('/api/portfolios/my-last-result');

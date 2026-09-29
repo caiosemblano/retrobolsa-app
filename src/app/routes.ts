@@ -5,6 +5,8 @@ export const rotas = {
   carteira: '/rodada/carteira',
   aguardando: '/rodada/aguardando',
   resultado: '/rodada/resultado',
+  treinar: '/treinar',
+  treino: (rodadaId: string) => `/treinar/${rodadaId}`,
   aprender: '/aprender',
   modulo: (moduloId: string) => `/aprender/${moduloId}`,
   aula: (moduloId: string, aulaId: string) => `/aprender/${moduloId}/${aulaId}`,
