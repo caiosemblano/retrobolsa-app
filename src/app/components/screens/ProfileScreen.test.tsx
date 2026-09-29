@@ -8,6 +8,7 @@ import { Achievement, UserProfile } from '../../types';
 vi.mock('../../services/userService', () => ({
   userService: { getProfile: vi.fn() },
 }));
+vi.mock('../SuaConta', () => ({ SuaConta: () => null }));
 // "Minhas turmas" tem testes próprios; aqui só não pode ir à rede.
 vi.mock('../../services/classroomService', () => ({
   classroomService: { mine: vi.fn().mockResolvedValue({ data: [] }) },

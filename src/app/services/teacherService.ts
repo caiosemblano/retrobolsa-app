@@ -1,4 +1,5 @@
 import api from './api';
+import { baixarArquivo } from '../utils/download';
 
 /** Uma turma como o professor a vê, com o código para projetar em sala. */
 export interface TurmaDoProfessor {
@@ -100,14 +101,7 @@ export const teacherService = {
   downloadCsv: async (id: string, nomePadrao = 'alunos.csv') => {
     const response = await api.get<Blob>(`${base}/${id}/students.csv`, { responseType: 'blob' });
     const nome = nomeDoArquivo(response.headers?.['content-disposition'] as string | undefined, nomePadrao);
-    const url = URL.createObjectURL(response.data);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = nome;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
+    baixarArquivo(response.data, nome);
     return nome;
   },
 };

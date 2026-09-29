@@ -1,4 +1,5 @@
 import api from './api';
+import { baixarArquivo } from '../utils/download';
 import { AchievementRarity, UserProfile } from '../types';
 
 interface ApiAchievement {
@@ -81,4 +82,13 @@ export const userService = {
 
   changePassword: (senhaAtual: string, novaSenha: string, confirmarSenha: string) =>
     api.post<void>('/api/users/me/password', { senhaAtual, novaSenha, confirmarSenha }),
+
+  /** LGPD: baixa o JSON com tudo o que o RetroBolsa guarda sobre a pessoa. */
+  downloadMyData: async () => {
+    const response = await api.get<Blob>('/api/users/me/export', { responseType: 'blob' });
+    baixarArquivo(response.data, 'meus-dados-retrobolsa.json');
+  },
+
+  /** LGPD: exclui a conta e tudo o que é dela, depois de conferir a senha. */
+  deleteAccount: (senha: string) => api.delete<void>('/api/users/me', { data: { senha } }),
 };
