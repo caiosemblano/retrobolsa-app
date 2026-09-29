@@ -9,3 +9,12 @@ globalThis.ResizeObserver ??= class {
   unobserve() {}
   disconnect() {}
 };
+
+// O floating-ui (posição de popovers do Radix) testa `el.matches(':modal')` a cada
+// cálculo, e no jsdom esse seletor leva ~400 ms: abrir um popover levava 15 s.
+// O jsdom não tem "top layer", então a resposta é sempre false.
+const matchesOriginal = Element.prototype.matches;
+Element.prototype.matches = function (this: Element, seletor: string) {
+  if (seletor === ':modal' || seletor === ':popover-open') return false;
+  return matchesOriginal.call(this, seletor);
+};
