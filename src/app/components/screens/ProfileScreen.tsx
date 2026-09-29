@@ -8,6 +8,7 @@ import { userService } from '../../services/userService';
 import { UserProfile } from '../../types';
 import { AchievementBadge } from '../AchievementBadge';
 import { NivelCard } from '../NivelCard';
+import { MinhasTurmas } from '../MinhasTurmas';
 import { formatarData } from '../../utils/date';
 
 export function ProfileScreen() {
@@ -89,6 +90,8 @@ export function ProfileScreen() {
       </Card>
 
       <NivelCard />
+
+      <MinhasTurmas />
 
       {/* Histórico de rodadas */}
       <section>
