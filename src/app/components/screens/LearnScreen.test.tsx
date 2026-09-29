@@ -1,7 +1,8 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { toast } from 'sonner';
+import { MemoryRouter, Route, Routes, useLocation, useNavigate, type NavigateFunction } from 'react-router';
 import { LearnScreen } from './LearnScreen';
 import { articleService, ArticleDetail } from '../../services/articleService';
 
@@ -52,11 +53,31 @@ const catalogo = (): ArticleDetail[] => [
   }),
 ];
 
-const renderizar = async (aulas = catalogo()) => {
+// Mostra o endereço atual e expõe o navigate, como o botão voltar do navegador.
+let navegar: NavigateFunction;
+function Endereco() {
+  navegar = useNavigate();
+  return <output aria-label="endereço">{useLocation().pathname}</output>;
+}
+
+const montar = (caminho = '/aprender') =>
+  render(
+    <MemoryRouter initialEntries={[caminho]}>
+      <Routes>
+        <Route path="/aprender/:moduloId?/:aulaId?" element={<LearnScreen />} />
+      </Routes>
+      <Endereco />
+    </MemoryRouter>,
+  );
+
+const endereco = () => screen.getByRole('status', { name: 'endereço' }).textContent;
+
+const renderizar = async (aulas = catalogo(), caminho = '/aprender') => {
   mockedGetAll.mockResolvedValue({ data: aulas } as never);
   const user = userEvent.setup();
-  render(<LearnScreen />);
-  await screen.findByText('Matemática Financeira');
+  montar(caminho);
+  // Enquanto carrega só há skeletons; o primeiro título indica que a tela montou.
+  await screen.findAllByRole('heading');
   return user;
 };
 
@@ -158,9 +179,57 @@ describe('LearnScreen', () => {
   it('avisa quando as aulas não carregam', async () => {
     mockedGetAll.mockRejectedValue(new Error('falhou'));
 
-    render(<LearnScreen />);
+    montar();
 
     expect(await screen.findByText('Nenhuma aula disponível.')).toBeInTheDocument();
     expect(toast.error).toHaveBeenCalledWith('Não foi possível carregar as aulas.');
+  });
+  it('cada aula tem seu endereço, e o link direto abre a aula sem passar pela lista', async () => {
+    await renderizar(catalogo(), '/aprender/m1/a2');
+
+    expect(screen.getByRole('heading', { name: 'Juros simples vs. compostos' })).toBeInTheDocument();
+    expect(screen.getByText('Aula 2 de 2')).toBeInTheDocument();
+  });
+
+  it('abrir módulo, aula e próxima aula atualiza o endereço', async () => {
+    const user = await renderizar();
+
+    await user.click(screen.getByRole('button', { name: /Matemática Financeira/ }));
+    expect(endereco()).toBe('/aprender/m1');
+    await user.click(screen.getByRole('button', { name: /O que é rentabilidade/ }));
+    expect(endereco()).toBe('/aprender/m1/a1');
+    await user.click(screen.getByRole('button', { name: /Próxima aula/ }));
+    expect(endereco()).toBe('/aprender/m1/a2');
+  });
+
+  it('o voltar do histórico volta de aula em aula sem recarregar o catálogo', async () => {
+    const user = await renderizar();
+    await abrirAula(user, /Matemática Financeira/, /O que é rentabilidade/);
+    await user.click(screen.getByRole('button', { name: /Próxima aula/ }));
+
+    await act(async () => navegar(-1));
+    expect(screen.getByRole('heading', { name: 'O que é rentabilidade?' })).toBeInTheDocument();
+    await act(async () => navegar(-1));
+    expect(screen.getByRole('button', { name: /Juros simples vs. compostos/ })).toBeInTheDocument();
+    expect(endereco()).toBe('/aprender/m1');
+    expect(mockedGetAll).toHaveBeenCalledTimes(1);
+  });
+
+  it('link de aula que não existe cai no módulo', async () => {
+    await renderizar(catalogo(), '/aprender/m1/nao-existe');
+    expect(endereco()).toBe('/aprender/m1');
+    expect(screen.getByRole('button', { name: /O que é rentabilidade/ })).toBeInTheDocument();
+  });
+
+  it('link de módulo que não existe volta para a lista de módulos', async () => {
+    await renderizar(catalogo(), '/aprender/nao-existe');
+    expect(endereco()).toBe('/aprender');
+    expect(screen.getByText('0 de 2 aulas')).toBeInTheDocument();
+  });
+
+  it('aula aberta pelo módulo errado no endereço não é exibida fora do seu módulo', async () => {
+    await renderizar(catalogo(), '/aprender/m1/a3');
+    expect(endereco()).toBe('/aprender/m1');
+    expect(screen.queryByRole('heading', { name: 'O que é a Taxa Selic?' })).not.toBeInTheDocument();
   });
 });
