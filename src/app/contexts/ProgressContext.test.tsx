@@ -82,6 +82,16 @@ describe('ProgressProvider', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
+  it('fechar pelo X (rótulo em português) também marca como visto', async () => {
+    mocked.news.mockResolvedValue({ data: novidades } as never);
+    const user = userEvent.setup();
+    renderizar();
+
+    await user.click(await screen.findByRole('button', { name: 'Fechar' }));
+
+    expect(mocked.acknowledge).toHaveBeenCalledWith(['e1', 'e2', 'e3']);
+  });
+
   it('sem novidades, não abre nada', async () => {
     renderizar();
     await screen.findByRole('heading', { name: 'Nível 2: Aprendiz' });
