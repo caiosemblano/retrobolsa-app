@@ -64,6 +64,7 @@ vi.mock('./components/screens/LearnScreen', () => ({ LearnScreen: () => <h2>Tela
 vi.mock('./components/screens/RankingsScreen', () => ({ RankingsScreen: () => <h2>Tela Rankings</h2> }));
 vi.mock('./components/screens/ProfileScreen', () => ({ ProfileScreen: () => <h2>Tela Perfil</h2> }));
 vi.mock('./components/screens/AdminScreen', () => ({ AdminScreen: () => <h2>Tela Admin</h2> }));
+vi.mock('./components/screens/ProfessorScreen', () => ({ ProfessorScreen: () => <h2>Tela Professor</h2> }));
 vi.mock('./components/screens/LoginScreen', () => ({
   LoginScreen: (p: { onGoToRegister: () => void }) => (
     <div>
@@ -83,12 +84,13 @@ vi.mock('./components/screens/RegisterScreen', () => ({
 
 const mockedUseAuth = vi.mocked(useAuth);
 
-type Sessao = 'visitante' | 'jogador' | 'admin' | 'carregando';
+type Sessao = 'visitante' | 'jogador' | 'admin' | 'professor' | 'carregando';
 
 const autenticar = (sessao: Sessao) => {
   const user =
     sessao === 'jogador' ? { username: 'ana', email: 'ana@retrobolsa.com', role: 'PLAYER' }
     : sessao === 'admin' ? { username: 'root', email: 'root@retrobolsa.com', role: 'ADMIN' }
+    : sessao === 'professor' ? { username: 'marta', email: 'marta@retrobolsa.com', role: 'TEACHER' }
     : null;
   mockedUseAuth.mockReturnValue({
     user,
@@ -261,6 +263,20 @@ describe('AppRoutes', () => {
     const chip = await screen.findByRole('link', { name: 'Nível 1, Curioso: 0 XP. Ver perfil' });
     await user.click(chip);
     expect(titulo('Tela Perfil')).toBeInTheDocument();
+  });
+
+  it('a área do professor é só do professor, que a encontra na bottom nav', () => {
+    autenticar('jogador');
+    let tela = abrir('/professor/t1');
+    expect(titulo('Tela Competir')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Professor' })).not.toBeInTheDocument();
+    tela.unmount();
+
+    autenticar('professor');
+    tela = abrir('/professor/t1');
+    expect(titulo('Tela Professor')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Professor' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.queryByRole('link', { name: 'Admin' })).not.toBeInTheDocument();
   });
 
   it('mostra o carregamento enquanto verifica a sessão', () => {

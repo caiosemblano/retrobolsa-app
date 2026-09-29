@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigationType } from 'react-router';
-import { Home, GraduationCap, Trophy, User, LogOut, Shield, CandlestickChart } from 'lucide-react';
+import { Home, GraduationCap, Trophy, User, LogOut, Shield, CandlestickChart, Presentation } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useProgress } from '../contexts/ProgressContext';
 import { progressoNoNivel } from '../services/progressService';
@@ -55,6 +55,7 @@ export function AppLayout() {
     { to: rotas.rankings, label: 'Rankings', icon: Trophy },
     { to: rotas.perfil, label: 'Perfil', icon: User },
     ...(user?.role === 'ADMIN' ? [{ to: rotas.admin, label: 'Admin', icon: Shield }] : []),
+    ...(user?.role === 'TEACHER' ? [{ to: rotas.professor, label: 'Professor', icon: Presentation }] : []),
   ];
 
   return (

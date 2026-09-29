@@ -13,6 +13,8 @@ export const rotas = {
   rankings: '/rankings',
   perfil: '/perfil',
   admin: '/admin',
+  professor: '/professor',
+  turma: (turmaId: string) => `/professor/${turmaId}`,
   entrar: '/entrar',
   cadastro: '/cadastro',
 } as const;

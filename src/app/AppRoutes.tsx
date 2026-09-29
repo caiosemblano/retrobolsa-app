@@ -11,6 +11,7 @@ import { LoginScreen } from './components/screens/LoginScreen';
 import { RegisterScreen } from './components/screens/RegisterScreen';
 import { AdminScreen } from './components/screens/AdminScreen';
 import { TreinarScreen } from './components/screens/TreinarScreen';
+import { ProfessorScreen } from './components/screens/ProfessorScreen';
 import { TreinoScreen } from './components/screens/TreinoScreen';
 import { AppLayout } from './components/AppLayout';
 import { useAuth } from './contexts/AuthContext';
@@ -39,6 +40,11 @@ function RequireAuth() {
 function RequireAdmin() {
   const { user } = useAuth();
   return user?.role === 'ADMIN' ? <Outlet /> : <Navigate to={rotas.inicio} replace />;
+}
+
+function RequireTeacher() {
+  const { user } = useAuth();
+  return user?.role === 'TEACHER' ? <Outlet /> : <Navigate to={rotas.inicio} replace />;
 }
 
 /** Login e cadastro: quem já está logado segue para onde queria ir. */
@@ -171,6 +177,9 @@ export function AppRoutes() {
           <Route path={rotas.perfil} element={<ProfileScreen />} />
           <Route element={<RequireAdmin />}>
             <Route path={rotas.admin} element={<AdminScreen />} />
+          </Route>
+          <Route element={<RequireTeacher />}>
+            <Route path="professor/:turmaId?" element={<ProfessorScreen />} />
           </Route>
           <Route path={rotas.contexto} element={<ContextRoute />} />
           <Route path={rotas.carteira} element={<PortfolioRoute />} />
