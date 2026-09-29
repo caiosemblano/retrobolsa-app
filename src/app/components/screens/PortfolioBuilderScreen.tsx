@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { AssetCard } from '../AssetCard';
+import { ResumoCarteira } from '../ResumoCarteira';
 import { Button } from '../ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { Input } from '../ui/input';
@@ -135,6 +136,9 @@ export function PortfolioBuilderScreen({ onConfirm, onBack }: PortfolioBuilderSc
       </div>
 
       <div className="mx-auto mb-6 max-w-4xl px-4 pt-6">
+        <div className="mb-6 empty:hidden">
+          <ResumoCarteira assets={competition.assets} portfolio={portfolio} budget={totalBudget} />
+        </div>
         <h2 className="mb-4 font-display text-xl">Ativos disponíveis</h2>
         <div className="grid gap-3 md:grid-cols-2">
           {competition.assets.map((asset) => (
