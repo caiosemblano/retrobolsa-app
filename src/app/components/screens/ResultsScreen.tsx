@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { ResultadoView } from '../ResultadoView';
+import { CompartilharResultado } from '../CompartilharResultado';
 import { Trophy, ArrowLeft } from 'lucide-react';
 import { portfolioService } from '../../services/portfolioService';
 import { Result } from '../../types';
@@ -46,6 +47,8 @@ export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
       </div>
 
       <ResultadoView result={result} />
+
+      <CompartilharResultado result={result} />
 
       <Button size="lg" variant="gold" className="w-full" onClick={onViewRanking}>
         <Trophy className="size-5" aria-hidden="true" />
