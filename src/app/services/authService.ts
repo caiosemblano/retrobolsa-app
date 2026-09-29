@@ -7,6 +7,8 @@ export interface RegisterPayload {
   email: string;
   senha: string;
   confirmarSenha: string;
+  /** "Tenho 18 anos ou mais, ou tenho autorização do meu responsável" (obrigatório no app). */
+  aceiteTermos?: boolean;
 }
 
 export interface LoginPayload {

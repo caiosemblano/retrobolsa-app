@@ -184,6 +184,27 @@ export function RegisterScreen({ onRegisterSuccess, onGoToLogin }: Props) {
               )}
             </div>
 
+            <div>
+              <div className="flex items-start gap-3">
+                <input
+                  id="register-aceite"
+                  type="checkbox"
+                  className="mt-0.5 size-5 shrink-0 cursor-pointer accent-[var(--primary)]"
+                  aria-invalid={!!errors.aceiteTermos}
+                  aria-describedby={errors.aceiteTermos ? 'register-aceite-erro' : undefined}
+                  {...register('aceiteTermos', { required: 'Marque esta caixa para criar a conta.' })}
+                />
+                <Label htmlFor="register-aceite" className="text-sm font-normal leading-snug">
+                  Tenho 18 anos ou mais, ou tenho autorização do meu responsável para usar o RetroBolsa.
+                </Label>
+              </div>
+              {errors.aceiteTermos && (
+                <p id="register-aceite-erro" role="alert" className="mt-1.5 text-xs text-loss">
+                  {errors.aceiteTermos.message}
+                </p>
+              )}
+            </div>
+
             <Button
               id="register-submit"
               type="submit"

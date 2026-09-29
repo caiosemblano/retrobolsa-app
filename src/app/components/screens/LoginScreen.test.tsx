@@ -59,10 +59,11 @@ describe('formulários de acesso', () => {
     await user.type(screen.getByLabelText('E-mail'), 'ana@escola.test');
     await user.type(screen.getByLabelText('Senha'), 'senhaDeTeste1');
     await user.type(screen.getByLabelText('Confirmar senha'), 'senhaDeTeste1');
+    await user.click(screen.getByRole('checkbox', { name: /Tenho 18 anos ou mais/ }));
     await user.click(screen.getByRole('button', { name: /Criar conta/ }));
 
     expect(register).toHaveBeenCalledWith(
-      expect.objectContaining({ username: 'ana_escola', email: 'ana@escola.test', senha: 'senhaDeTeste1' }),
+      expect.objectContaining({ username: 'ana_escola', email: 'ana@escola.test', senha: 'senhaDeTeste1', aceiteTermos: true }),
     );
   });
 });
