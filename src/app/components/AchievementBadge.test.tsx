@@ -15,11 +15,12 @@ const conquista = (overrides: Partial<Achievement> = {}): Achievement => ({
   ...overrides,
 });
 
-/** Catálogo do backend: AchievementCodes.java / V9__create_achievements.sql. */
+/** Catálogo do backend: AchievementCodes.java / V9__create_achievements.sql e V20. */
 const CODIGOS_DO_BACKEND = [
   'PRIMEIRA_CARTEIRA', 'TUDO_INVESTIDO', 'PRIMEIRA_AULA', 'NO_AZUL',
   'EQUILIBRISTA', 'DIVERSIFICADOR', 'DOIS_DIGITOS', 'VETERANO',
   'PODIO', 'MODULO_COMPLETO', 'CAMPEAO_RODADA', 'FORMADO',
+  'NOTA_DEZ', 'VENCEU_INFLACAO', 'BATEU_CDI', 'ESTUDIOSO', 'NIVEL_5', 'CONSTANCIA',
 ];
 
 const arteDe = (container: HTMLElement) => container.querySelector('svg[data-art]');
@@ -61,7 +62,7 @@ describe('AchievementBadge', () => {
     expect(screen.getByText('Comum')).toBeInTheDocument();
   });
 
-  it('cada uma das 12 conquistas do backend tem um desenho próprio', () => {
+  it('cada uma das 18 conquistas do backend tem um desenho próprio', () => {
     expect(Object.keys(artRegistry).sort()).toEqual([...CODIGOS_DO_BACKEND].sort());
     expect(new Set(Object.values(artRegistry)).size).toBe(CODIGOS_DO_BACKEND.length);
   });

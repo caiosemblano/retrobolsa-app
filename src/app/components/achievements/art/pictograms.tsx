@@ -163,6 +163,78 @@ export function Capelo() {
   );
 }
 
+/** Nota Dez — prova com um visto grande. */
+export function ProvaNota10() {
+  return (
+    <g>
+      <path d="M19 14 H38 L45 21 V50 H19 Z" {...traco} />
+      <path d="M38 14 V21 H45" {...traco} />
+      <path d="M23 21 H33 M23 26.5 H30" {...traco} strokeWidth={2} />
+      <path d="M24.5 37 L30.5 43 L41 30.5" {...traco} strokeWidth={4} />
+    </g>
+  );
+}
+
+/** Venceu a Inflação — carrinho de compras com a seta passando por cima. */
+export function CarrinhoComSeta() {
+  return (
+    <g>
+      <path d="M14 28 H19 L23.5 43 H43 L46.5 32 H21" {...traco} />
+      <circle cx="26" cy="48" r="2.6" fill="currentColor" />
+      <circle cx="40" cy="48" r="2.6" fill="currentColor" />
+      <path d="M26 24 L34 16.5 L39 20.5 L48 13" {...traco} strokeWidth={3.5} />
+      <path d="M42.5 13 H48 V18.5" {...traco} strokeWidth={3.5} />
+    </g>
+  );
+}
+
+/** Bateu o CDI — a linha da carteira cruzando e ficando acima da linha tracejada da referência. */
+export function AcimaDaReferencia() {
+  return (
+    <g>
+      <path d="M16 16 V46 H48" {...traco} />
+      <path d="M20 37 L47 30" {...traco} strokeWidth={2.5} strokeDasharray="3.5 3.5" />
+      <path d="M20 42 L28 36 L35 33 L46 20" {...traco} strokeWidth={3.5} />
+      <path d="M40 19.5 H46.5 V26" {...traco} strokeWidth={3.5} />
+    </g>
+  );
+}
+
+/** Estudioso — pilha de três livros. */
+export function PilhaDeLivros() {
+  return (
+    <g>
+      <rect x="15" y="39" width="34" height="9" rx="2" {...traco} />
+      <rect x="18" y="29" width="30" height="9" rx="2" {...traco} />
+      <rect x="16" y="19" width="31" height="9" rx="2" {...traco} />
+      <path d="M21 43.5 H43 M23 33.5 H42 M21 23.5 H41" {...traco} strokeWidth={2} />
+    </g>
+  );
+}
+
+/** Analista (nível 5) — escada com a bandeira no topo. */
+export function EscadaComBandeira() {
+  return (
+    <g>
+      <path d="M14 48 H22 V40 H30 V32 H38 V24 H46 V48 Z" {...traco} />
+      <path d="M42 24 V12" {...traco} />
+      <path d="M42 12.5 L50 15.5 L42 18.5" fill="currentColor" fillOpacity={0.35} stroke="currentColor" strokeWidth={2.5} strokeLinejoin="round" />
+    </g>
+  );
+}
+
+/** Constância — calendário com quatro semanas marcadas. */
+export function CalendarioSemanas() {
+  return (
+    <g>
+      <rect x="15" y="18" width="34" height="30" rx="4" {...traco} />
+      <path d="M15 26 H49" {...traco} />
+      <path d="M23 14 V21 M41 14 V21" {...traco} />
+      <path d="M19.5 37.5 L21.5 39.5 L25 35 M26.5 37.5 L28.5 39.5 L32 35 M33.5 37.5 L35.5 39.5 L39 35 M40.5 37.5 L42.5 39.5 L46 35" {...traco} strokeWidth={2.5} />
+    </g>
+  );
+}
+
 /** Conquista que o app ainda não conhece (API mais nova): estrela genérica. */
 export function EstrelaGenerica() {
   return (
