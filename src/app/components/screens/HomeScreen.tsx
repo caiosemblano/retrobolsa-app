@@ -118,10 +118,10 @@ export function HomeScreen({ onStartCompetition, onViewResults, onViewSimulation
                   className={`tabular font-display text-2xl font-semibold ${isPositive ? 'text-gain' : 'text-loss'}`}
                 >
                   {isPositive ? '+' : ''}
-                  {result.rentability}%
+                  {formatarNumero(result.rentability, 2)}%
                 </div>
                 <div className="tabular text-xs text-muted-foreground">
-                  {result.annualReturn}% a.a.
+                  {formatarNumero(result.annualReturn, 2)}% a.a.
                 </div>
               </div>
             </div>

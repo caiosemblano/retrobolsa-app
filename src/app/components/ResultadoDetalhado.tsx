@@ -9,6 +9,25 @@ import { rotas } from '../routes';
 const pct = (valor: number, casas = 1) => `${valor > 0 ? '+' : ''}${formatarNumero(valor, casas)}%`;
 const reais = (valor: number) => `R$ ${Math.round(valor).toLocaleString('pt-BR')}`;
 
+/**
+ * A API manda "2011-2014": o motor simula de 2011 até o fim de 2013, e 2014 é só o
+ * ponto final do gráfico. Para o aluno, os anos vividos são 2011–2013, como no título da rodada.
+ */
+export function anosSimulados(periodo: string): string {
+  const anos = periodo.match(/^(\d{4})-(\d{4})$/);
+  if (!anos) return periodo;
+  const [inicio, fim] = [Number(anos[1]), Number(anos[2]) - 1];
+  return fim > inicio ? `${inicio}–${fim}` : `${inicio}`;
+}
+
+function comparacaoComAMediana(stats: RoundStats, rentabilidade: number): string | null {
+  if (stats.medianReturn === undefined || stats.participants === 0) return null;
+  if (stats.participants === 1) return 'Só a sua carteira participou desta rodada.';
+  const posicao =
+    rentabilidade > stats.medianReturn ? 'acima dela' : rentabilidade < stats.medianReturn ? 'abaixo dela' : 'exatamente nela';
+  return `${stats.participants} carteiras; a do meio rendeu ${pct(stats.medianReturn)}. A sua ficou ${posicao}.`;
+}
+
 /** Cada ativo da carteira, do que mais somou ao que mais tirou, com o nome real e o que aconteceu com ele. */
 export function OQueMaisPesou({ ativos }: { ativos: Asset[] }) {
   const ordenados = [...ativos].sort((a, b) => (b.contribution ?? 0) - (a.contribution ?? 0));
@@ -67,7 +86,7 @@ export function OQueAconteceu({ texto, periodo }: { texto?: string; periodo: str
         <BookOpenText className="size-5 text-info" aria-hidden="true" />
         <h3 className="font-display text-lg">O que aconteceu de verdade</h3>
       </div>
-      <p className="text-xs uppercase tracking-wide text-muted-foreground">Período {periodo.replace('-', '–')}</p>
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">Período {anosSimulados(periodo)}</p>
       <p className="max-w-prose leading-relaxed">{texto}</p>
     </Card>
   );
@@ -77,6 +96,7 @@ export function OQueAconteceu({ texto, periodo }: { texto?: string; periodo: str
 export function ComoFoiARodada({ stats, rentabilidade }: { stats?: RoundStats; rentabilidade: number }) {
   if (!stats || (stats.participants === 0 && !stats.bestAsset)) return null;
   const melhor = stats.bestAsset;
+  const mediana = comparacaoComAMediana(stats, rentabilidade);
 
   return (
     <Card className="gap-2 p-6">
@@ -85,13 +105,7 @@ export function ComoFoiARodada({ stats, rentabilidade }: { stats?: RoundStats; r
         <h3 className="font-display text-lg">Como foi a rodada</h3>
       </div>
       <ul className="space-y-1.5 text-sm">
-        {stats.participants > 0 && stats.medianReturn !== undefined && (
-          <li>
-            {stats.participants} {stats.participants === 1 ? 'carteira' : 'carteiras'}; a do meio rendeu{' '}
-            <span className="tabular font-semibold">{pct(stats.medianReturn)}</span>. A sua ficou{' '}
-            {rentabilidade >= stats.medianReturn ? 'acima' : 'abaixo'} dela.
-          </li>
-        )}
+        {mediana && <li className="tabular">{mediana}</li>}
         {melhor && (
           <li>
             Melhor ativo do período:{' '}

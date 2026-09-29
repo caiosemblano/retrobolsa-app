@@ -8,6 +8,7 @@ import { ComoFoiARodada, DicasDaRodada, OQueAconteceu, OQueMaisPesou } from '../
 import { Trophy, TrendingUp, TrendingDown, Eye, ArrowLeft } from 'lucide-react';
 import { portfolioService } from '../../services/portfolioService';
 import { Result } from '../../types';
+import { formatarNumero } from '../../utils/numero';
 
 interface ResultsScreenProps { onViewRanking: () => void; onBack: () => void; }
 
@@ -74,13 +75,13 @@ export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
             </div>
             <div className={`tabular font-display text-2xl font-semibold ${isPositive ? 'text-gain' : 'text-loss'}`}>
               {isPositive ? '+' : ''}
-              {result.rentability}%
+              {formatarNumero(result.rentability, 2)}%
             </div>
           </div>
           <div className="rounded-xl border border-border bg-muted/70 p-3.5">
             <div className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">Retorno anual</div>
             <div className={`tabular font-display text-2xl font-semibold ${isPositive ? 'text-gain' : 'text-loss'}`}>
-              {result.annualReturn}% a.a.
+              {formatarNumero(result.annualReturn, 2)}% a.a.
             </div>
           </div>
         </div>

@@ -80,9 +80,27 @@ describe('ResultsScreen', () => {
     await renderizar(resultado());
 
     expect(secao('O que aconteceu de verdade')).toHaveTextContent('A Selic caiu de 13,75% para 2% ao ano');
+    // A API manda "2020-2022": os anos simulados são 2020 e 2021.
+    expect(secao('O que aconteceu de verdade')).toHaveTextContent('Período 2020–2021');
     const rodada = secao('Como foi a rodada');
     expect(rodada).toHaveTextContent('5 carteiras; a do meio rendeu +8,3%. A sua ficou acima dela.');
     expect(rodada).toHaveTextContent('Melhor ativo do período: Empresa C (WEG S.A.), com +426%.');
+  });
+
+  it('o placar usa o formato brasileiro', async () => {
+    await renderizar(resultado({ rentability: -13.39, annualReturn: -4.68 }));
+    expect(screen.getByText('-13,39%')).toBeInTheDocument();
+    expect(screen.getByText('-4,68% a.a.')).toBeInTheDocument();
+  });
+
+  it('com uma carteira só, não a compara com ela mesma', async () => {
+    await renderizar(resultado({ roundStats: { participants: 1, medianReturn: 10.5 } }));
+    expect(secao('Como foi a rodada')).toHaveTextContent('Só a sua carteira participou desta rodada.');
+  });
+
+  it('empate com a mediana', async () => {
+    await renderizar(resultado({ roundStats: { participants: 3, medianReturn: 10.5 } }));
+    expect(secao('Como foi a rodada')).toHaveTextContent('A sua ficou exatamente nela.');
   });
 
   it('as dicas levam à aula do assunto quando ela existe', async () => {
