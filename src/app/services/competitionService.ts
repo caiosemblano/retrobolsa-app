@@ -10,6 +10,8 @@ interface ApiAsset {
   rate?: number | string;
   indicators?: {
     pl?: number | string;
+    roe?: number | string;
+    dividendYield?: number | string;
     lvp?: number | string;
     lucroPositivo?: boolean;
     cagrLucro?: number | string;
@@ -29,10 +31,17 @@ interface ApiCompetition {
   startYear?: number;
   endYear?: number;
   endsAt?: string;
+  economicIndicators?: {
+    code: string;
+    label: string;
+    value: number | string;
+    unit: string;
+    year: number;
+  }[];
   assets: ApiAsset[];
 }
 
-const toNumber = (value?: number | string) =>
+const toNumber = (value?: number | string | null) =>
   value === undefined || value === null ? undefined : Number(value);
 
 export function mapCompetition(data: ApiCompetition): Competition {
@@ -46,6 +55,8 @@ export function mapCompetition(data: ApiCompetition): Competition {
     indicators: asset.indicators
       ? {
           pl: toNumber(asset.indicators.pl),
+          roe: toNumber(asset.indicators.roe),
+          dividendYield: toNumber(asset.indicators.dividendYield),
           lvp: toNumber(asset.indicators.lvp),
           lucroPositivo: asset.indicators.lucroPositivo,
           cagrLucro: toNumber(asset.indicators.cagrLucro),
@@ -67,9 +78,11 @@ export function mapCompetition(data: ApiCompetition): Competition {
     endsAt: data.endsAt,
     economicContext: {
       title: data.scenarioTitle || `Cenário econômico da rodada ${data.round}`,
-      indicators: data.scenarioDescription
-        ? [{ name: 'Contexto da rodada', value: data.scenarioDescription, icon: 'Globe' }]
-        : [],
+      // Números reais do Banco Central; antes, a descrição do cenário era repetida aqui como se fosse um indicador.
+      indicators: (data.economicIndicators || []).map((indicator) => ({
+        ...indicator,
+        value: Number(indicator.value),
+      })),
     },
     assets,
   };

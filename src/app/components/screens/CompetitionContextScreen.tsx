@@ -62,14 +62,20 @@ export function CompetitionContextScreen({ onNext, onBack }: CompetitionContextS
         </p>
       </Card>
 
-      <section>
-        <h2 className="mb-4 font-display text-xl">Indicadores econômicos</h2>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          {competition.economicContext.indicators.map((indicator, index) => (
-            <EconomicIndicatorCard key={index} indicator={indicator} />
-          ))}
-        </div>
-      </section>
+      {competition.economicContext.indicators.length > 0 && (
+        <section>
+          <h2 className="mb-1 font-display text-xl">Indicadores econômicos</h2>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Os números de {competition.economicContext.indicators[0].year}, o que se sabia quando a rodada
+            começa. Toque no nome de cada um para entender o que significa.
+          </p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {competition.economicContext.indicators.map((indicator) => (
+              <EconomicIndicatorCard key={indicator.code} indicator={indicator} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <Button size="lg" className="w-full" onClick={onNext}>
         Escolher ativos

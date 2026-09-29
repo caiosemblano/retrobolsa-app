@@ -6,12 +6,18 @@ export interface Asset {
   sector?: string;
   indicators?: {
     pl?: number;
+    /** Em %, como a API envia (ex.: 18.3 = 18,3%). */
     roe?: number;
+    /** Em %. */
     dividendYield?: number;
+    /** P/VP (preço sobre valor patrimonial); a API mantém o nome antigo do campo. */
     lvp?: number;
     lucroPositivo?: boolean;
+    /** Fração (0.28 = 28% ao ano). */
     cagrLucro?: number;
+    /** Fração. */
     cagrReceita?: number;
+    /** Em %. */
     margemEbitda?: number;
   };
   bondType?: string;
@@ -22,10 +28,15 @@ export interface Asset {
   finalValue?: number;
 }
 
+/** Um número do cenário econômico da rodada, do ano anterior ao início. */
 export interface EconomicIndicator {
-  name: string;
-  value: string;
-  icon: string;
+  /** SELIC, IPCA, DOLAR ou PIB: escolhe o ícone e o verbete do glossário. */
+  code: string;
+  label: string;
+  value: number;
+  /** "% a.a.", "% no ano" ou "R$". */
+  unit: string;
+  year: number;
 }
 
 export interface Competition {

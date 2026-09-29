@@ -1,21 +1,30 @@
 import { EconomicIndicator } from '../types';
 import { Card } from './ui/card';
-import { Percent, TrendingUp, BarChart3, DollarSign, Globe } from 'lucide-react';
+import { Termo } from './Termo';
+import { termoDoIndicador } from '../content/glossario';
+import { formatarNumero, formatarReais } from '../utils/numero';
+import { Percent, TrendingUp, BarChart3, DollarSign, Landmark, type LucideIcon } from 'lucide-react';
 
 interface EconomicIndicatorCardProps {
   indicator: EconomicIndicator;
 }
 
-const iconMap: Record<string, any> = {
-  Percent,
-  TrendingUp,
-  BarChart3,
-  DollarSign,
-  Globe,
+const iconMap: Record<string, LucideIcon> = {
+  SELIC: Landmark,
+  IPCA: Percent,
+  DOLAR: DollarSign,
+  PIB: TrendingUp,
 };
 
+/** "13,75% a.a.", "9,3% no ano" ou "R$ 2,89", conforme a unidade enviada pela API. */
+export function formatarIndicador({ value, unit }: EconomicIndicator): string {
+  if (unit === 'R$') return formatarReais(value);
+  return `${formatarNumero(value, 2)}% ${unit.replace(/^%\s*/, '')}`.trim();
+}
+
 export function EconomicIndicatorCard({ indicator }: EconomicIndicatorCardProps) {
-  const Icon = iconMap[indicator.icon] || BarChart3;
+  const Icon = iconMap[indicator.code] || BarChart3;
+  const termo = termoDoIndicador(indicator.code);
 
   return (
     <Card className="p-4 transition-colors duration-200 hover:border-ring/30">
@@ -27,11 +36,11 @@ export function EconomicIndicatorCard({ indicator }: EconomicIndicatorCardProps)
           <Icon className="size-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-xs uppercase tracking-wide text-muted-foreground">
-            {indicator.name}
+          <div className="text-xs uppercase tracking-wide text-muted-foreground">
+            {termo ? <Termo id={termo}>{indicator.label}</Termo> : indicator.label}
           </div>
           <div className="tabular font-display text-lg font-semibold text-foreground">
-            {indicator.value}
+            {formatarIndicador(indicator)}
           </div>
         </div>
       </div>
