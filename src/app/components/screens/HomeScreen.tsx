@@ -10,6 +10,9 @@ import { portfolioService } from '../../services/portfolioService';
 import { rankingService } from '../../services/rankingService';
 import { useAuth } from '../../contexts/AuthContext';
 import { markCurrentUser } from '../../utils/ranking';
+import { formatarNumero } from '../../utils/numero';
+import { Termo } from '../Termo';
+import { diferenca } from '../ComparacaoReferencias';
 import { Competition, RankingEntry, Result } from '../../types';
 
 interface HomeScreenProps {
@@ -62,6 +65,8 @@ export function HomeScreen({ onStartCompetition, onViewResults, onViewSimulation
   }
 
   const isPositive = result ? result.rentability >= 0 : true;
+  const cdi = result?.benchmarks.find((benchmark) => benchmark.code === 'CDI');
+  const comparacaoCdi = result && cdi ? diferenca(result.rentability, cdi.totalReturn) : null;
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 p-4 pb-24">
@@ -120,6 +125,16 @@ export function HomeScreen({ onStartCompetition, onViewResults, onViewSimulation
                 </div>
               </div>
             </div>
+
+            {cdi && comparacaoCdi && (
+              <p className="text-sm text-muted-foreground">
+                Você × <Termo id="CDI" />:{' '}
+                <span className={`tabular font-semibold ${comparacaoCdi.acima ? 'text-gain' : 'text-loss'}`}>
+                  {comparacaoCdi.texto}
+                </span>{' '}
+                (o CDI rendeu {formatarNumero(cdi.totalReturn, 1)}% no período)
+              </p>
+            )}
 
             <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/70 p-3.5">
               <Wallet className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />

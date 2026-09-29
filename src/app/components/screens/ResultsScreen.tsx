@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
 import { Skeleton } from '../ui/skeleton';
 import { RentabilityChart } from '../RentabilityChart';
 import { ComparacaoReferencias } from '../ComparacaoReferencias';
-import { Trophy, TrendingUp, TrendingDown, Eye, Award, ArrowLeft } from 'lucide-react';
+import { ComoFoiARodada, DicasDaRodada, OQueAconteceu, OQueMaisPesou } from '../ResultadoDetalhado';
+import { Trophy, TrendingUp, TrendingDown, Eye, ArrowLeft } from 'lucide-react';
 import { portfolioService } from '../../services/portfolioService';
 import { Result } from '../../types';
 
@@ -103,42 +103,12 @@ export function ResultsScreen({ onViewRanking, onBack }: ResultsScreenProps) {
           <h2 className="font-display text-xl">A revelação</h2>
         </div>
 
-        <Card className="gap-3 border-gold/30 p-6">
-          <h3 className="font-display text-lg">Sua carteira revelada</h3>
-          {result.revealedAssets.length ? (
-            <div className="space-y-3">
-              {result.revealedAssets.map((asset) => (
-                <div key={asset.id} className="rounded-xl border border-border bg-muted/70 p-4">
-                  <div className="mb-1 text-sm text-muted-foreground">
-                    Você investiu em “{asset.anonymousName}”
-                  </div>
-                  <div className="flex items-center gap-2 font-display font-semibold text-gold">
-                    <TrendingUp className="size-4 shrink-0" aria-hidden="true" />
-                    <span>{asset.realName ? `era ${asset.realName}` : 'nome ainda não revelado'}</span>
-                  </div>
-                  {asset.sector && (
-                    <Badge variant="secondary" className="mt-2">
-                      {asset.sector}
-                    </Badge>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground">Os ativos serão revelados ao final da rodada.</p>
-          )}
-        </Card>
-
-        <Card className="gap-2 p-4">
-          <div className="flex items-center gap-2">
-            <Award className="size-5 text-info" aria-hidden="true" />
-            <h4 className="font-display">Período simulado</h4>
-          </div>
-          <p className="text-muted-foreground">
-            Período histórico: <span className="tabular text-info">{result.period}</span>.
-          </p>
-        </Card>
+        <OQueMaisPesou ativos={result.revealedAssets} />
+        <OQueAconteceu texto={result.debrief} periodo={result.period} />
+        <ComoFoiARodada stats={result.roundStats} rentabilidade={result.rentability} />
       </section>
+
+      <DicasDaRodada dicas={result.tips} />
 
       <Button size="lg" variant="gold" className="w-full" onClick={onViewRanking}>
         <Trophy className="size-5" aria-hidden="true" />
