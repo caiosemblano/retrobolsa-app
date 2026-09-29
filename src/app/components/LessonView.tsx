@@ -86,7 +86,7 @@ export function LessonView({ article, position, total, saving, onBack, onComplet
             Aula concluída
             {article.hasQuiz && article.bestQuizScore != null && (
               <span className="tabular">
-                · melhor nota {article.bestQuizScore} de {article.quizTotal}
+                {' '}· melhor nota {article.bestQuizScore} de {article.quizTotal}
               </span>
             )}
           </Button>

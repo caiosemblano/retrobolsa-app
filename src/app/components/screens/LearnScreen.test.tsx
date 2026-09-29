@@ -260,7 +260,10 @@ describe('LearnScreen', () => {
     await user.click(screen.getByRole('button', { name: 'Ver resultado' }));
 
     expect(toast.success).toHaveBeenCalledWith('Aula concluída!');
-    expect(await screen.findByRole('button', { name: /Aula concluída · melhor nota 1 de 1/ })).toBeDisabled();
+    const concluida = await screen.findByRole('button', { name: /Aula concluída/ });
+    expect(concluida).toBeDisabled();
+    // O texto visível, e não só o nome acessível (que junta os pedaços com espaço).
+    expect(concluida).toHaveTextContent(/^Aula concluída · melhor nota 1 de 1$/);
     expect(mockedComplete).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole('button', { name: /Voltar para Matemática Financeira/ }));
