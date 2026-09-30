@@ -8,7 +8,8 @@
     "dev": "vite",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "icones": "node scripts/gerar-icones.mjs"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
