@@ -1,5 +1,6 @@
 import { RankingEntry } from '../types';
 import { Trophy, Medal, Award } from 'lucide-react';
+import { formatarNumero } from '../utils/numero';
 
 interface RankingItemProps {
   entry: RankingEntry;
@@ -67,7 +68,8 @@ export function RankingItem({ entry, showRentability }: RankingItemProps) {
         </div>
         {showRentability && entry.rentability !== undefined && (
           <div className={`tabular text-sm ${rentabilityClass}`}>
-            Rentabilidade: {entry.rentability}%
+            Rentabilidade: {entry.rentability > 0 ? '+' : ''}
+            {formatarNumero(entry.rentability, 2)}%
           </div>
         )}
       </div>

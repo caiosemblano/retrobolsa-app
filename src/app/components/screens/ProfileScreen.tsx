@@ -12,6 +12,7 @@ import { NivelCard } from '../NivelCard';
 import { MinhasTurmas } from '../MinhasTurmas';
 import { SuaConta } from '../SuaConta';
 import { formatarData } from '../../utils/date';
+import { formatarNumero, formatarReais } from '../../utils/numero';
 import { rotas } from '../../routes';
 
 export function ProfileScreen() {
@@ -150,7 +151,7 @@ export function ProfileScreen() {
                           className={`tabular font-display text-sm font-semibold ${isPositive ? 'text-gain' : 'text-loss'}`}
                         >
                           {item.totalReturn !== null && item.totalReturn !== undefined
-                            ? `${item.totalReturn.toFixed(2)}%`
+                            ? `${item.totalReturn > 0 ? '+' : ''}${formatarNumero(item.totalReturn, 2)}%`
                             : '—'}
                         </div>
                       </div>
@@ -160,7 +161,7 @@ export function ProfileScreen() {
                         </div>
                         <div className="tabular font-display text-sm font-semibold text-foreground">
                           {item.finalValue !== null && item.finalValue !== undefined
-                            ? `R$ ${item.finalValue.toLocaleString('pt-BR')}`
+                            ? formatarReais(item.finalValue)
                             : '—'}
                         </div>
                       </div>

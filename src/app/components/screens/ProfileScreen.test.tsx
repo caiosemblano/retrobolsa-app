@@ -71,8 +71,8 @@ describe('ProfileScreen', () => {
 
     expect(await screen.findByText('Rodada 2')).toBeInTheDocument();
     expect(screen.getByText('Crise de 2008')).toBeInTheDocument();
-    expect(screen.getByText('26.00%')).toBeInTheDocument();
-    expect(screen.getByText('R$ 126.000')).toBeInTheDocument();
+    expect(screen.getByText('+26%')).toBeInTheDocument();
+    expect(screen.getByText('R$ 126.000,00')).toBeInTheDocument();
   });
 
   it('mostra estado vazio para quem nunca completou uma rodada', async () => {

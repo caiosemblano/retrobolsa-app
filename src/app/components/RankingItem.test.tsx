@@ -16,7 +16,7 @@ describe('RankingItem', () => {
   it('mostra rentabilidade sem repetir a pontuação', () => {
     render(<RankingItem entry={entry} showRentability />);
 
-    expect(screen.getByText(/Rentabilidade: 12.4%/)).toBeInTheDocument();
+    expect(screen.getByText(/Rentabilidade: \+12,4%/)).toBeInTheDocument();
     expect(screen.queryByText(/pts/)).not.toBeInTheDocument();
   });
 
