@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { Suspense, useEffect, useLayoutEffect, useRef } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigationType } from 'react-router';
 import { Home, GraduationCap, Trophy, User, LogOut, Shield, CandlestickChart, Presentation } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -132,7 +132,16 @@ export function AppLayout() {
         tabIndex={-1}
         className="min-h-[calc(100dvh-9rem)] outline-none"
       >
-        <Outlet />
+        {/* A tela nova ainda está chegando: o cabeçalho e a nav ficam, só o conteúdo espera. */}
+        <Suspense
+          fallback={
+            <div className="grid min-h-[50dvh] place-items-center" role="status" aria-label="Carregando a tela">
+              <span className="size-8 animate-spin rounded-full border-4 border-primary/25 border-t-primary" />
+            </div>
+          }
+        >
+          <Outlet />
+        </Suspense>
       </main>
 
       {user?.onboarded === false && !user.mustChangePassword && <PrimeiroAcesso />}

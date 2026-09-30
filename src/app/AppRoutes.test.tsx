@@ -133,14 +133,15 @@ const abrir = (caminho: string) => {
   return { ...utils, router, rerender };
 };
 
-const titulo = (nome: string) => screen.getByRole('heading', { name: nome });
+// As telas chegam sob demanda (React.lazy): o título aparece depois de um instante.
+const titulo = (nome: string) => screen.findByRole('heading', { name: nome });
 
 describe('AppRoutes', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('cada tela principal tem o seu endereço', () => {
+  it('cada tela principal tem o seu endereço', async () => {
     autenticar('jogador');
     for (const [caminho, tela] of [
       ['/', 'Tela Competir'],
@@ -151,22 +152,22 @@ describe('AppRoutes', () => {
       ['/rodada/resultado', 'Tela Resultado'],
     ]) {
       const { unmount } = abrir(caminho);
-      expect(titulo(tela)).toBeInTheDocument();
+      expect(await titulo(tela)).toBeInTheDocument();
       unmount();
     }
   });
 
-  it('visitante numa rota privada vai para o login e, depois de entrar, volta para onde queria', () => {
+  it('visitante numa rota privada vai para o login e, depois de entrar, volta para onde queria', async () => {
     autenticar('visitante');
     const { router, rerender } = abrir('/perfil');
 
-    expect(titulo('Tela Login')).toBeInTheDocument();
+    expect(await titulo('Tela Login')).toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/entrar');
 
     autenticar('jogador');
     rerender();
 
-    expect(titulo('Tela Perfil')).toBeInTheDocument();
+    expect(await titulo('Tela Perfil')).toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/perfil');
   });
 
@@ -175,24 +176,24 @@ describe('AppRoutes', () => {
     const user = userEvent.setup();
     const { router, rerender } = abrir('/rankings');
 
-    await user.click(screen.getByRole('button', { name: 'Criar conta' }));
-    expect(titulo('Tela Cadastro')).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Já tenho conta' }));
-    expect(titulo('Tela Login')).toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: 'Criar conta' }));
+    expect(await titulo('Tela Cadastro')).toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: 'Já tenho conta' }));
+    expect(await titulo('Tela Login')).toBeInTheDocument();
 
     autenticar('jogador');
     rerender();
     expect(router.state.location.pathname).toBe('/rankings');
   });
 
-  it('quem já está logado não vê o login', () => {
+  it('quem já está logado não vê o login', async () => {
     autenticar('jogador');
     const { router } = abrir('/entrar');
     expect(router.state.location.pathname).toBe('/');
-    expect(titulo('Tela Competir')).toBeInTheDocument();
+    expect(await titulo('Tela Competir')).toBeInTheDocument();
   });
 
-  it('/admin só abre para ADMIN, e o item Admin só aparece para ele', () => {
+  it('/admin só abre para ADMIN, e o item Admin só aparece para ele', async () => {
     autenticar('jogador');
     const jogador = abrir('/admin');
     expect(jogador.router.state.location.pathname).toBe('/');
@@ -201,11 +202,11 @@ describe('AppRoutes', () => {
 
     autenticar('admin');
     abrir('/admin');
-    expect(titulo('Tela Admin')).toBeInTheDocument();
+    expect(await titulo('Tela Admin')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Admin' })).toHaveAttribute('aria-current', 'page');
   });
 
-  it('endereço desconhecido cai na tela inicial', () => {
+  it('endereço desconhecido cai na tela inicial', async () => {
     autenticar('jogador');
     const { router } = abrir('/nao-existe');
     expect(router.state.location.pathname).toBe('/');
@@ -216,18 +217,18 @@ describe('AppRoutes', () => {
     const user = userEvent.setup();
     const { router } = abrir('/');
 
-    await user.click(screen.getByRole('button', { name: 'Começar rodada' }));
+    await user.click(await screen.findByRole('button', { name: 'Começar rodada' }));
     expect(router.state.location.pathname).toBe('/rodada/contexto');
-    await user.click(screen.getByRole('button', { name: 'Escolher ativos' }));
+    await user.click(await screen.findByRole('button', { name: 'Escolher ativos' }));
     expect(router.state.location.pathname).toBe('/rodada/carteira');
-    await user.click(screen.getByRole('button', { name: 'Confirmar carteira' }));
-    expect(titulo('Tela Aguardando')).toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: 'Confirmar carteira' }));
+    expect(await titulo('Tela Aguardando')).toBeInTheDocument();
 
     // O botão voltar do celular: da espera volta para o contexto, não para a carteira já enviada.
     await act(async () => router.navigate(-1));
-    expect(titulo('Tela Contexto')).toBeInTheDocument();
+    expect(await titulo('Tela Contexto')).toBeInTheDocument();
     await act(async () => router.navigate(-1));
-    expect(titulo('Tela Competir')).toBeInTheDocument();
+    expect(await titulo('Tela Competir')).toBeInTheDocument();
   });
 
   it('o treino tem endereço próprio: da tela inicial para a lista e da lista para a rodada escolhida', async () => {
@@ -235,18 +236,18 @@ describe('AppRoutes', () => {
     const user = userEvent.setup();
     const { router } = abrir('/');
 
-    await user.click(screen.getByRole('button', { name: 'Treinar' }));
+    await user.click(await screen.findByRole('button', { name: 'Treinar' }));
     expect(router.state.location.pathname).toBe('/treinar');
     expect(screen.getByRole('navigation', { name: 'Navegação principal' })).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Treinar a rodada 7' }));
+    await user.click(await screen.findByRole('button', { name: 'Treinar a rodada 7' }));
     expect(router.state.location.pathname).toBe('/treinar/r7');
-    expect(titulo('Tela Treino r7')).toBeInTheDocument();
+    expect(await titulo('Tela Treino r7')).toBeInTheDocument();
     // A montagem tem a própria barra de confirmação fixa: a bottom nav sai do caminho.
     expect(screen.queryByRole('navigation', { name: 'Navegação principal' })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Outras rodadas' }));
-    expect(titulo('Tela Treinar')).toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: 'Outras rodadas' }));
+    expect(await titulo('Tela Treinar')).toBeInTheDocument();
   });
 
   it('a bottom nav troca de tela, marca a atual e some no fluxo da rodada', async () => {
@@ -255,8 +256,8 @@ describe('AppRoutes', () => {
     const { router } = abrir('/');
 
     expect(screen.getByRole('link', { name: 'Competir' })).toHaveAttribute('aria-current', 'page');
-    await user.click(screen.getByRole('link', { name: 'Aprender' }));
-    expect(titulo('Tela Aprender')).toBeInTheDocument();
+    await user.click(await screen.findByRole('link', { name: 'Aprender' }));
+    expect(await titulo('Tela Aprender')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Aprender' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('link', { name: 'Competir' })).not.toHaveAttribute('aria-current');
 
@@ -271,19 +272,19 @@ describe('AppRoutes', () => {
 
     const chip = await screen.findByRole('link', { name: 'Nível 1, Curioso: 0 XP. Ver perfil' });
     await user.click(chip);
-    expect(titulo('Tela Perfil')).toBeInTheDocument();
+    expect(await titulo('Tela Perfil')).toBeInTheDocument();
   });
 
-  it('a área do professor é só do professor, que a encontra na bottom nav', () => {
+  it('a área do professor é só do professor, que a encontra na bottom nav', async () => {
     autenticar('jogador');
     let tela = abrir('/professor/t1');
-    expect(titulo('Tela Competir')).toBeInTheDocument();
+    expect(await titulo('Tela Competir')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Professor' })).not.toBeInTheDocument();
     tela.unmount();
 
     autenticar('professor');
     tela = abrir('/professor/t1');
-    expect(titulo('Tela Professor')).toBeInTheDocument();
+    expect(await titulo('Tela Professor')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Professor' })).toHaveAttribute('aria-current', 'page');
     expect(screen.queryByRole('link', { name: 'Admin' })).not.toBeInTheDocument();
   });
@@ -296,7 +297,7 @@ describe('AppRoutes', () => {
 
     autenticar('jogador');
     abrir('/');
-    expect(titulo('Tela Competir')).toBeInTheDocument();
+    expect(await titulo('Tela Competir')).toBeInTheDocument();
     expect(screen.queryByRole('dialog', { name: 'Como funciona uma rodada' })).not.toBeInTheDocument();
   });
 
@@ -308,13 +309,13 @@ describe('AppRoutes', () => {
     expect(screen.getByLabelText('Senha temporária')).toBeInTheDocument();
   });
 
-  it('sem a senha temporária, a tela de troca obrigatória manda para o início', () => {
+  it('sem a senha temporária, a tela de troca obrigatória manda para o início', async () => {
     autenticar('jogador');
     const { router } = abrir('/trocar-senha');
     expect(router.state.location.pathname).toBe('/');
   });
 
-  it('mostra o carregamento enquanto verifica a sessão', () => {
+  it('mostra o carregamento enquanto verifica a sessão', async () => {
     autenticar('carregando');
     abrir('/perfil');
     expect(screen.getByText('Carregando pregão...')).toBeInTheDocument();

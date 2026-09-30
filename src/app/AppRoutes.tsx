@@ -1,21 +1,24 @@
+import { lazy, Suspense } from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation, useNavigate, useParams, type Location } from 'react-router';
 import { HomeScreen } from './components/screens/HomeScreen';
-import { LearnScreen } from './components/screens/LearnScreen';
-import { RankingsScreen } from './components/screens/RankingsScreen';
-import { ProfileScreen } from './components/screens/ProfileScreen';
-import { CompetitionContextScreen } from './components/screens/CompetitionContextScreen';
-import { PortfolioBuilderScreen } from './components/screens/PortfolioBuilderScreen';
-import { SimulationWaitScreen } from './components/screens/SimulationWaitScreen';
-import { ResultsScreen } from './components/screens/ResultsScreen';
 import { LoginScreen } from './components/screens/LoginScreen';
 import { RegisterScreen } from './components/screens/RegisterScreen';
-import { AdminScreen } from './components/screens/AdminScreen';
-import { TreinarScreen } from './components/screens/TreinarScreen';
-import { ProfessorScreen } from './components/screens/ProfessorScreen';
-import { ComoFuncionaScreen } from './components/screens/ComoFuncionaScreen';
-import { TrocarSenhaScreen } from './components/screens/TrocarSenhaScreen';
-import { TreinoScreen } from './components/screens/TreinoScreen';
 import { AppLayout } from './components/AppLayout';
+// Cada tela abaixo vira um arquivo separado, baixado só quando é aberta: o app
+// começa leve (tela inicial, login e cadastro) e o resto chega sob demanda.
+const LearnScreen = lazy(() => import('./components/screens/LearnScreen').then((m) => ({ default: m.LearnScreen })));
+const RankingsScreen = lazy(() => import('./components/screens/RankingsScreen').then((m) => ({ default: m.RankingsScreen })));
+const ProfileScreen = lazy(() => import('./components/screens/ProfileScreen').then((m) => ({ default: m.ProfileScreen })));
+const CompetitionContextScreen = lazy(() => import('./components/screens/CompetitionContextScreen').then((m) => ({ default: m.CompetitionContextScreen })));
+const PortfolioBuilderScreen = lazy(() => import('./components/screens/PortfolioBuilderScreen').then((m) => ({ default: m.PortfolioBuilderScreen })));
+const SimulationWaitScreen = lazy(() => import('./components/screens/SimulationWaitScreen').then((m) => ({ default: m.SimulationWaitScreen })));
+const ResultsScreen = lazy(() => import('./components/screens/ResultsScreen').then((m) => ({ default: m.ResultsScreen })));
+const AdminScreen = lazy(() => import('./components/screens/AdminScreen').then((m) => ({ default: m.AdminScreen })));
+const TreinarScreen = lazy(() => import('./components/screens/TreinarScreen').then((m) => ({ default: m.TreinarScreen })));
+const ProfessorScreen = lazy(() => import('./components/screens/ProfessorScreen').then((m) => ({ default: m.ProfessorScreen })));
+const ComoFuncionaScreen = lazy(() => import('./components/screens/ComoFuncionaScreen').then((m) => ({ default: m.ComoFuncionaScreen })));
+const TrocarSenhaScreen = lazy(() => import('./components/screens/TrocarSenhaScreen').then((m) => ({ default: m.TrocarSenhaScreen })));
+const TreinoScreen = lazy(() => import('./components/screens/TreinoScreen').then((m) => ({ default: m.TreinoScreen })));
 import { useAuth } from './contexts/AuthContext';
 import { ProgressProvider } from './contexts/ProgressContext';
 import { rotas } from './routes';
@@ -162,18 +165,10 @@ export function AppRoutes() {
   const { isLoading } = useAuth();
 
   // Enquanto verifica a sessão (ou processa o login), mostra o carregamento.
-  if (isLoading) {
-    return (
-      <div className="min-h-dvh flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <span className="w-10 h-10 border-4 border-primary/25 border-t-primary rounded-full animate-spin" />
-          <p className="text-muted-foreground text-sm">Carregando pregão...</p>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <Carregando />;
 
   return (
+    <Suspense fallback={<Carregando />}>
     <Routes>
       <Route element={<SomenteVisitante />}>
         <Route path={rotas.entrar} element={<LoginRoute />} />
@@ -212,5 +207,17 @@ export function AppRoutes() {
 
       <Route path="*" element={<Navigate to={rotas.inicio} replace />} />
     </Routes>
+    </Suspense>
+  );
+}
+
+function Carregando() {
+  return (
+    <div className="min-h-dvh flex items-center justify-center bg-background">
+      <div className="flex flex-col items-center gap-4">
+        <span className="w-10 h-10 border-4 border-primary/25 border-t-primary rounded-full animate-spin" />
+        <p className="text-muted-foreground text-sm">Carregando pregão...</p>
+      </div>
+    </div>
   );
 }
